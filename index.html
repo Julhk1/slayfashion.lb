@@ -29,7 +29,8 @@
   <script>
     const CONFIG = {
       WHATSAPP_NUMBER: "33765231464", // Numéro WhatsApp du magasin (sans +)
-      ADMIN_PIN: "1234"               // Code secret Admin
+      ADMIN_PIN: "1234",              // Code secret Admin
+      TEST_EMAIL: "julienhobeika93@gmail.com"
     };
   </script>
 
@@ -69,7 +70,7 @@
   <!-- Product Grid -->
   <main class="max-w-6xl mx-auto px-3 md:px-4 py-4 flex-grow w-full">
     <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-      <!-- Products -->
+      <!-- Products loaded dynamically -->
     </div>
   </main>
 
@@ -120,7 +121,7 @@
           </div>
 
           <div id="email-field-container" class="hidden pt-1">
-            <input type="email" id="cust-email" placeholder="Your Email Address" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
+            <input type="email" id="cust-email" value="julienhobeika93@gmail.com" placeholder="Your Email Address" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
           </div>
         </div>
 
@@ -135,14 +136,21 @@
     </div>
   </div>
 
-  <!-- FULLSCREEN IMAGE VIEWER MODAL -->
-  <div id="image-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-    <div class="flex justify-between items-center text-white">
+  <!-- FULLSCREEN USER-FRIENDLY LIGHTBOX IMAGE MODAL (Click anywhere to close) -->
+  <div id="image-modal" onclick="closeImageModal()" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4 cursor-pointer">
+    <div class="flex justify-between items-center text-white pointer-events-none">
       <span id="modal-item-title" class="text-sm font-bold tracking-wider"></span>
-      <button onclick="closeImageModal()" class="text-3xl text-zinc-400 hover:text-white p-2">&times;</button>
+      <span class="text-xs text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full">Click anywhere to close &times;</span>
     </div>
+    
     <div class="relative flex-grow flex items-center justify-center overflow-hidden my-4">
-      <div id="modal-slider" class="flex overflow-x-auto snap-x-mandatory no-scrollbar w-full h-full items-center"></div>
+      <div id="modal-slider" class="flex overflow-x-auto snap-x-mandatory no-scrollbar w-full h-full items-center">
+        <!-- Fullscreen images -->
+      </div>
+    </div>
+
+    <div class="text-center pb-2 pointer-events-none">
+      <p class="text-xs text-zinc-400">Swipe left or right to see details • Tap anywhere to exit</p>
     </div>
   </div>
 
@@ -168,7 +176,7 @@
 
   <!-- ADMIN DASHBOARD MODAL -->
   <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-2 md:p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-3xl w-full space-y-5 max-h-[95vh] overflow-y-auto">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-3xl w-full space-y-4 max-h-[95vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
         <h2 class="text-lg md:text-xl font-bold text-pink-500 flex items-center gap-2">
           <i class="fa-solid fa-sliders"></i> Admin Dashboard
@@ -176,16 +184,14 @@
         <button onclick="closeAdminDashboard()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
       </div>
 
-      <!-- Navigation Tabs -->
-      <div class="flex gap-2 border-b border-zinc-800 pb-2 overflow-x-auto no-scrollbar">
-        <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">Orders & Analytics</button>
-        <button onclick="switchAdminTab('products')" id="tab-btn-products" class="bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">Manage Products</button>
-        <button onclick="switchAdminTab('categories')" id="tab-btn-categories" class="bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">Manage Categories</button>
+      <!-- Navigation Tabs (Only 2 Tabs) -->
+      <div class="flex gap-2 border-b border-zinc-800 pb-2">
+        <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="bg-pink-500 text-white px-4 py-2 rounded-lg text-xs font-bold">Orders & Analytics</button>
+        <button onclick="switchAdminTab('store')" id="tab-btn-store" class="bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold">Store Management</button>
       </div>
 
       <!-- TAB 1: ORDERS & ANALYTICS GRAPH -->
       <div id="admin-tab-orders" class="space-y-4">
-        <!-- Sales Filter & Stats Overview -->
         <div class="grid grid-cols-3 gap-2 text-center">
           <div class="bg-zinc-950 p-2.5 rounded-lg border border-zinc-800">
             <p class="text-[10px] text-zinc-400 uppercase">Total Revenue</p>
@@ -205,7 +211,6 @@
           </div>
         </div>
 
-        <!-- Sales Analytics Bar Chart -->
         <div class="bg-zinc-950 p-3 rounded-lg border border-zinc-800">
           <h3 class="text-xs font-bold uppercase text-zinc-300 mb-2">Sales Overview Chart</h3>
           <div class="h-44 w-full">
@@ -213,28 +218,31 @@
           </div>
         </div>
 
-        <!-- Orders Table List -->
         <div class="bg-zinc-950 p-3 rounded-lg border border-zinc-800 space-y-2">
           <h3 class="text-xs font-bold uppercase text-zinc-300">Customer Orders History</h3>
-          <div id="admin-orders-list" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-            <!-- Dynamically populated -->
-          </div>
+          <div id="admin-orders-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
         </div>
       </div>
 
-      <!-- TAB 2: MANAGE PRODUCTS -->
-      <div id="admin-tab-products" class="hidden space-y-4">
+      <!-- TAB 2: STORE MANAGEMENT (Products & Categories Together) -->
+      <div id="admin-tab-store" class="hidden space-y-4">
+        <!-- Success Alert Banner -->
+        <div id="admin-alert" class="hidden bg-emerald-500/10 border border-emerald-500 text-emerald-400 p-3 rounded-lg text-xs flex items-center justify-between">
+          <span id="admin-alert-text">Item added successfully!</span>
+          <i class="fa-solid fa-check"></i>
+        </div>
+
         <!-- Add Product Form -->
         <form id="add-product-form" onsubmit="addNewProduct(event)" class="space-y-3 bg-zinc-950 p-3.5 rounded-lg border border-zinc-800">
           <h3 class="text-xs font-bold uppercase text-zinc-300">Add New Product</h3>
           <div>
-            <label class="block text-xs text-zinc-400 mb-1">Product Images</label>
+            <label class="block text-xs text-zinc-400 mb-1">Product Images (Multiple select enabled)</label>
             <input type="file" id="admin-img-file" accept="image/*" multiple required onchange="previewImages(event)" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white">
             <div id="image-previews-container" class="flex gap-2 mt-2 overflow-x-auto no-scrollbar hidden"></div>
           </div>
           <div>
             <label class="block text-xs text-zinc-400 mb-1">Product Title</label>
-            <input type="text" id="admin-title" placeholder="Title" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
+            <input type="text" id="admin-title" placeholder="e.g. Summer Floral Dress" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
@@ -248,28 +256,28 @@
           </div>
           <div>
             <label class="block text-xs text-zinc-400 mb-1">Description</label>
-            <textarea id="admin-desc" placeholder="Details..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></textarea>
+            <textarea id="admin-desc" placeholder="Sizes, fabric, details..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></textarea>
           </div>
-          <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 rounded text-xs uppercase">
-            <i class="fa-solid fa-plus mr-1"></i> Add Product
+          <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded text-xs uppercase tracking-wider">
+            <i class="fa-solid fa-plus mr-1"></i> Add Item to Store
           </button>
         </form>
 
-        <!-- Current Products List -->
+        <!-- Manage Categories Section -->
+        <div class="bg-zinc-950 p-3.5 rounded-lg border border-zinc-800 space-y-3">
+          <h3 class="text-xs font-bold uppercase text-zinc-300">Manage Categories</h3>
+          <div class="flex gap-2">
+            <input type="text" id="new-category-input" placeholder="New Category Name (e.g. Coats)" class="flex-1 bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
+            <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white px-3 py-2 rounded text-xs font-bold">Add</button>
+          </div>
+          <div id="admin-categories-list" class="flex flex-wrap gap-1.5 pt-1"></div>
+        </div>
+
+        <!-- Manage Items List -->
         <div class="space-y-2">
-          <h3 class="text-xs font-bold uppercase text-zinc-400">Manage Items (<span id="admin-item-count">0</span>)</h3>
+          <h3 class="text-xs font-bold uppercase text-zinc-400">Current Items (<span id="admin-item-count">0</span>)</h3>
           <div id="admin-products-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
         </div>
-      </div>
-
-      <!-- TAB 3: MANAGE CATEGORIES -->
-      <div id="admin-tab-categories" class="hidden bg-zinc-950 p-4 rounded-lg border border-zinc-800 space-y-3">
-        <h3 class="text-xs font-bold uppercase text-zinc-300">Manage Categories</h3>
-        <div class="flex gap-2">
-          <input type="text" id="new-category-input" placeholder="New Category Name" class="flex-1 bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-          <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white px-3 py-2 rounded text-xs font-bold">Add</button>
-        </div>
-        <div id="admin-categories-list" class="flex flex-wrap gap-1.5 pt-1"></div>
       </div>
     </div>
   </div>
@@ -280,6 +288,10 @@
       <div class="text-center border-b pb-3">
         <h2 class="text-2xl font-black tracking-widest">SLAY.</h2>
         <p class="text-xs text-gray-500">Official Order Receipt</p>
+      </div>
+
+      <div id="email-confirmation-banner" class="hidden bg-emerald-100 border border-emerald-400 text-emerald-800 p-2 rounded text-xs text-center font-semibold">
+        <i class="fa-solid fa-paper-plane mr-1"></i> Receipt successfully sent to your email!
       </div>
 
       <div class="space-y-1 text-xs">
@@ -453,11 +465,19 @@
         email: email,
         items: [...cart],
         total: totalPrice,
-        status: 'Pending' // Pending, Confirmed, Delivered, Cancelled
+        status: 'Pending'
       };
 
       orders.unshift(newOrder);
       saveData();
+
+      // Email receipt banner in ticket
+      const emailBanner = document.getElementById('email-confirmation-banner');
+      if (receiptMode === 'email') {
+        emailBanner.classList.remove('hidden');
+      } else {
+        emailBanner.classList.add('hidden');
+      }
 
       // Populate Receipt Modal
       document.getElementById('r-id').innerText = orderId;
@@ -478,7 +498,9 @@
       // Build WhatsApp Message for SLAY Store
       let waMessage = `*NEW ORDER - ${orderId}*\n\n`;
       waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${fullPhone}\n- Address: ${address}\n`;
-      if(receiptMode === 'email') waMessage += `- Email for Receipt: ${email}\n`;
+      if(receiptMode === 'email') {
+        waMessage += `\n✉️ *Send Receipt to Email:* ${email}\n`;
+      }
       waMessage += `\n*Items Ordered:*\n`;
       cart.forEach(i => {
         waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
@@ -494,6 +516,125 @@
       updateCartUI();
       toggleCart();
       document.getElementById('checkout-form').reset();
+    }
+
+    // Admin Add Product (Restored original reset & alert behavior)
+    function previewImages(event) {
+      const files = Array.from(event.target.files);
+      currentUploadedImages = [];
+      const container = document.getElementById('image-previews-container');
+      container.innerHTML = '';
+      container.classList.remove('hidden');
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentUploadedImages.push(e.target.result);
+          container.innerHTML += `<img src="${e.target.result}" class="w-12 h-12 object-cover rounded border border-zinc-700 shrink-0">`;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function addNewProduct(e) {
+      e.preventDefault();
+      if (currentUploadedImages.length === 0) {
+        alert('Please select at least one image!');
+        return;
+      }
+
+      const title = document.getElementById('admin-title').value;
+      const category = document.getElementById('admin-category').value;
+      const price = parseFloat(document.getElementById('admin-price').value);
+      const desc = document.getElementById('admin-desc').value;
+
+      const newProduct = {
+        id: Date.now(),
+        name: title,
+        category: category,
+        price: price,
+        description: desc,
+        images: [...currentUploadedImages]
+      };
+
+      products.unshift(newProduct);
+      saveData();
+
+      // Reset Form completely
+      document.getElementById('add-product-form').reset();
+      currentUploadedImages = [];
+      document.getElementById('image-previews-container').innerHTML = '';
+      document.getElementById('image-previews-container').classList.add('hidden');
+
+      showAdminAlert('Product added successfully!');
+    }
+
+    function showAdminAlert(msg) {
+      const alertBox = document.getElementById('admin-alert');
+      const alertText = document.getElementById('admin-alert-text');
+      alertText.innerText = msg;
+      alertBox.classList.remove('hidden');
+      setTimeout(() => alertBox.classList.add('hidden'), 3000);
+    }
+
+    // Category Management
+    function addCategory() {
+      const input = document.getElementById('new-category-input');
+      const val = input.value.trim();
+      if(val && !categories.some(c => c.toLowerCase() === val.toLowerCase())) {
+        categories.push(val);
+        input.value = '';
+        saveData();
+        showAdminAlert(`Category "${val}" added!`);
+      }
+    }
+
+    function removeCategory(catName) {
+      if(confirm(`Delete category "${catName}"?`)) {
+        categories = categories.filter(c => c.toLowerCase() !== catName.toLowerCase());
+        saveData();
+        showAdminAlert(`Category "${catName}" removed.`);
+      }
+    }
+
+    function renderAdminCategories() {
+      const list = document.getElementById('admin-categories-list');
+      list.innerHTML = categories.map(c => `
+        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5">
+          ${c}
+          <button onclick="removeCategory('${c}')" class="text-zinc-500 hover:text-red-400 text-xs font-bold">&times;</button>
+        </span>
+      `).join('');
+    }
+
+    function deleteProduct(id) {
+      if (confirm('Delete this product?')) {
+        products = products.filter(p => p.id !== id);
+        saveData();
+        showAdminAlert('Product deleted.');
+      }
+    }
+
+    function renderAdminProducts() {
+      const list = document.getElementById('admin-products-list');
+      document.getElementById('admin-item-count').innerText = products.length;
+      list.innerHTML = products.map(p => {
+        const thumb = (p.images && p.images[0]) ? p.images[0] : p.image;
+        return `
+          <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700 text-xs">
+            <div class="flex items-center space-x-3">
+              <img src="${thumb}" class="w-10 h-10 object-cover rounded">
+              <div>
+                <p class="font-bold text-white line-clamp-1">${p.name}</p>
+                <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)}</p>
+              </div>
+            </div>
+            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 px-2">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
     }
 
     // Admin Orders Management
@@ -521,7 +662,7 @@
           <div>
             <p><strong>Customer:</strong> ${o.name} (${o.phone})</p>
             <p><strong>Address:</strong> ${o.address}</p>
-            ${o.email ? `<p><strong>Email:</strong> ${o.email}</p>` : ''}
+            ${o.email ? `<p><strong>Receipt Email:</strong> ${o.email}</p>` : ''}
           </div>
           <div class="bg-zinc-950 p-2 rounded text-[11px] space-y-0.5">
             ${o.items.map(i => `<div class="flex justify-between"><span>${i.name} (x${i.qty})</span><span>$${(i.price*i.qty).toFixed(2)}</span></div>`).join('')}
@@ -567,7 +708,6 @@
       document.getElementById('stat-revenue').innerText = `$${totalRevenue.toFixed(2)}`;
       document.getElementById('stat-orders').innerText = filteredOrders.length;
 
-      // Render Graph
       renderChart(filteredOrders);
     }
 
@@ -601,17 +741,34 @@
       });
     }
 
+    // Switch Admin Tabs (2 tabs)
     function switchAdminTab(tab) {
       document.getElementById('admin-tab-orders').classList.add('hidden');
-      document.getElementById('admin-tab-products').classList.add('hidden');
-      document.getElementById('admin-tab-categories').classList.add('hidden');
+      document.getElementById('admin-tab-store').classList.add('hidden');
 
-      document.getElementById('tab-btn-orders').className = "bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap";
-      document.getElementById('tab-btn-products').className = "bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap";
-      document.getElementById('tab-btn-categories').className = "bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap";
+      document.getElementById('tab-btn-orders').className = "bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold";
+      document.getElementById('tab-btn-store').className = "bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold";
 
       document.getElementById(`admin-tab-${tab}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${tab}`).className = "bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap";
+      document.getElementById(`tab-btn-${tab}`).className = "bg-pink-500 text-white px-4 py-2 rounded-lg text-xs font-bold";
+    }
+
+    // Lightbox / Image Zoom (Close when clicking anywhere)
+    function openImageModal(id) {
+      const prod = products.find(p => p.id === id);
+      if(!prod) return;
+      document.getElementById('modal-item-title').innerText = prod.name;
+      const imgs = prod.images || [prod.image];
+      document.getElementById('modal-slider').innerHTML = imgs.map(img => `
+        <div class="snap-center shrink-0 w-full h-full flex items-center justify-center p-2">
+          <img src="${img}" class="max-h-full max-w-full object-contain rounded-lg">
+        </div>
+      `).join('');
+      document.getElementById('image-modal').classList.remove('hidden');
+    }
+
+    function closeImageModal() {
+      document.getElementById('image-modal').classList.add('hidden');
     }
 
     // Common Helpers
@@ -690,21 +847,6 @@
         </div>
       `).join('');
     }
-
-    function openImageModal(id) {
-      const prod = products.find(p => p.id === id);
-      if(!prod) return;
-      document.getElementById('modal-item-title').innerText = prod.name;
-      const imgs = prod.images || [prod.image];
-      document.getElementById('modal-slider').innerHTML = imgs.map(img => `
-        <div class="snap-center shrink-0 w-full h-full flex items-center justify-center p-2">
-          <img src="${img}" class="max-h-full max-w-full object-contain rounded-lg">
-        </div>
-      `).join('');
-      document.getElementById('image-modal').classList.remove('hidden');
-    }
-
-    function closeImageModal() { document.getElementById('image-modal').classList.add('hidden'); }
 
     function downloadPDF() {
       const element = document.getElementById('receipt-content');
