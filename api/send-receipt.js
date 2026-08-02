@@ -1,9 +1,9 @@
 // /api/send-receipt.js
-// Fonction serverless Vercel : envoie le ticket PDF par email via Resend.
-// Nécessite la variable d'environnement RESEND_API_KEY (Vercel > Settings > Environment Variables).
-// Optionnel : RESEND_FROM_EMAIL (ex: "SLAY. <commandes@votredomaine.com>").
-// Sans domaine vérifié sur Resend, l'expéditeur par défaut "onboarding@resend.dev" fonctionne
-// pour les tests mais est limité à l'email associé à votre compte Resend.
+// Vercel serverless function: emails the PDF receipt via Resend.
+// Requires the RESEND_API_KEY environment variable (Vercel > Settings > Environment Variables).
+// Optional: RESEND_FROM_EMAIL (e.g. "SLAY. <orders@yourdomain.com>").
+// Without a verified domain on Resend, the default sender "onboarding@resend.dev" works
+// for testing but can only send to the email address associated with your Resend account.
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,12 +15,12 @@ export default async function handler(req, res) {
     const { to, orderRef, customerName, pdfBase64 } = req.body || {};
 
     if (!to || !pdfBase64 || !orderRef) {
-      return res.status(400).json({ error: 'Champs manquants (to, orderRef, pdfBase64 requis).' });
+      return res.status(400).json({ error: 'Missing required fields (to, orderRef, pdfBase64).' });
     }
 
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "RESEND_API_KEY n'est pas configurée sur le serveur." });
+      return res.status(500).json({ error: 'RESEND_API_KEY is not configured on the server.' });
     }
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'SLAY. <onboarding@resend.dev>';
@@ -28,14 +28,14 @@ export default async function handler(req, res) {
     const emailPayload = {
       from: fromEmail,
       to: [to],
-      subject: `Votre ticket SLAY. — Commande ${orderRef}`,
+      subject: `Your SLAY. receipt — Order ${orderRef}`,
       html: `
         <div style="font-family: Arial, sans-serif; color:#111; line-height:1.6;">
           <h2 style="letter-spacing:2px;">SLAY.</h2>
-          <p>Bonjour ${customerName || ''},</p>
-          <p>Merci pour votre commande <strong>${orderRef}</strong> !</p>
-          <p>Vous trouverez votre ticket (facture) en pièce jointe de cet email.</p>
-          <p>Notre équipe vous contactera prochainement pour confirmer la livraison.</p>
+          <p>Hi ${customerName || ''},</p>
+          <p>Thank you for your order <strong>${orderRef}</strong>!</p>
+          <p>Your receipt is attached to this email.</p>
+          <p>Our team will be in touch shortly to confirm delivery.</p>
           <p style="margin-top:24px; color:#888; font-size:12px;">SLAY. — Wear it • Love it • Slay it</p>
         </div>
       `,
@@ -59,11 +59,11 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: data?.message || 'Erreur Resend', details: data });
+      return res.status(response.status).json({ error: data?.message || 'Resend error', details: data });
     }
 
     return res.status(200).json({ success: true, id: data?.id || null });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Erreur serveur inconnue.' });
+    return res.status(500).json({ error: err.message || 'Unknown server error.' });
   }
 }
