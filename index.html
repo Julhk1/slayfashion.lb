@@ -22,7 +22,8 @@
   <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
-      WHATSAPP_NUMBER: "96100000000" // Remplacez par son numéro WhatsApp (ex: 96170000000 sans le +)
+      WHATSAPP_NUMBER: "96100000000", // Remplacez par le numéro WhatsApp (sans le +)
+      ADMIN_PIN: "1234"              // <<--- CHANGEZ LE MOT DE PASSE ADMIN ICI
     };
   </script>
 
@@ -33,7 +34,7 @@
       
       <div class="flex items-center gap-3">
         <!-- Admin Toggle Button -->
-        <button onclick="toggleAdminModal()" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-full font-semibold transition border border-zinc-700 flex items-center gap-1.5">
+        <button onclick="requestAdminAccess()" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-full font-semibold transition border border-zinc-700 flex items-center gap-1.5">
           <i class="fa-solid fa-lock text-pink-400"></i> Admin Access
         </button>
 
@@ -104,14 +105,34 @@
     </div>
   </div>
 
-  <!-- ADMIN MODAL -->
+  <!-- ADMIN PASSWORD MODAL -->
+  <div id="admin-login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 text-center">
+      <div class="w-12 h-12 bg-pink-500/10 text-pink-500 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h3 class="text-lg font-bold">Admin Security Check</h3>
+      <p class="text-xs text-zinc-400">Enter your secret PIN to access the dashboard.</p>
+      
+      <form onsubmit="verifyAdminPin(event)" class="space-y-3">
+        <input type="password" id="admin-pin-input" placeholder="Enter PIN code" required class="w-full text-center tracking-widest text-lg bg-zinc-800 text-white rounded p-2 border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <p id="pin-error" class="text-xs text-red-400 hidden">Incorrect PIN code!</p>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeAdminLogin()" class="flex-1 bg-zinc-800 text-zinc-400 py-2 rounded text-xs font-bold">Cancel</button>
+          <button type="submit" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2 rounded text-xs font-bold">Access</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD MODAL -->
   <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
         <h2 class="text-xl font-bold text-pink-500 flex items-center gap-2">
           <i class="fa-solid fa-sliders"></i> Admin Dashboard
         </h2>
-        <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+        <button onclick="closeAdminDashboard()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
       </div>
 
       <!-- Add Product Form -->
@@ -296,7 +317,35 @@
       });
     }
 
-    // Admin Image Preview & Conversion
+    // Admin Auth Logic
+    function requestAdminAccess() {
+      document.getElementById('admin-login-modal').classList.remove('hidden');
+      document.getElementById('admin-pin-input').focus();
+    }
+
+    function closeAdminLogin() {
+      document.getElementById('admin-login-modal').classList.add('hidden');
+      document.getElementById('admin-pin-input').value = '';
+      document.getElementById('pin-error').classList.add('hidden');
+    }
+
+    function verifyAdminPin(e) {
+      e.preventDefault();
+      const enteredPin = document.getElementById('admin-pin-input').value;
+      if (enteredPin === CONFIG.ADMIN_PIN) {
+        closeAdminLogin();
+        document.getElementById('admin-modal').classList.remove('hidden');
+        renderAdminProducts();
+      } else {
+        document.getElementById('pin-error').classList.remove('hidden');
+      }
+    }
+
+    function closeAdminDashboard() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    // Admin Image Preview
     function previewImage(event) {
       const file = event.target.files[0];
       if (file) {
@@ -387,14 +436,6 @@
     // Cart Operations
     function toggleCart() {
       document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
-    }
-
-    function toggleAdminModal() {
-      const modal = document.getElementById('admin-modal');
-      modal.classList.toggle('hidden');
-      if (!modal.classList.contains('hidden')) {
-        renderAdminProducts();
-      }
     }
 
     function addToCart(id) {
