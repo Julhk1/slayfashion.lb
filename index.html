@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b0b0c">
 <title>SLAY. | Women's Fashion — Lebanon</title>
+<script>
+  // Applied before anything else renders, so returning visitors don't see a flash of the wrong theme.
+  try {
+    var savedTheme = localStorage.getItem('slay-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  } catch(e) {}
+</script>
 
 <!-- Tailwind CSS & FontAwesome -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +36,30 @@
     --accent-dark:#b8215c;
     --gold:#c9a227;
     --line:rgba(247,245,242,0.09);
+    --inset:rgba(0,0,0,0.3);
+    --hero-grad-start:#1c1216;
+    --watermark-stroke:rgba(247,245,242,0.05);
   }
+
+  /* Light theme — same palette, cream/white base instead of black */
+  [data-theme="light"]{
+    --bg:#ffffff;
+    --surface:#f7f4f0;
+    --surface-2:#eeeae4;
+    --ink:#1a1512;
+    --muted:#7a7168;
+    --accent:#e12d74;
+    --accent-dark:#b8215c;
+    --gold:#a9821f;
+    --line:rgba(26,21,18,0.1);
+    --inset:rgba(26,21,18,0.045);
+    --hero-grad-start:#fdeef3;
+    --watermark-stroke:rgba(26,21,18,0.06);
+  }
+  [data-theme="light"] body{ background:var(--bg); }
+  [data-theme="light"] .shadow-2xl,
+  [data-theme="light"] .shadow-lg,
+  [data-theme="light"] .shadow-md{ box-shadow: 0 10px 30px -12px rgba(26,21,18,0.15); }
   *{ -webkit-tap-highlight-color: transparent; }
   body{
     background:var(--bg); color:var(--ink);
@@ -52,7 +82,7 @@
   .hero-watermark{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     font-family:'Fraunces', serif; font-weight:700; font-size:26vw; line-height:1;
-    color:transparent; -webkit-text-stroke:1px rgba(247,245,242,0.05);
+    color:transparent; -webkit-text-stroke:1px var(--watermark-stroke);
     letter-spacing:.02em; user-select:none; pointer-events:none; white-space:nowrap;
   }
   @media (min-width:768px){ .hero-watermark{ font-size:14vw; } }
@@ -99,6 +129,9 @@
       <a id="contact-link-desktop" href="#" target="_blank" class="hidden md:flex items-center gap-1.5 text-[11px] text-[var(--muted)] hover:text-[var(--ink)] transition border border-[var(--line)] px-3 py-2 rounded-full">
         <i class="fa-brands fa-whatsapp text-emerald-400"></i> Contact us
       </a>
+      <button onclick="toggleTheme()" aria-label="Toggle light/dark theme" class="text-base p-2.5 rounded-full border border-[var(--line)] hover:border-[var(--accent)] transition text-[var(--ink)]">
+        <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
+      </button>
       <button onclick="toggleCart()" class="relative text-lg p-2.5 rounded-full border border-[var(--line)] hover:border-[var(--accent)] transition text-[var(--ink)]">
         <i class="fa-solid fa-bag-shopping"></i>
         <span id="cart-count" class="absolute -top-1 -right-1 bg-[var(--accent)] text-white text-[10px] w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center font-bold">0</span>
@@ -113,7 +146,7 @@
 </header>
 
 <!-- ============ HERO ============ -->
-<section id="top" class="relative overflow-hidden border-b border-[var(--line)]" style="background:radial-gradient(120% 100% at 50% -10%, #1c1216 0%, var(--bg) 55%);">
+<section id="top" class="relative overflow-hidden border-b border-[var(--line)]" style="background:radial-gradient(120% 100% at 50% -10%, var(--hero-grad-start) 0%, var(--bg) 55%);">
   <div class="hero-watermark">SLAY.</div>
   <div class="relative max-w-3xl mx-auto text-center px-5 py-16 md:py-24">
     <span class="inline-block text-[10px] md:text-xs tracking-[0.4em] uppercase text-[var(--gold)] mb-4">New collection</span>
@@ -183,7 +216,7 @@
 <!-- ============ PIN CODE MODAL ============ -->
 <div id="pin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
   <div class="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-3xl max-w-xs w-full text-center space-y-4 shadow-2xl relative">
-    <button onclick="closePinModal()" class="absolute top-4 right-4 text-[var(--muted)] hover:text-white text-xl">&times;</button>
+    <button onclick="closePinModal()" class="absolute top-4 right-4 text-[var(--muted)] hover:text-[var(--ink)] text-xl">&times;</button>
     <div class="w-12 h-12 bg-[var(--accent)]/10 rounded-full flex items-center justify-center mx-auto border border-[var(--accent)]/30">
       <i class="fa-solid fa-shield-halved text-[var(--accent)] text-xl"></i>
     </div>
@@ -205,7 +238,7 @@
   <div class="bg-[var(--surface)] border border-[var(--line)] rounded-2xl max-w-sm w-full p-6 space-y-3" onclick="event.stopPropagation()">
     <div class="flex justify-between items-center">
       <h3 class="font-display font-semibold text-lg">Exchange Policy</h3>
-      <button onclick="togglePolicyModal()" class="text-[var(--muted)] hover:text-white text-2xl">&times;</button>
+      <button onclick="togglePolicyModal()" class="text-[var(--muted)] hover:text-[var(--ink)] text-2xl">&times;</button>
     </div>
     <p class="text-xs text-[var(--muted)] leading-relaxed">
       You have 2 days after receiving your order to exchange an item (size or style), provided it is unworn and with its original tags. Contact us directly via WhatsApp to arrange the exchange.
@@ -216,9 +249,9 @@
 <!-- ============ LIGHTBOX / PRODUCT VIEWER ============ -->
 <div id="media-modal" onclick="closeLightbox()" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 md:p-4">
   <div class="relative max-w-lg w-full bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
-    <div class="flex justify-between items-center p-3 border-b border-[var(--line)] bg-black/30">
+    <div class="flex justify-between items-center p-3 border-b border-[var(--line)] bg-[var(--inset)]">
       <span id="lb-category" class="text-[10px] text-[var(--accent)] font-bold uppercase tracking-widest"></span>
-      <button onclick="closeLightbox()" class="text-[var(--muted)] hover:text-white text-2xl px-2">&times;</button>
+      <button onclick="closeLightbox()" class="text-[var(--muted)] hover:text-[var(--ink)] text-2xl px-2">&times;</button>
     </div>
 
     <div class="relative w-full h-80 md:h-96 bg-black flex items-center justify-center overflow-hidden">
@@ -236,7 +269,7 @@
 
     <div class="p-4 space-y-3 bg-[var(--surface)] overflow-y-auto">
       <div class="flex justify-between items-start">
-        <h3 id="lb-name" class="font-display font-semibold text-base md:text-lg text-white"></h3>
+        <h3 id="lb-name" class="font-display font-semibold text-base md:text-lg text-[var(--ink)]"></h3>
         <span id="lb-price" class="font-extrabold text-[var(--accent)] text-base md:text-lg"></span>
       </div>
       <div>
@@ -255,12 +288,12 @@
 
 <!-- ============ ADMIN DASHBOARD MODAL ============ -->
 <div id="admin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 md:p-4">
-  <div class="bg-[var(--surface)] border border-[var(--line)] text-white p-4 md:p-6 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto space-y-5 shadow-2xl">
+  <div class="bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] p-4 md:p-6 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto space-y-5 shadow-2xl">
     <div class="flex justify-between items-center border-b border-[var(--line)] pb-3">
       <h2 class="text-lg md:text-xl font-display font-semibold text-[var(--accent)] flex items-center gap-2">
         <i class="fa-solid fa-gauge-high"></i> Store Management
       </h2>
-      <button onclick="toggleAdminModal()" class="text-[var(--muted)] hover:text-white text-2xl">&times;</button>
+      <button onclick="toggleAdminModal()" class="text-[var(--muted)] hover:text-[var(--ink)] text-2xl">&times;</button>
     </div>
 
     <!-- Tabs -->
@@ -276,7 +309,7 @@
 
     <!-- ===== TAB: CATALOG ===== -->
     <div id="admin-tab-catalog" class="space-y-5">
-      <div class="bg-black/30 p-4 rounded-xl border border-[var(--line)] space-y-4">
+      <div class="bg-[var(--inset)] p-4 rounded-xl border border-[var(--line)] space-y-4">
         <div class="flex justify-between items-center">
           <h3 id="form-heading" class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Add New Product</h3>
           <button id="btn-cancel-edit" onclick="resetAdminForm()" class="hidden text-xs text-[var(--accent)] underline">Cancel Edit</button>
@@ -288,11 +321,11 @@
           <div id="multi-img-preview" class="mt-3 flex gap-2 flex-wrap hidden"></div>
         </div>
 
-        <input type="text" id="admin-name" placeholder="Product name (e.g. Satin Dress)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+        <input type="text" id="admin-name" placeholder="Product name (e.g. Satin Dress)" class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
 
         <div class="grid grid-cols-2 gap-3">
-          <select id="admin-category-select" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></select>
-          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+          <select id="admin-category-select" class="bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></select>
+          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
         </div>
 
         <div>
@@ -305,23 +338,23 @@
           </div>
         </div>
 
-        <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
+        <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
 
         <button onclick="saveProduct()" id="btn-save-prod" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition uppercase text-xs shadow-md">
           + Add Item to Store
         </button>
       </div>
 
-      <div class="bg-black/30 p-4 rounded-xl border border-[var(--line)] space-y-3">
+      <div class="bg-[var(--inset)] p-4 rounded-xl border border-[var(--line)] space-y-3">
         <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Categories</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-category-input" placeholder="New category (e.g. Skirts)" class="flex-grow bg-[var(--surface-2)] text-white rounded-xl p-2.5 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-          <button onclick="addCategory()" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">Add</button>
+          <input type="text" id="new-category-input" placeholder="New category (e.g. Skirts)" class="flex-grow bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+          <button onclick="addCategory()" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-[var(--ink)] hover:text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">Add</button>
         </div>
         <div id="category-list-tags" class="flex flex-wrap gap-2 pt-2"></div>
       </div>
 
-      <div class="bg-black/30 p-4 rounded-xl border border-[var(--line)] space-y-3">
+      <div class="bg-[var(--inset)] p-4 rounded-xl border border-[var(--line)] space-y-3">
         <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Current Items (<span id="item-count">0</span>)</h3>
         <div id="admin-inventory-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
       </div>
@@ -336,29 +369,29 @@
     <!-- ===== TAB: ANALYTICS ===== -->
     <div id="admin-tab-analytics" class="hidden space-y-5">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
+        <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-3.5">
           <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">Today</div>
           <div id="stat-today" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
           <div id="stat-today-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
-        <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
+        <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-3.5">
           <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">This Week</div>
           <div id="stat-week" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
           <div id="stat-week-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
-        <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
+        <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-3.5">
           <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">This Month</div>
           <div id="stat-month" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
           <div id="stat-month-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
-        <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
+        <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-3.5">
           <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">This Year</div>
           <div id="stat-year" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
           <div id="stat-year-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
       </div>
 
-      <div class="bg-black/30 border border-[var(--line)] rounded-xl p-4">
+      <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-4">
         <div class="flex justify-between items-center mb-3">
           <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Sales Over Time</h3>
           <div class="flex gap-1.5">
@@ -378,24 +411,24 @@
   <div class="bg-[var(--surface)] border border-[var(--line)] rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 space-y-4">
     <div class="flex justify-between items-center border-b border-[var(--line)] pb-3">
       <h3 class="font-display font-semibold text-[var(--accent)]" id="oe-ref">SLAY-000000</h3>
-      <button onclick="closeOrderEditModal()" class="text-[var(--muted)] hover:text-white text-2xl">&times;</button>
+      <button onclick="closeOrderEditModal()" class="text-[var(--muted)] hover:text-[var(--ink)] text-2xl">&times;</button>
     </div>
 
-    <div id="oe-items" class="space-y-1 text-xs text-[var(--muted)] bg-black/30 rounded-xl p-3 border border-[var(--line)]"></div>
+    <div id="oe-items" class="space-y-1 text-xs text-[var(--muted)] bg-[var(--inset)] rounded-xl p-3 border border-[var(--line)]"></div>
 
     <div class="grid grid-cols-2 gap-3 text-xs">
-      <div><span class="text-[var(--muted)]">Customer</span><div id="oe-name" class="text-white font-semibold"></div></div>
-      <div><span class="text-[var(--muted)]">Phone</span><div id="oe-phone" class="text-white font-semibold"></div></div>
+      <div><span class="text-[var(--muted)]">Customer</span><div id="oe-name" class="text-[var(--ink)] font-semibold"></div></div>
+      <div><span class="text-[var(--muted)]">Phone</span><div id="oe-phone" class="text-[var(--ink)] font-semibold"></div></div>
     </div>
 
     <div>
       <label class="block text-xs text-[var(--muted)] mb-1">Delivery address</label>
-      <textarea id="oe-address" rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
+      <textarea id="oe-address" rows="2" class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
     </div>
 
     <div>
       <label class="block text-xs text-[var(--muted)] mb-1">Status</label>
-      <select id="oe-status" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      <select id="oe-status" class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
         <option value="pending">Pending</option>
         <option value="confirmed">Confirmed</option>
         <option value="delivered">Delivered</option>
@@ -405,17 +438,20 @@
 
     <div>
       <label class="block text-xs text-[var(--muted)] mb-1">Internal notes</label>
-      <textarea id="oe-notes" rows="2" placeholder="e.g. call before delivery..." class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
+      <textarea id="oe-notes" rows="2" placeholder="e.g. call before delivery..." class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
     </div>
 
     <div class="flex gap-2 pt-2">
-      <button onclick="downloadOrderReceiptFromAdmin()" class="flex-1 bg-[var(--surface-2)] hover:bg-black text-white text-xs font-bold py-3 rounded-xl border border-[var(--line)]">
+      <button onclick="downloadOrderReceiptFromAdmin()" class="flex-1 bg-[var(--surface-2)] hover:bg-black text-[var(--ink)] hover:text-white text-xs font-bold py-3 rounded-xl border border-[var(--line)]">
         <i class="fa-solid fa-file-pdf mr-1"></i> Receipt PDF
       </button>
       <button onclick="saveOrderEdit()" class="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white text-xs font-bold py-3 rounded-xl">
         Save
       </button>
     </div>
+    <button onclick="deleteOrder()" class="w-full text-red-400 hover:text-red-300 text-[11px] font-semibold py-2 flex items-center justify-center gap-1.5">
+      <i class="fa-solid fa-trash"></i> Delete this order
+    </button>
   </div>
 </div>
 
@@ -429,7 +465,7 @@
       <h3 class="font-display text-xl font-semibold">Order Received</h3>
       <p class="text-xs text-[var(--muted)] mt-1">Reference: <span id="confirm-order-ref" class="text-[var(--accent)] font-bold">SLAY-000000</span></p>
     </div>
-    <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3 flex justify-between items-center text-sm">
+    <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-3 flex justify-between items-center text-sm">
       <span class="text-[var(--muted)]">Total (cash on delivery)</span>
       <span id="confirm-order-total" class="font-extrabold text-[var(--accent)]">$0.00</span>
     </div>
@@ -439,7 +475,7 @@
       <button onclick="downloadCurrentReceipt()" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg">
         <i class="fa-solid fa-download mr-1.5"></i> Download Receipt (PDF)
       </button>
-      <button onclick="closeOrderConfirmation()" class="w-full text-[var(--muted)] hover:text-white text-xs py-2">
+      <button onclick="closeOrderConfirmation()" class="w-full text-[var(--muted)] hover:text-[var(--ink)] text-xs py-2">
         Continue Shopping
       </button>
     </div>
@@ -449,18 +485,22 @@
 <!-- Hidden render area for PDF generation -->
 <div id="receipt-render-area" style="position:absolute; left:0; top:0; opacity:0; pointer-events:none; z-index:-9999; overflow:hidden;"></div>
 
+<!-- Toast: gives an explicit on-screen confirmation for actions like PDF download, since desktop
+     browsers often save silently to the Downloads folder with no visible cue (unlike mobile). -->
+<div id="toast" class="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 bg-[var(--ink)] text-[var(--bg)] text-xs font-semibold px-4 py-2.5 rounded-full shadow-xl z-[100] opacity-0 pointer-events-none transition-opacity duration-300 whitespace-nowrap"></div>
+
 <!-- ============ CART SIDEBAR ============ -->
 <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--surface)] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-[var(--line)]">
   <div class="p-4 border-b border-[var(--line)] flex justify-between items-center">
     <h2 class="font-display text-lg font-semibold tracking-wide">Your Bag</h2>
-    <button onclick="toggleCart()" class="text-[var(--muted)] hover:text-white text-2xl px-2">&times;</button>
+    <button onclick="toggleCart()" class="text-[var(--muted)] hover:text-[var(--ink)] text-2xl px-2">&times;</button>
   </div>
 
   <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
     <p class="text-[var(--muted)] text-center py-8 text-xs">Your bag is empty.</p>
   </div>
 
-  <div class="p-4 border-t border-[var(--line)] bg-black/30">
+  <div class="p-4 border-t border-[var(--line)] bg-[var(--inset)]">
     <div class="space-y-1 text-sm mb-4 border-b border-[var(--line)] pb-3">
       <div class="flex justify-between text-[var(--muted)]">
         <span>Subtotal:</span><span id="cart-subtotal">$0.00</span>
@@ -468,21 +508,21 @@
       <div class="flex justify-between text-[var(--muted)]">
         <span>Delivery (Lebanon):</span><span id="cart-delivery">$4.00</span>
       </div>
-      <div class="flex justify-between font-bold text-base text-white pt-1">
+      <div class="flex justify-between font-bold text-base text-[var(--ink)] pt-1">
         <span>Total (cash on delivery):</span><span id="cart-total" class="text-[var(--accent)]">$0.00</span>
       </div>
     </div>
 
     <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
-      <input type="text" id="cust-name" placeholder="Full name *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      <input type="text" id="cust-name" placeholder="Full name *" required class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] placeholder:text-xs">
       <div class="flex gap-2">
-        <select id="cust-phone-code" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] w-[122px] flex-shrink-0"></select>
-        <input type="tel" id="cust-phone" placeholder="Phone number (WhatsApp) *" required class="flex-1 min-w-0 bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+        <select id="cust-phone-code" class="bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] w-[108px] flex-shrink-0"></select>
+        <input type="tel" id="cust-phone" placeholder="Phone number (WhatsApp) *" required class="flex-1 min-w-0 bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] placeholder:text-xs">
       </div>
-      <input type="email" id="cust-email" placeholder="Email (optional)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-      <textarea id="cust-address" placeholder="Delivery address & city *" required rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
+      <input type="email" id="cust-email" placeholder="Email (optional)" class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] placeholder:text-xs">
+      <textarea id="cust-address" placeholder="Delivery address & city *" required rows="2" class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] placeholder:text-xs"></textarea>
 
-      <label class="flex items-start gap-2 text-[11px] text-zinc-300 cursor-pointer pt-1">
+      <label class="flex items-start gap-2 text-[11px] text-[var(--muted)] cursor-pointer pt-1">
         <input type="checkbox" id="also-email-checkbox" class="mt-0.5 accent-[var(--accent)]">
         <span>Also email me a copy of the receipt <span class="text-[var(--muted)]">(optional)</span></span>
       </label>
@@ -513,6 +553,23 @@
   function escapeHtml(str){
     if (str === null || str === undefined) return '';
     return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // --- THEME (light / dark) ---
+  function currentTheme(){
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+  function updateThemeIcon(theme){
+    const icon = document.getElementById('theme-toggle-icon');
+    if (icon) icon.className = theme === 'light' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  }
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('slay-theme', theme); } catch(e) {}
+    updateThemeIcon(theme);
+  }
+  function toggleTheme(){
+    applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
   }
 
   // Dial codes shown in the checkout form. Lebanon is first and selected by default;
@@ -646,7 +703,7 @@
     container.innerHTML = `<button onclick="filterCategory('All')" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition ${currentCategory === 'All' ? 'bg-[var(--accent)] text-white shadow-md' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)]'}">All</button>`;
     categories.forEach(cat => {
       const isActive = currentCategory.toLowerCase() === cat.name.toLowerCase();
-      container.innerHTML += `<button onclick="filterCategory('${cat.name}')" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition ${isActive ? 'bg-[var(--accent)] text-white shadow-md' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)] hover:text-white'}">${escapeHtml(cat.name)}</button>`;
+      container.innerHTML += `<button onclick="filterCategory('${cat.name}')" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition ${isActive ? 'bg-[var(--accent)] text-white shadow-md' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)] hover:text-[var(--ink)]'}">${escapeHtml(cat.name)}</button>`;
     });
     document.getElementById('admin-category-select').innerHTML = categories.map(c => `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
     document.getElementById('category-list-tags').innerHTML = categories.map(c => `
@@ -793,9 +850,9 @@
         const isAvailable = activeSizes.includes(sz);
         const isSelected = currentSelectedSize === sz;
         if (isAvailable){
-          return `<button onclick="selectCardSize(${p.id}, '${sz}')" class="px-2 py-0.5 rounded text-[10px] font-bold transition ${isSelected ? 'bg-[var(--accent)] text-white shadow' : 'bg-[var(--surface-2)] text-[var(--muted)] hover:text-white'}">${sz}</button>`;
+          return `<button onclick="selectCardSize(${p.id}, '${sz}')" class="px-2 py-0.5 rounded text-[10px] font-bold transition ${isSelected ? 'bg-[var(--accent)] text-white shadow' : 'bg-[var(--surface-2)] text-[var(--muted)] hover:text-[var(--ink)]'}">${sz}</button>`;
         }
-        return `<span class="px-2 py-0.5 rounded text-[10px] font-normal bg-black/30 text-zinc-600 line-through">${sz}</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[10px] font-normal bg-[var(--inset)] text-[var(--muted)] line-through">${sz}</span>`;
       }).join('');
 
       grid.innerHTML += `
@@ -807,13 +864,13 @@
             </div>
             <div class="p-3">
               <span class="text-[10px] text-[var(--accent)] font-bold uppercase tracking-wider">${escapeHtml(p.category)}</span>
-              <h3 onclick='openLightbox(${JSON.stringify(p)})' class="font-semibold text-xs md:text-sm text-white mt-0.5 line-clamp-1 cursor-pointer hover:text-[var(--accent)]">${escapeHtml(p.name)}</h3>
+              <h3 onclick='openLightbox(${JSON.stringify(p)})' class="font-semibold text-xs md:text-sm text-[var(--ink)] mt-0.5 line-clamp-1 cursor-pointer hover:text-[var(--accent)]">${escapeHtml(p.name)}</h3>
               <div class="flex gap-1 flex-wrap my-2">${sizeBadgesHTML}</div>
             </div>
           </div>
           <div class="p-3 pt-0 flex justify-between items-center mt-1">
             <span class="font-extrabold text-[var(--accent)] text-sm">$${Number(p.price).toFixed(2)}</span>
-            <button onclick="addToCartSilently(${p.id})" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-white text-xs px-3 py-2 rounded-xl transition shadow">
+            <button onclick="addToCartSilently(${p.id})" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-[var(--ink)] hover:text-white text-xs px-3 py-2 rounded-xl transition shadow">
               + Add
             </button>
           </div>
@@ -832,16 +889,16 @@
     list.innerHTML = products.map(p => {
       const imgList = Array.isArray(p.images) ? p.images : [p.image];
       return `
-        <div class="flex justify-between items-center bg-black/30 p-2.5 rounded-xl border border-[var(--line)] text-xs">
+        <div class="flex justify-between items-center bg-[var(--inset)] p-2.5 rounded-xl border border-[var(--line)] text-xs">
           <div class="flex items-center gap-2">
             <img src="${imgList[0]}" class="w-9 h-9 object-cover rounded-lg">
             <div>
-              <span class="font-semibold text-white block">${escapeHtml(p.name)}</span>
+              <span class="font-semibold text-[var(--ink)] block">${escapeHtml(p.name)}</span>
               <span class="text-[var(--accent)]">$${Number(p.price).toFixed(2)} • <span class="text-[var(--muted)] text-[10px]">${(p.sizes||[]).join(', ')}</span></span>
             </div>
           </div>
           <div class="flex items-center gap-1">
-            <button onclick='editProduct(${JSON.stringify(p)})' class="text-[var(--accent)] hover:text-white bg-[var(--accent)]/10 px-2.5 py-1.5 rounded-lg border border-[var(--accent)]/20 font-semibold">
+            <button onclick='editProduct(${JSON.stringify(p)})' class="text-[var(--accent)] hover:text-[var(--accent-dark)] bg-[var(--accent)]/10 px-2.5 py-1.5 rounded-lg border border-[var(--accent)]/20 font-semibold">
               <i class="fa-solid fa-pen-to-square mr-1"></i>Edit
             </button>
             <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-1.5">
@@ -888,7 +945,7 @@
       if (isAvailable){
         return `<button onclick="selectCardSize(${currentLightboxProduct.id}, '${sz}'); updateLightboxContent();" class="px-3 py-1.5 rounded-lg border transition font-bold ${isSelected ? 'bg-[var(--accent)] text-white border-[var(--accent)]' : 'bg-[var(--surface-2)] text-[var(--muted)] border-[var(--line)]'}">${sz}</button>`;
       }
-      return `<span class="bg-black/30 text-zinc-600 px-3 py-1.5 rounded-lg border border-[var(--line)] line-through">${sz}</span>`;
+      return `<span class="bg-[var(--inset)] text-[var(--muted)] px-3 py-1.5 rounded-lg border border-[var(--line)] line-through">${sz}</span>`;
     }).join('');
 
     document.getElementById('lb-add-btn').onclick = () => {
@@ -958,7 +1015,7 @@
         <div class="flex items-center gap-3 min-w-0">
           <img src="${item.image}" class="w-14 h-14 object-cover rounded-xl border border-[var(--line)] flex-shrink-0">
           <div class="min-w-0">
-            <h4 class="font-semibold text-[13px] text-white truncate">${escapeHtml(item.name)}</h4>
+            <h4 class="font-semibold text-[13px] text-[var(--ink)] truncate">${escapeHtml(item.name)}</h4>
             <p class="text-[var(--muted)] text-[11px] mt-0.5">$${Number(item.price).toFixed(2)} × ${item.qty} <span class="text-[var(--accent)] font-semibold">• Size ${item.selectedSize}</span></p>
           </div>
         </div>
@@ -1162,6 +1219,15 @@
     };
   }
 
+  function showToast(msg, duration){
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.innerText = msg;
+    el.style.opacity = '1';
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => { el.style.opacity = '0'; }, duration || 4000);
+  }
+
   async function downloadReceiptPDF(order){
     const container = document.getElementById('receipt-render-area');
     container.innerHTML = buildReceiptHTML(order);
@@ -1186,6 +1252,10 @@
       document.body.appendChild(link);
       if ('download' in link) {
         link.click();
+        // Desktop browsers usually save silently to the Downloads folder with no on-screen
+        // cue at all (unlike mobile, which shows a visible download notification) — this
+        // toast makes the success explicit either way, so it's never unclear if it worked.
+        showToast('Receipt downloaded — check your Downloads folder.');
       } else {
         window.open(url, '_blank');
       }
@@ -1265,10 +1335,10 @@
     }
 
     list.innerHTML = filtered.map(o => `
-      <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3 flex justify-between items-center cursor-pointer hover:border-[var(--accent)]/50 transition" onclick="openOrderEditModalById(${o.id})">
+      <div class="bg-[var(--inset)] border border-[var(--line)] rounded-xl p-3 flex justify-between items-center cursor-pointer hover:border-[var(--accent)]/50 transition" onclick="openOrderEditModalById(${o.id})">
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-bold text-xs text-white">${o.order_ref}</span>
+            <span class="font-bold text-xs text-[var(--ink)]">${o.order_ref}</span>
             ${statusBadge(o.status)}
           </div>
           <div class="text-[11px] text-[var(--muted)] mt-1">${escapeHtml(o.customer_name)} • ${new Date(o.created_at).toLocaleDateString('en-GB')}</div>
@@ -1312,6 +1382,15 @@
       notes: document.getElementById('oe-notes').value.trim()
     };
     const { error } = await db.from('orders').update(payload).eq('id', editingOrder.id);
+    if (error){ alert('Error: ' + error.message); return; }
+    closeOrderEditModal();
+    fetchOrders();
+  }
+
+  async function deleteOrder(){
+    if (!editingOrder) return;
+    if (!confirm(`Delete order ${editingOrder.order_ref}? This can't be undone and will remove it from Analytics.`)) return;
+    const { error } = await db.from('orders').delete().eq('id', editingOrder.id);
     if (error){ alert('Error: ' + error.message); return; }
     closeOrderEditModal();
     fetchOrders();
@@ -1428,6 +1507,7 @@
   }
 
   // --- INIT ---
+  updateThemeIcon(currentTheme());
   initPhoneCodeSelect();
   initContactLinks();
   fetchCategories();
