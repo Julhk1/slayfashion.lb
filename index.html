@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SLAY. | Women's Fashion</title>
   
-  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js for Sales Analytics Graph -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- html2pdf Library for Receipt Download -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Netlify Identity pour l'authentification Admin -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
@@ -23,13 +21,11 @@
     .snap-center { scroll-snap-align: center; }
   </style>
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
+<body class="bg-black text-white min-h-screen flex flex-col antialiased">
 
-  <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
-      WHATSAPP_NUMBER: "33765231464", // Numéro WhatsApp du magasin (sans +)
-      ADMIN_PIN: "1234"              // Code secret Admin
+      WHATSAPP_NUMBER: "33765231464" // Numéro WhatsApp de test
     };
   </script>
 
@@ -38,320 +34,92 @@
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
-      <div class="flex items-center gap-2 md:gap-3">
-        <!-- Admin Access Button -->
-        <button onclick="requestAdminAccess()" class="bg-zinc-800 hover:bg-pink-500 active:scale-95 text-white text-[11px] md:text-xs px-2.5 py-1.5 md:px-3 md:py-2 rounded-full font-semibold transition border border-zinc-700 flex items-center gap-1">
-          <i class="fa-solid fa-lock text-pink-400"></i> <span class="hidden sm:inline">Admin</span>
-        </button>
+      <div class="flex items-center gap-3">
+        <a href="/admin" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-zinc-700">
+          <i class="fa-solid fa-lock text-pink-400 mr-1"></i> Admin
+        </a>
 
-        <!-- Cart Button -->
-        <button onclick="toggleCart()" class="relative text-lg md:text-xl p-2 focus:outline-none active:scale-95 transition">
+        <button onclick="toggleCart()" class="relative text-xl p-2">
           <i class="fa-solid fa-bag-shopping"></i>
-          <span id="cart-count" class="absolute top-0 right-0 bg-pink-500 text-white text-[10px] w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center font-bold">0</span>
+          <span id="cart-count" class="absolute top-0 right-0 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
   <section class="text-center py-6 md:py-10 px-4 bg-gradient-to-b from-zinc-900 to-black">
-    <h1 class="text-2xl md:text-5xl font-black uppercase mb-1 md:mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
+    <h1 class="text-2xl md:text-5xl font-black uppercase mb-1">Wear it • Love it • Slay it</h1>
     <p class="text-zinc-400 text-xs md:text-sm">Delivering all over Lebanon • Cash on Delivery</p>
   </section>
 
-  <!-- Category Filters -->
+  <!-- Categories -->
   <section class="max-w-6xl mx-auto px-4 py-3 w-full">
     <div class="flex space-x-2 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center" id="categories-container">
-      <!-- Dynamic Categories -->
+      <!-- Dynamic categories -->
     </div>
   </section>
 
-  <!-- Product Grid -->
+  <!-- Products Grid -->
   <main class="max-w-6xl mx-auto px-3 md:px-4 py-4 flex-grow w-full">
     <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-      <!-- Products loaded dynamically -->
+      <!-- Products loaded from JSON files -->
     </div>
   </main>
 
-  <!-- Sliding Cart Sidebar -->
+  <!-- Shopping Bag Sidebar -->
   <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
     <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-      <h2 class="text-lg md:text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
-      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl p-2">&times;</button>
+      <h2 class="text-lg font-bold uppercase">Your Shopping Bag</h2>
+      <button onclick="toggleCart()" class="text-zinc-400 text-2xl">&times;</button>
     </div>
 
-    <!-- Cart Items -->
     <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
       <p class="text-zinc-500 text-center py-8">Your bag is empty.</p>
     </div>
 
-    <!-- Cart Footer & Checkout Form -->
-    <div class="p-4 border-t border-zinc-800 bg-zinc-950 overflow-y-auto max-h-[60vh]">
-      <div class="flex justify-between font-bold text-base md:text-lg mb-3">
+    <div class="p-4 border-t border-zinc-800 bg-zinc-950">
+      <div class="flex justify-between font-bold text-base mb-3">
         <span>Total:</span>
         <span id="cart-total" class="text-pink-500">$0.00</span>
       </div>
 
       <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
-        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs border border-zinc-700">
         
-        <!-- Country Code & Phone Number Separated -->
         <div class="flex gap-2">
-          <select id="cust-country-code" class="w-28 bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <select id="cust-country-code" class="w-28 bg-zinc-800 text-white rounded p-2.5 text-xs border border-zinc-700">
             <option value="+961">🇱🇧 +961</option>
             <option value="+33" selected>🇫🇷 +33</option>
             <option value="+1">🇺🇸 +1</option>
-            <option value="+44">🇬🇧 +44</option>
-            <option value="+971">🇦🇪 +971</option>
           </select>
-          <input type="tel" id="cust-phone" placeholder="Phone Number" required class="flex-1 bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <input type="tel" id="cust-phone" placeholder="Phone Number" required class="flex-1 bg-zinc-800 text-white rounded p-2.5 text-xs border border-zinc-700">
         </div>
 
-        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs border border-zinc-700"></textarea>
         
-        <p class="text-[11px] text-zinc-400"><i class="fa-solid fa-truck"></i> Payment method: <b>Cash on Delivery</b></p>
-        
-        <button type="submit" class="w-full bg-pink-500 active:bg-pink-600 text-white font-bold py-3 rounded transition uppercase tracking-wider text-xs md:text-sm flex items-center justify-center gap-2">
-          <i class="fa-brands fa-whatsapp text-base"></i> Complete Order via WhatsApp
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded uppercase text-xs">
+          <i class="fa-brands fa-whatsapp text-base mr-1"></i> Complete Order via WhatsApp
         </button>
       </form>
     </div>
   </div>
 
-  <!-- FULLSCREEN LIGHTBOX WITH ARROWS -->
-  <div id="image-modal" onclick="handleModalBgClick(event)" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-    <div class="flex justify-between items-center text-white pointer-events-none">
-      <span id="modal-item-title" class="text-sm font-bold tracking-wider"></span>
-      <span class="text-xs text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full">Tap anywhere outside to close &times;</span>
-    </div>
-    
-    <div class="relative flex-grow flex items-center justify-center overflow-hidden my-4">
-      <!-- Left Arrow -->
-      <button onclick="scrollModalSlider(-1)" class="absolute left-2 z-10 bg-black/60 hover:bg-pink-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg transition border border-zinc-700">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-
-      <div id="modal-slider" class="flex overflow-x-auto snap-x-mandatory no-scrollbar w-full h-full items-center">
-        <!-- Fullscreen images -->
-      </div>
-
-      <!-- Right Arrow -->
-      <button onclick="scrollModalSlider(1)" class="absolute right-2 z-10 bg-black/60 hover:bg-pink-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg transition border border-zinc-700">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <div class="text-center pb-2 pointer-events-none">
-      <p class="text-xs text-zinc-400">Use arrows or swipe left/right to view details</p>
-    </div>
-  </div>
-
-  <!-- ADMIN LOGIN MODAL -->
-  <div id="admin-login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 text-center">
-      <div class="w-12 h-12 bg-pink-500/10 text-pink-500 rounded-full flex items-center justify-center mx-auto text-xl">
-        <i class="fa-solid fa-lock"></i>
-      </div>
-      <h3 class="text-lg font-bold">Admin Security Check</h3>
-      <p class="text-xs text-zinc-400">Enter your secret PIN to access the dashboard.</p>
-      
-      <form onsubmit="verifyAdminPin(event)" class="space-y-3">
-        <input type="password" id="admin-pin-input" placeholder="Enter PIN code" required class="w-full text-center tracking-widest text-lg bg-zinc-800 text-white rounded p-2 border border-zinc-700 focus:outline-none focus:border-pink-500">
-        <p id="pin-error" class="text-xs text-red-400 hidden">Incorrect PIN code!</p>
-        <div class="flex gap-2">
-          <button type="button" onclick="closeAdminLogin()" class="flex-1 bg-zinc-800 text-zinc-400 py-2 rounded text-xs font-bold">Cancel</button>
-          <button type="submit" class="flex-1 bg-pink-500 text-white py-2 rounded text-xs font-bold">Access</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ADMIN EDIT PRODUCT MODAL -->
-  <div id="edit-product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 md:p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-md w-full space-y-4">
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-        <h3 class="text-sm font-bold text-pink-500">Edit Product & Available Sizes</h3>
-        <button onclick="closeEditModal()" class="text-zinc-400 text-xl">&times;</button>
-      </div>
-
-      <form onsubmit="saveEditedProduct(event)" class="space-y-3 text-xs">
-        <input type="hidden" id="edit-id">
-        <div>
-          <label class="block text-zinc-400 mb-1">Title</label>
-          <input type="text" id="edit-title" required class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">Category</label>
-            <select id="edit-category" required class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700"></select>
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">Price ($)</label>
-            <input type="number" step="0.01" id="edit-price" required class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700">
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-zinc-400 mb-1">Available Sizes (Check to enable)</label>
-          <div class="flex gap-4 bg-zinc-950 p-2.5 rounded border border-zinc-800">
-            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-S" class="accent-pink-500"> S</label>
-            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-M" class="accent-pink-500"> M</label>
-            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-L" class="accent-pink-500"> L</label>
-            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-XL" class="accent-pink-500"> XL</label>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-zinc-400 mb-1">Description</label>
-          <textarea id="edit-desc" rows="2" class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700"></textarea>
-        </div>
-
-        <div class="flex gap-2 pt-2">
-          <button type="button" onclick="closeEditModal()" class="flex-1 bg-zinc-800 py-2 rounded font-bold text-zinc-400">Cancel</button>
-          <button type="submit" class="flex-1 bg-pink-500 py-2 rounded font-bold text-white">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ADMIN DASHBOARD MODAL -->
-  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-2 md:p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-3xl w-full space-y-4 max-h-[95vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h2 class="text-lg md:text-xl font-bold text-pink-500 flex items-center gap-2">
-          <i class="fa-solid fa-sliders"></i> Admin Dashboard
-        </h2>
-        <button onclick="closeAdminDashboard()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="flex gap-2 border-b border-zinc-800 pb-2">
-        <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="bg-pink-500 text-white px-4 py-2 rounded-lg text-xs font-bold">Orders & Analytics</button>
-        <button onclick="switchAdminTab('store')" id="tab-btn-store" class="bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold">Store Management</button>
-      </div>
-
-      <!-- TAB 1: ORDERS & ANALYTICS GRAPH -->
-      <div id="admin-tab-orders" class="space-y-4">
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="bg-zinc-950 p-2.5 rounded-lg border border-zinc-800">
-            <p class="text-[10px] text-zinc-400 uppercase">Total Revenue</p>
-            <p id="stat-revenue" class="text-sm md:text-lg font-black text-pink-500">$0.00</p>
-          </div>
-          <div class="bg-zinc-950 p-2.5 rounded-lg border border-zinc-800">
-            <p class="text-[10px] text-zinc-400 uppercase">Total Orders</p>
-            <p id="stat-orders" class="text-sm md:text-lg font-black text-white">0</p>
-          </div>
-          <div class="bg-zinc-950 p-2.5 rounded-lg border border-zinc-800">
-            <p class="text-[10px] text-zinc-400 uppercase">Time Filter</p>
-            <select id="analytics-filter" onchange="updateAnalytics()" class="bg-zinc-800 text-white text-xs rounded p-1 mt-0.5 border border-zinc-700 w-full text-center">
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month" selected>This Month</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="bg-zinc-950 p-3 rounded-lg border border-zinc-800">
-          <h3 class="text-xs font-bold uppercase text-zinc-300 mb-2">Sales Overview Chart</h3>
-          <div class="h-44 w-full">
-            <canvas id="salesChart"></canvas>
-          </div>
-        </div>
-
-        <div class="bg-zinc-950 p-3 rounded-lg border border-zinc-800 space-y-2">
-          <h3 class="text-xs font-bold uppercase text-zinc-300">Customer Orders History</h3>
-          <div id="admin-orders-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
-        </div>
-      </div>
-
-      <!-- TAB 2: STORE MANAGEMENT -->
-      <div id="admin-tab-store" class="hidden space-y-4">
-        <!-- Success Alert Banner -->
-        <div id="admin-alert" class="hidden bg-emerald-500/10 border border-emerald-500 text-emerald-400 p-3 rounded-lg text-xs flex items-center justify-between">
-          <span id="admin-alert-text">Item added successfully!</span>
-          <i class="fa-solid fa-check"></i>
-        </div>
-
-        <!-- Add Product Form -->
-        <form id="add-product-form" onsubmit="addNewProduct(event)" class="space-y-3 bg-zinc-950 p-3.5 rounded-lg border border-zinc-800">
-          <h3 class="text-xs font-bold uppercase text-zinc-300">Add New Product</h3>
-          <div>
-            <label class="block text-xs text-zinc-400 mb-1">Product Images (Multiple select enabled)</label>
-            <input type="file" id="admin-img-file" accept="image/*" multiple required onchange="previewImages(event)" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white">
-            <div id="image-previews-container" class="flex gap-2 mt-2 overflow-x-auto no-scrollbar hidden"></div>
-          </div>
-          <div>
-            <label class="block text-xs text-zinc-400 mb-1">Product Title</label>
-            <input type="text" id="admin-title" placeholder="e.g. Summer Floral Dress" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-zinc-400 mb-1">Category</label>
-              <select id="admin-category" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></select>
-            </div>
-            <div>
-              <label class="block text-xs text-zinc-400 mb-1">Price ($)</label>
-              <input type="number" step="0.01" id="admin-price" placeholder="25.00" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-            </div>
-          </div>
-
-          <!-- Select Initial Available Sizes -->
-          <div>
-            <label class="block text-xs text-zinc-400 mb-1">Available Sizes in Stock</label>
-            <div class="flex gap-4 bg-zinc-900 p-2 rounded border border-zinc-800 text-xs">
-              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-S" checked class="accent-pink-500"> S</label>
-              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-M" checked class="accent-pink-500"> M</label>
-              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-L" checked class="accent-pink-500"> L</label>
-              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-XL" checked class="accent-pink-500"> XL</label>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs text-zinc-400 mb-1">Description</label>
-            <textarea id="admin-desc" placeholder="Sizes, fabric, details..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></textarea>
-          </div>
-          <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded text-xs uppercase tracking-wider">
-            <i class="fa-solid fa-plus mr-1"></i> Add Item to Store
-          </button>
-        </form>
-
-        <!-- Manage Categories Section -->
-        <div class="bg-zinc-950 p-3.5 rounded-lg border border-zinc-800 space-y-3">
-          <h3 class="text-xs font-bold uppercase text-zinc-300">Manage Categories</h3>
-          <div class="flex gap-2">
-            <input type="text" id="new-category-input" placeholder="New Category Name (e.g. Coats)" class="flex-1 bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-            <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white px-3 py-2 rounded text-xs font-bold">Add</button>
-          </div>
-          <div id="admin-categories-list" class="flex flex-wrap gap-1.5 pt-1"></div>
-        </div>
-
-        <!-- Manage Items List -->
-        <div class="space-y-2">
-          <h3 class="text-xs font-bold uppercase text-zinc-400">Current Items (<span id="admin-item-count">0</span>)</h3>
-          <div id="admin-products-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Receipt / Order Ticket Modal -->
+  <!-- Receipt Ticket Modal -->
   <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white text-black p-6 rounded-lg max-w-sm w-full space-y-4 text-sm" id="receipt-content">
       <div class="text-center border-b pb-3">
-        <h2 class="text-2xl font-black tracking-widest">SLAY.</h2>
+        <h2 class="text-2xl font-black">SLAY.</h2>
         <p class="text-xs text-gray-500">Official Order Receipt</p>
       </div>
 
       <div class="space-y-1 text-xs">
         <p><strong>Order ID:</strong> <span id="r-id"></span></p>
-        <p><strong>Date:</strong> <span id="r-date"></span></p>
         <p><strong>Customer:</strong> <span id="r-name"></span></p>
         <p><strong>Phone:</strong> <span id="r-phone"></span></p>
         <p><strong>Address:</strong> <span id="r-address"></span></p>
       </div>
 
       <div class="border-t border-b py-2 my-2">
-        <p class="font-bold mb-2">Order Summary:</p>
         <div id="r-items" class="space-y-1"></div>
       </div>
 
@@ -360,565 +128,42 @@
         <span id="r-total"></span>
       </div>
 
-      <p class="text-center text-xs text-gray-500 pt-2">Thank you for your order! Your receipt PDF has been downloaded. Please send it on WhatsApp.</p>
-
       <div class="flex gap-2 pt-2" data-html2canvas-ignore="true">
-        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold hover:bg-black transition">
-          <i class="fa-solid fa-download mr-1"></i> Save Ticket (PDF)
-        </button>
+        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold">Download Ticket PDF</button>
         <button onclick="closeReceipt()" class="bg-gray-300 text-black px-4 py-2 rounded text-xs font-bold">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="border-t border-zinc-800 text-center py-6 text-xs text-zinc-500 mt-12">
     <p>&copy; 2026 SLAY. All rights reserved.</p>
   </footer>
 
-  <!-- App Logic -->
   <script>
-    const ALL_SIZES = ["S", "M", "L", "XL"];
-    const defaultCategories = ["Tops", "Pants", "Skirts", "Shorts", "Dresses"];
-
-    const defaultProducts = [
-      {
-        id: 1,
-        name: "Dantel Top - Blue & Off-White",
-        category: "Tops",
-        price: 25.00,
-        description: "Elegant lace floral top.",
-        availableSizes: ["S", "M", "L"],
-        images: ["https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&q=80&w=600"]
-      },
-      {
-        id: 2,
-        name: "High-Waist Off-White Jeans",
-        category: "Pants",
-        price: 35.00,
-        description: "Chic straight-leg denim pants with belt.",
-        availableSizes: ["S", "M", "L", "XL"],
-        images: ["https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600"]
-      }
-    ];
-
-    let categories = JSON.parse(localStorage.getItem('slay_categories')) || defaultCategories;
-    let products = JSON.parse(localStorage.getItem('slay_products')) || defaultProducts;
-    let orders = JSON.parse(localStorage.getItem('slay_orders')) || [];
+    let products = [];
     let cart = [];
     let selectedSizes = {};
     let currentCategory = 'All';
-    let currentUploadedImages = [];
-    let salesChartInstance = null;
 
-    function saveData() {
-      localStorage.setItem('slay_categories', JSON.stringify(categories));
-      localStorage.setItem('slay_products', JSON.stringify(products));
-      localStorage.setItem('slay_orders', JSON.stringify(orders));
-      renderCategories();
-      renderProducts();
-      renderAdminProducts();
-      renderAdminCategories();
-      renderAdminOrders();
-      updateAnalytics();
+    // Toggle Cart
+    function toggleCart() {
+      document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
     }
 
-    function renderCategories() {
-      const container = document.getElementById('categories-container');
-      let html = `<button onclick="filterCategory('All')" class="category-btn ${currentCategory === 'All' ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300'} px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">All</button>`;
-      categories.forEach(cat => {
-        const isActive = currentCategory.toLowerCase() === cat.toLowerCase();
-        html += `<button onclick="filterCategory('${cat}')" class="category-btn ${isActive ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'} px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">${cat}</button>`;
-      });
-      container.innerHTML = html;
-
-      const adminSelect = document.getElementById('admin-category');
-      adminSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    function closeReceipt() {
+      document.getElementById('receipt-modal').classList.add('hidden');
     }
 
-    function selectProductSize(productId, size) {
-      selectedSizes[productId] = size;
-      renderProducts();
+    function downloadPDF() {
+      const element = document.getElementById('receipt-content');
+      html2pdf().set({ margin: 10, filename: 'SLAY_Order_Receipt.pdf' }).from(element).save();
     }
-
-    function renderProducts() {
-      const grid = document.getElementById('product-grid');
-      grid.innerHTML = '';
-
-      const filtered = currentCategory === 'All' 
-        ? products 
-        : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
-
-      if(filtered.length === 0) {
-        grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10 text-xs">No products found in this category.</p>';
-        return;
-      }
-
-      filtered.forEach(p => {
-        const imgs = p.images || [p.image];
-        const availSizes = p.availableSizes || ALL_SIZES;
-        const currentSelectedSize = selectedSizes[p.id] || availSizes[0];
-
-        const sizePills = ALL_SIZES.map(sz => {
-          const isAvailable = availSizes.includes(sz);
-          const isSelected = currentSelectedSize === sz;
-
-          if(!isAvailable) {
-            return `<span class="px-2 py-0.5 text-[10px] rounded border border-zinc-800 text-zinc-600 line-through select-none cursor-not-allowed">${sz}</span>`;
-          }
-          return `<button onclick="selectProductSize(${p.id}, '${sz}')" class="px-2 py-0.5 text-[10px] rounded border font-semibold transition ${isSelected ? 'bg-pink-500 text-white border-pink-500' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-pink-500'}">${sz}</button>`;
-        }).join('');
-
-        grid.innerHTML += `
-          <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col justify-between">
-            <div>
-              <div class="relative cursor-pointer" onclick="openImageModal(${p.id})">
-                <img src="${imgs[0]}" class="w-full h-56 object-cover">
-              </div>
-              <div class="p-2.5">
-                <span class="text-[9px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
-                <h3 class="font-bold text-xs text-white mt-0.5 line-clamp-1">${p.name}</h3>
-                <p class="text-zinc-400 text-[11px] mt-1 line-clamp-2">${p.description}</p>
-                
-                <div class="mt-2.5">
-                  <span class="text-[10px] text-zinc-400 font-semibold block mb-1">Select Size:</span>
-                  <div class="flex gap-1 flex-wrap">${sizePills}</div>
-                </div>
-              </div>
-            </div>
-            <div class="p-2.5 pt-0 flex justify-between items-center mt-3">
-              <span class="font-extrabold text-pink-400 text-xs">$${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 active:scale-95 text-white text-[11px] px-2.5 py-1.5 rounded transition font-semibold">
-                + Add
-              </button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // Process Checkout
-    function processCheckout(e) {
-      e.preventDefault();
-      if(cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-      }
-
-      const name = document.getElementById('cust-name').value;
-      const countryCode = document.getElementById('cust-country-code').value;
-      const phoneNum = document.getElementById('cust-phone').value;
-      const fullPhone = `${countryCode} ${phoneNum}`;
-      const address = document.getElementById('cust-address').value;
-
-      const orderId = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
-      const dateObj = new Date();
-      const dateStr = dateObj.toLocaleDateString('en-US', { dateStyle: 'medium' });
-      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-      const newOrder = {
-        id: orderId,
-        timestamp: dateObj.getTime(),
-        dateStr: dateStr,
-        name: name,
-        phone: fullPhone,
-        address: address,
-        items: [...cart],
-        total: totalPrice,
-        status: 'Pending'
-      };
-
-      orders.unshift(newOrder);
-      saveData();
-
-      // Populate Receipt Modal
-      document.getElementById('r-id').innerText = orderId;
-      document.getElementById('r-date').innerText = dateStr;
-      document.getElementById('r-name').innerText = name;
-      document.getElementById('r-phone').innerText = fullPhone;
-      document.getElementById('r-address').innerText = address;
-      document.getElementById('r-total').innerText = `$${totalPrice.toFixed(2)}`;
-
-      const receiptItems = document.getElementById('r-items');
-      receiptItems.innerHTML = cart.map(i => `
-        <div class="flex justify-between text-xs">
-          <span>${i.name} [Size: ${i.selectedSize}] (x${i.qty})</span>
-          <span>$${(i.price * i.qty).toFixed(2)}</span>
-        </div>
-      `).join('');
-
-      // Build WhatsApp Message for SLAY Store
-      let waMessage = `*NEW ORDER - ${orderId}*\n\n`;
-      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${fullPhone}\n- Address: ${address}\n\n`;
-      waMessage += `*Items Ordered:*\n`;
-      cart.forEach(i => {
-        waMessage += `• ${i.name} - Size: *${i.selectedSize}* (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
-      });
-      waMessage += `\n*Total Amount:* $${totalPrice.toFixed(2)} (Cash on Delivery)\n\n`;
-      waMessage += `📄 *Order PDF receipt generated and downloaded to device. Attached with item photos.*`;
-
-      document.getElementById('receipt-modal').classList.remove('hidden');
-
-      // Auto Download PDF Receipt
-      downloadPDF();
-
-      const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
-      window.open(waUrl, '_blank');
-
-      cart = [];
-      updateCartUI();
-      toggleCart();
-      document.getElementById('checkout-form').reset();
-    }
-
-    // Admin Add Product
-    function previewImages(event) {
-      const files = Array.from(event.target.files);
-      currentUploadedImages = [];
-      const container = document.getElementById('image-previews-container');
-      container.innerHTML = '';
-      container.classList.remove('hidden');
-
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          currentUploadedImages.push(e.target.result);
-          container.innerHTML += `<img src="${e.target.result}" class="w-12 h-12 object-cover rounded border border-zinc-700 shrink-0">`;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function addNewProduct(e) {
-      e.preventDefault();
-      if (currentUploadedImages.length === 0) {
-        alert('Please select at least one image!');
-        return;
-      }
-
-      const title = document.getElementById('admin-title').value;
-      const category = document.getElementById('admin-category').value;
-      const price = parseFloat(document.getElementById('admin-price').value);
-      const desc = document.getElementById('admin-desc').value;
-
-      const selectedAvailSizes = [];
-      ALL_SIZES.forEach(sz => {
-        if(document.getElementById(`add-size-${sz}`).checked) selectedAvailSizes.push(sz);
-      });
-
-      const newProduct = {
-        id: Date.now(),
-        name: title,
-        category: category,
-        price: price,
-        description: desc,
-        availableSizes: selectedAvailSizes.length ? selectedAvailSizes : ALL_SIZES,
-        images: [...currentUploadedImages]
-      };
-
-      products.unshift(newProduct);
-      saveData();
-
-      document.getElementById('add-product-form').reset();
-      currentUploadedImages = [];
-      document.getElementById('image-previews-container').innerHTML = '';
-      document.getElementById('image-previews-container').classList.add('hidden');
-
-      showAdminAlert('Product added successfully!');
-    }
-
-    function openEditModal(productId) {
-      const prod = products.find(p => p.id === productId);
-      if(!prod) return;
-
-      // Close Admin Dashboard automatically when Edit opens
-      closeAdminDashboard();
-
-      document.getElementById('edit-id').value = prod.id;
-      document.getElementById('edit-title').value = prod.name;
-      document.getElementById('edit-price').value = prod.price;
-      document.getElementById('edit-desc').value = prod.description;
-
-      const categorySelect = document.getElementById('edit-category');
-      categorySelect.innerHTML = categories.map(c => `<option value="${c}" ${c === prod.category ? 'selected' : ''}>${c}</option>`).join('');
-
-      const avail = prod.availableSizes || ALL_SIZES;
-      ALL_SIZES.forEach(sz => {
-        document.getElementById(`edit-size-${sz}`).checked = avail.includes(sz);
-      });
-
-      document.getElementById('edit-product-modal').classList.remove('hidden');
-    }
-
-    function closeEditModal() {
-      document.getElementById('edit-product-modal').classList.add('hidden');
-    }
-
-    function saveEditedProduct(e) {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('edit-id').value);
-      const prod = products.find(p => p.id === id);
-      if(!prod) return;
-
-      prod.name = document.getElementById('edit-title').value;
-      prod.category = document.getElementById('edit-category').value;
-      prod.price = parseFloat(document.getElementById('edit-price').value);
-      prod.description = document.getElementById('edit-desc').value;
-
-      const newAvailSizes = [];
-      ALL_SIZES.forEach(sz => {
-        if(document.getElementById(`edit-size-${sz}`).checked) newAvailSizes.push(sz);
-      });
-
-      prod.availableSizes = newAvailSizes;
-      saveData();
-      closeEditModal();
-      showAdminAlert('Product updated successfully!');
-    }
-
-    function showAdminAlert(msg) {
-      const alertBox = document.getElementById('admin-alert');
-      const alertText = document.getElementById('admin-alert-text');
-      alertText.innerText = msg;
-      alertBox.classList.remove('hidden');
-      setTimeout(() => alertBox.classList.add('hidden'), 3000);
-    }
-
-    function addCategory() {
-      const input = document.getElementById('new-category-input');
-      const val = input.value.trim();
-      if(val && !categories.some(c => c.toLowerCase() === val.toLowerCase())) {
-        categories.push(val);
-        input.value = '';
-        saveData();
-        showAdminAlert(`Category "${val}" added!`);
-      }
-    }
-
-    function removeCategory(catName) {
-      if(confirm(`Delete category "${catName}"?`)) {
-        categories = categories.filter(c => c.toLowerCase() !== catName.toLowerCase());
-        saveData();
-        showAdminAlert(`Category "${catName}" removed.`);
-      }
-    }
-
-    function renderAdminCategories() {
-      const list = document.getElementById('admin-categories-list');
-      list.innerHTML = categories.map(c => `
-        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5">
-          ${c}
-          <button onclick="removeCategory('${c}')" class="text-zinc-500 hover:text-red-400 text-xs font-bold">&times;</button>
-        </span>
-      `).join('');
-    }
-
-    function deleteProduct(id) {
-      if (confirm('Delete this product?')) {
-        products = products.filter(p => p.id !== id);
-        saveData();
-        showAdminAlert('Product deleted.');
-      }
-    }
-
-    function renderAdminProducts() {
-      const list = document.getElementById('admin-products-list');
-      document.getElementById('admin-item-count').innerText = products.length;
-      list.innerHTML = products.map(p => {
-        const thumb = (p.images && p.images[0]) ? p.images[0] : p.image;
-        const avail = (p.availableSizes || ALL_SIZES).join(', ');
-        return `
-          <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700 text-xs">
-            <div class="flex items-center space-x-3">
-              <img src="${thumb}" class="w-10 h-10 object-cover rounded">
-              <div>
-                <p class="font-bold text-white line-clamp-1">${p.name}</p>
-                <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)} • Sizes: [${avail}]</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="openEditModal(${p.id})" class="text-pink-400 hover:text-pink-300 font-bold px-1.5 py-1 bg-zinc-900 rounded"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-              <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 px-1"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderAdminOrders() {
-      const container = document.getElementById('admin-orders-list');
-      if(orders.length === 0) {
-        container.innerHTML = '<p class="text-zinc-500 text-xs text-center py-4">No orders placed yet.</p>';
-        return;
-      }
-
-      container.innerHTML = orders.map(o => `
-        <div class="bg-zinc-900 border border-zinc-800 p-3 rounded text-xs space-y-2">
-          <div class="flex justify-between items-center border-b border-zinc-800 pb-1.5">
-            <span class="font-bold text-pink-400">${o.id} • ${o.dateStr}</span>
-            <div class="flex items-center gap-2">
-              <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-zinc-800 text-white rounded px-2 py-1 text-[10px] border border-zinc-700">
-                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-                <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-              </select>
-              <button onclick="deleteOrder('${o.id}')" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>
-            </div>
-          </div>
-          <div>
-            <p><strong>Customer:</strong> ${o.name} (${o.phone})</p>
-            <p><strong>Address:</strong> ${o.address}</p>
-          </div>
-          <div class="bg-zinc-950 p-2 rounded text-[11px] space-y-0.5">
-            ${o.items.map(i => `<div class="flex justify-between"><span>${i.name} [Size: ${i.selectedSize}] (x${i.qty})</span><span>$${(i.price*i.qty).toFixed(2)}</span></div>`).join('')}
-            <div class="flex justify-between font-bold border-t border-zinc-800 pt-1 text-pink-400"><span>Total:</span><span>$${Number(o.total).toFixed(2)}</span></div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function updateOrderStatus(orderId, newStatus) {
-      const order = orders.find(o => o.id === orderId);
-      if(order) {
-        order.status = newStatus;
-        saveData();
-      }
-    }
-
-    function deleteOrder(orderId) {
-      if(confirm('Delete this order record?')) {
-        orders = orders.filter(o => o.id !== orderId);
-        saveData();
-      }
-    }
-
-    function updateAnalytics() {
-      const filter = document.getElementById('analytics-filter').value;
-      const now = new Date();
-      let filteredOrders = orders;
-
-      if(filter === 'today') {
-        const todayStr = now.toLocaleDateString('en-US', { dateStyle: 'medium' });
-        filteredOrders = orders.filter(o => o.dateStr === todayStr);
-      } else if(filter === 'week') {
-        const oneWeekAgo = now.getTime() - (7 * 24 * 60 * 60 * 1000);
-        filteredOrders = orders.filter(o => o.timestamp >= oneWeekAgo);
-      } else if(filter === 'month') {
-        const oneMonthAgo = now.getTime() - (30 * 24 * 60 * 60 * 1000);
-        filteredOrders = orders.filter(o => o.timestamp >= oneMonthAgo);
-      }
-
-      const totalRevenue = filteredOrders.reduce((sum, o) => sum + Number(o.total), 0);
-      document.getElementById('stat-revenue').innerText = `$${totalRevenue.toFixed(2)}`;
-      document.getElementById('stat-orders').innerText = filteredOrders.length;
-
-      renderChart(filteredOrders);
-    }
-
-    function renderChart(orderData) {
-      const ctx = document.getElementById('salesChart').getContext('2d');
-      if(salesChartInstance) salesChartInstance.destroy();
-
-      const labels = orderData.slice(0, 7).map(o => o.id.replace('SLAY-', '#')).reverse();
-      const dataValues = orderData.slice(0, 7).map(o => o.total).reverse();
-
-      salesChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels.length ? labels : ['No Data'],
-          datasets: [{
-            label: 'Sales ($)',
-            data: dataValues.length ? dataValues : [0],
-            backgroundColor: '#ff007f',
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { ticks: { color: '#a1a1aa', font: { size: 10 } } },
-            y: { ticks: { color: '#a1a1aa', font: { size: 10 } } }
-          }
-        }
-      });
-    }
-
-    function switchAdminTab(tab) {
-      document.getElementById('admin-tab-orders').classList.add('hidden');
-      document.getElementById('admin-tab-store').classList.add('hidden');
-
-      document.getElementById('tab-btn-orders').className = "bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold";
-      document.getElementById('tab-btn-store').className = "bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold";
-
-      document.getElementById(`admin-tab-${tab}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${tab}`).className = "bg-pink-500 text-white px-4 py-2 rounded-lg text-xs font-bold";
-    }
-
-    // Lightbox / Image Zoom
-    function openImageModal(id) {
-      const prod = products.find(p => p.id === id);
-      if(!prod) return;
-      document.getElementById('modal-item-title').innerText = prod.name;
-      const imgs = prod.images || [prod.image];
-      document.getElementById('modal-slider').innerHTML = imgs.map(img => `
-        <div class="snap-center shrink-0 w-full h-full flex items-center justify-center p-2">
-          <img src="${img}" class="max-h-full max-w-full object-contain rounded-lg">
-        </div>
-      `).join('');
-      document.getElementById('image-modal').classList.remove('hidden');
-    }
-
-    function closeImageModal() {
-      document.getElementById('image-modal').classList.add('hidden');
-    }
-
-    function handleModalBgClick(e) {
-      if(e.target.tagName !== 'I' && e.target.tagName !== 'BUTTON') {
-        closeImageModal();
-      }
-    }
-
-    function scrollModalSlider(direction) {
-      const slider = document.getElementById('modal-slider');
-      const scrollAmount = slider.clientWidth;
-      slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-    }
-
-    // Common Helpers
-    function requestAdminAccess() {
-      document.getElementById('admin-login-modal').classList.remove('hidden');
-      document.getElementById('admin-pin-input').focus();
-    }
-
-    function closeAdminLogin() {
-      document.getElementById('admin-login-modal').classList.add('hidden');
-      document.getElementById('admin-pin-input').value = '';
-    }
-
-    function verifyAdminPin(e) {
-      e.preventDefault();
-      if (document.getElementById('admin-pin-input').value === CONFIG.ADMIN_PIN) {
-        closeAdminLogin();
-        document.getElementById('admin-modal').classList.remove('hidden');
-        saveData();
-      } else {
-        document.getElementById('pin-error').classList.remove('hidden');
-      }
-    }
-
-    function closeAdminDashboard() { document.getElementById('admin-modal').classList.add('hidden'); }
-    function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('translate-x-full'); }
-    function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
-    function filterCategory(cat) { currentCategory = cat; renderCategories(); renderProducts(); }
 
     function addToCart(id) {
       const prod = products.find(x => x.id === id);
       if(!prod) return;
 
-      const avail = prod.availableSizes || ALL_SIZES;
+      const avail = prod.sizes || ["S", "M", "L", "XL"];
       const chosenSize = selectedSizes[id] || avail[0];
 
       const existing = cart.find(x => x.id === id && x.selectedSize === chosenSize);
@@ -929,15 +174,6 @@
       }
       updateCartUI();
       toggleCart();
-    }
-
-    function changeQty(id, size, delta) {
-      const item = cart.find(x => x.id === id && x.selectedSize === size);
-      if(item) {
-        item.qty += delta;
-        if(item.qty <= 0) cart = cart.filter(x => !(x.id === id && x.selectedSize === size));
-      }
-      updateCartUI();
     }
 
     function updateCartUI() {
@@ -958,27 +194,55 @@
           <div class="flex items-center space-x-3">
             <img src="${item.images ? item.images[0] : item.image}" class="w-10 h-10 object-cover rounded">
             <div>
-              <h4 class="font-semibold text-white">${item.name}</h4>
+              <h4 class="font-semibold text-white">${item.title}</h4>
               <p class="text-zinc-400">Size: <span class="text-pink-400 font-bold">${item.selectedSize}</span> • $${Number(item.price).toFixed(2)} x ${item.qty}</p>
             </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <button onclick="changeQty(${item.id}, '${item.selectedSize}', -1)" class="w-6 h-6 bg-zinc-800 rounded">-</button>
-            <span>${item.qty}</span>
-            <button onclick="changeQty(${item.id}, '${item.selectedSize}', 1)" class="w-6 h-6 bg-zinc-800 rounded">+</button>
           </div>
         </div>
       `).join('');
     }
 
-    function downloadPDF() {
-      const element = document.getElementById('receipt-content');
-      html2pdf().set({ margin: 10, filename: 'SLAY_Order_Receipt.pdf' }).from(element).save();
-    }
+    function processCheckout(e) {
+      e.preventDefault();
+      if(cart.length === 0) return;
 
-    // Init
-    renderCategories();
-    renderProducts();
+      const name = document.getElementById('cust-name').value;
+      const code = document.getElementById('cust-country-code').value;
+      const phone = document.getElementById('cust-phone').value;
+      const address = document.getElementById('cust-address').value;
+      const fullPhone = `${code} ${phone}`;
+
+      const orderId = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toFixed(2);
+
+      document.getElementById('r-id').innerText = orderId;
+      document.getElementById('r-name').innerText = name;
+      document.getElementById('r-phone').innerText = fullPhone;
+      document.getElementById('r-address').innerText = address;
+      document.getElementById('r-total').innerText = `$${totalPrice}`;
+
+      document.getElementById('r-items').innerHTML = cart.map(i => `
+        <div class="flex justify-between text-xs">
+          <span>${i.title} [${i.selectedSize}] (x${i.qty})</span>
+          <span>$${(i.price * i.qty).toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      let waMessage = `*NEW ORDER - ${orderId}*\n\n- Name: ${name}\n- Phone: ${fullPhone}\n- Address: ${address}\n\n*Items:*\n`;
+      cart.forEach(i => {
+        waMessage += `• ${i.title} [Size: ${i.selectedSize}] (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
+      });
+      waMessage += `\n*Total:* $${totalPrice} (Cash on Delivery)`;
+
+      document.getElementById('receipt-modal').classList.remove('hidden');
+      downloadPDF();
+
+      window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
+
+      cart = [];
+      updateCartUI();
+      toggleCart();
+    }
   </script>
 </body>
 </html>
