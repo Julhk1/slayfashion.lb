@@ -29,8 +29,7 @@
   <script>
     const CONFIG = {
       WHATSAPP_NUMBER: "33765231464", // Numéro WhatsApp du magasin (sans +)
-      ADMIN_PIN: "1234",              // Code secret Admin
-      TEST_EMAIL: "julienhobeika93@gmail.com"
+      ADMIN_PIN: "1234"              // Code secret Admin
     };
   </script>
 
@@ -108,23 +107,6 @@
           <input type="tel" id="cust-phone" placeholder="Phone Number" required class="flex-1 bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
         </div>
 
-        <!-- Receipt Mode Option (WhatsApp vs Email) -->
-        <div class="space-y-2 bg-zinc-900 p-2.5 rounded border border-zinc-800">
-          <p class="text-[11px] text-zinc-300 font-bold">Where would you like your receipt?</p>
-          <div class="flex items-center gap-4 text-xs">
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" name="receipt_mode" value="whatsapp" checked onchange="toggleReceiptFields()" class="accent-pink-500"> WhatsApp
-            </label>
-            <label class="flex items-center gap-1.5 cursor-pointer">
-              <input type="radio" name="receipt_mode" value="email" onchange="toggleReceiptFields()" class="accent-pink-500"> Email
-            </label>
-          </div>
-
-          <div id="email-field-container" class="hidden pt-1">
-            <input type="email" id="cust-email" value="julienhobeika93@gmail.com" placeholder="Your Email Address" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
-          </div>
-        </div>
-
         <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
         
         <p class="text-[11px] text-zinc-400"><i class="fa-solid fa-truck"></i> Payment method: <b>Cash on Delivery</b></p>
@@ -136,21 +118,31 @@
     </div>
   </div>
 
-  <!-- FULLSCREEN USER-FRIENDLY LIGHTBOX IMAGE MODAL (Click anywhere to close) -->
-  <div id="image-modal" onclick="closeImageModal()" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4 cursor-pointer">
+  <!-- FULLSCREEN LIGHTBOX WITH ARROWS -->
+  <div id="image-modal" onclick="handleModalBgClick(event)" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
     <div class="flex justify-between items-center text-white pointer-events-none">
       <span id="modal-item-title" class="text-sm font-bold tracking-wider"></span>
-      <span class="text-xs text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full">Click anywhere to close &times;</span>
+      <span class="text-xs text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full">Tap anywhere outside to close &times;</span>
     </div>
     
     <div class="relative flex-grow flex items-center justify-center overflow-hidden my-4">
+      <!-- Left Arrow -->
+      <button onclick="scrollModalSlider(-1)" class="absolute left-2 z-10 bg-black/60 hover:bg-pink-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg transition border border-zinc-700">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
       <div id="modal-slider" class="flex overflow-x-auto snap-x-mandatory no-scrollbar w-full h-full items-center">
         <!-- Fullscreen images -->
       </div>
+
+      <!-- Right Arrow -->
+      <button onclick="scrollModalSlider(1)" class="absolute right-2 z-10 bg-black/60 hover:bg-pink-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg transition border border-zinc-700">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
 
     <div class="text-center pb-2 pointer-events-none">
-      <p class="text-xs text-zinc-400">Swipe left or right to see details • Tap anywhere to exit</p>
+      <p class="text-xs text-zinc-400">Use arrows or swipe left/right to view details</p>
     </div>
   </div>
 
@@ -174,6 +166,54 @@
     </div>
   </div>
 
+  <!-- ADMIN EDIT PRODUCT MODAL -->
+  <div id="edit-product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 md:p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-md w-full space-y-4">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+        <h3 class="text-sm font-bold text-pink-500">Edit Product & Available Sizes</h3>
+        <button onclick="closeEditModal()" class="text-zinc-400 text-xl">&times;</button>
+      </div>
+
+      <form onsubmit="saveEditedProduct(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-id">
+        <div>
+          <label class="block text-zinc-400 mb-1">Title</label>
+          <input type="text" id="edit-title" required class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-zinc-400 mb-1">Category</label>
+            <select id="edit-category" required class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700"></select>
+          </div>
+          <div>
+            <label class="block text-zinc-400 mb-1">Price ($)</label>
+            <input type="number" step="0.01" id="edit-price" required class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700">
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-zinc-400 mb-1">Available Sizes (Check to enable)</label>
+          <div class="flex gap-4 bg-zinc-950 p-2.5 rounded border border-zinc-800">
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-S" class="accent-pink-500"> S</label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-M" class="accent-pink-500"> M</label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-L" class="accent-pink-500"> L</label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="edit-size-XL" class="accent-pink-500"> XL</label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-zinc-400 mb-1">Description</label>
+          <textarea id="edit-desc" rows="2" class="w-full bg-zinc-800 text-white rounded p-2 border border-zinc-700"></textarea>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeEditModal()" class="flex-1 bg-zinc-800 py-2 rounded font-bold text-zinc-400">Cancel</button>
+          <button type="submit" class="flex-1 bg-pink-500 py-2 rounded font-bold text-white">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ADMIN DASHBOARD MODAL -->
   <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-2 md:p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-3xl w-full space-y-4 max-h-[95vh] overflow-y-auto">
@@ -184,7 +224,7 @@
         <button onclick="closeAdminDashboard()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
       </div>
 
-      <!-- Navigation Tabs (Only 2 Tabs) -->
+      <!-- Navigation Tabs -->
       <div class="flex gap-2 border-b border-zinc-800 pb-2">
         <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="bg-pink-500 text-white px-4 py-2 rounded-lg text-xs font-bold">Orders & Analytics</button>
         <button onclick="switchAdminTab('store')" id="tab-btn-store" class="bg-zinc-800 text-zinc-400 px-4 py-2 rounded-lg text-xs font-bold">Store Management</button>
@@ -224,7 +264,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: STORE MANAGEMENT (Products & Categories Together) -->
+      <!-- TAB 2: STORE MANAGEMENT -->
       <div id="admin-tab-store" class="hidden space-y-4">
         <!-- Success Alert Banner -->
         <div id="admin-alert" class="hidden bg-emerald-500/10 border border-emerald-500 text-emerald-400 p-3 rounded-lg text-xs flex items-center justify-between">
@@ -254,6 +294,18 @@
               <input type="number" step="0.01" id="admin-price" placeholder="25.00" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
             </div>
           </div>
+
+          <!-- Select Initial Available Sizes -->
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">Available Sizes in Stock</label>
+            <div class="flex gap-4 bg-zinc-900 p-2 rounded border border-zinc-800 text-xs">
+              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-S" checked class="accent-pink-500"> S</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-M" checked class="accent-pink-500"> M</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-L" checked class="accent-pink-500"> L</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="add-size-XL" checked class="accent-pink-500"> XL</label>
+            </div>
+          </div>
+
           <div>
             <label class="block text-xs text-zinc-400 mb-1">Description</label>
             <textarea id="admin-desc" placeholder="Sizes, fabric, details..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></textarea>
@@ -290,10 +342,6 @@
         <p class="text-xs text-gray-500">Official Order Receipt</p>
       </div>
 
-      <div id="email-confirmation-banner" class="hidden bg-emerald-100 border border-emerald-400 text-emerald-800 p-2 rounded text-xs text-center font-semibold">
-        <i class="fa-solid fa-paper-plane mr-1"></i> Receipt successfully sent to your email!
-      </div>
-
       <div class="space-y-1 text-xs">
         <p><strong>Order ID:</strong> <span id="r-id"></span></p>
         <p><strong>Date:</strong> <span id="r-date"></span></p>
@@ -312,7 +360,7 @@
         <span id="r-total"></span>
       </div>
 
-      <p class="text-center text-xs text-gray-500 pt-2">Thank you for your order! We will contact you shortly.</p>
+      <p class="text-center text-xs text-gray-500 pt-2">Thank you for your order! Your receipt PDF has been downloaded. Please send it on WhatsApp.</p>
 
       <div class="flex gap-2 pt-2" data-html2canvas-ignore="true">
         <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold hover:bg-black transition">
@@ -330,6 +378,7 @@
 
   <!-- App Logic -->
   <script>
+    const ALL_SIZES = ["S", "M", "L", "XL"];
     const defaultCategories = ["Tops", "Pants", "Skirts", "Shorts", "Dresses"];
 
     const defaultProducts = [
@@ -338,7 +387,8 @@
         name: "Dantel Top - Blue & Off-White",
         category: "Tops",
         price: 25.00,
-        description: "Elegant lace floral top. Sizes: S, M, L.",
+        description: "Elegant lace floral top.",
+        availableSizes: ["S", "M", "L"],
         images: ["https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&q=80&w=600"]
       },
       {
@@ -347,6 +397,7 @@
         category: "Pants",
         price: 35.00,
         description: "Chic straight-leg denim pants with belt.",
+        availableSizes: ["S", "M", "L", "XL"],
         images: ["https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600"]
       }
     ];
@@ -355,6 +406,7 @@
     let products = JSON.parse(localStorage.getItem('slay_products')) || defaultProducts;
     let orders = JSON.parse(localStorage.getItem('slay_orders')) || [];
     let cart = [];
+    let selectedSizes = {};
     let currentCategory = 'All';
     let currentUploadedImages = [];
     let salesChartInstance = null;
@@ -371,16 +423,6 @@
       updateAnalytics();
     }
 
-    function toggleReceiptFields() {
-      const mode = document.querySelector('input[name="receipt_mode"]:checked').value;
-      const emailContainer = document.getElementById('email-field-container');
-      if(mode === 'email') {
-        emailContainer.classList.remove('hidden');
-      } else {
-        emailContainer.classList.add('hidden');
-      }
-    }
-
     function renderCategories() {
       const container = document.getElementById('categories-container');
       let html = `<button onclick="filterCategory('All')" class="category-btn ${currentCategory === 'All' ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300'} px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">All</button>`;
@@ -392,6 +434,11 @@
 
       const adminSelect = document.getElementById('admin-category');
       adminSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function selectProductSize(productId, size) {
+      selectedSizes[productId] = size;
+      renderProducts();
     }
 
     function renderProducts() {
@@ -409,6 +456,19 @@
 
       filtered.forEach(p => {
         const imgs = p.images || [p.image];
+        const availSizes = p.availableSizes || ALL_SIZES;
+        const currentSelectedSize = selectedSizes[p.id] || availSizes[0];
+
+        const sizePills = ALL_SIZES.map(sz => {
+          const isAvailable = availSizes.includes(sz);
+          const isSelected = currentSelectedSize === sz;
+
+          if(!isAvailable) {
+            return `<span class="px-2 py-0.5 text-[10px] rounded border border-zinc-800 text-zinc-600 line-through select-none cursor-not-allowed">${sz}</span>`;
+          }
+          return `<button onclick="selectProductSize(${p.id}, '${sz}')" class="px-2 py-0.5 text-[10px] rounded border font-semibold transition ${isSelected ? 'bg-pink-500 text-white border-pink-500' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-pink-500'}">${sz}</button>`;
+        }).join('');
+
         grid.innerHTML += `
           <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col justify-between">
             <div>
@@ -419,11 +479,16 @@
                 <span class="text-[9px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
                 <h3 class="font-bold text-xs text-white mt-0.5 line-clamp-1">${p.name}</h3>
                 <p class="text-zinc-400 text-[11px] mt-1 line-clamp-2">${p.description}</p>
+                
+                <div class="mt-2.5">
+                  <span class="text-[10px] text-zinc-400 font-semibold block mb-1">Select Size:</span>
+                  <div class="flex gap-1 flex-wrap">${sizePills}</div>
+                </div>
               </div>
             </div>
-            <div class="p-2.5 pt-0 flex justify-between items-center mt-1">
+            <div class="p-2.5 pt-0 flex justify-between items-center mt-3">
               <span class="font-extrabold text-pink-400 text-xs">$${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-[11px] px-2.5 py-1.5 rounded font-semibold">
+              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 active:scale-95 text-white text-[11px] px-2.5 py-1.5 rounded transition font-semibold">
                 + Add
               </button>
             </div>
@@ -446,9 +511,6 @@
       const fullPhone = `${countryCode} ${phoneNum}`;
       const address = document.getElementById('cust-address').value;
 
-      const receiptMode = document.querySelector('input[name="receipt_mode"]:checked').value;
-      const email = receiptMode === 'email' ? document.getElementById('cust-email').value : '';
-
       const orderId = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
       const dateObj = new Date();
       const dateStr = dateObj.toLocaleDateString('en-US', { dateStyle: 'medium' });
@@ -461,8 +523,6 @@
         name: name,
         phone: fullPhone,
         address: address,
-        receiptMode: receiptMode,
-        email: email,
         items: [...cart],
         total: totalPrice,
         status: 'Pending'
@@ -470,14 +530,6 @@
 
       orders.unshift(newOrder);
       saveData();
-
-      // Email receipt banner in ticket
-      const emailBanner = document.getElementById('email-confirmation-banner');
-      if (receiptMode === 'email') {
-        emailBanner.classList.remove('hidden');
-      } else {
-        emailBanner.classList.add('hidden');
-      }
 
       // Populate Receipt Modal
       document.getElementById('r-id').innerText = orderId;
@@ -490,24 +542,25 @@
       const receiptItems = document.getElementById('r-items');
       receiptItems.innerHTML = cart.map(i => `
         <div class="flex justify-between text-xs">
-          <span>${i.name} (x${i.qty})</span>
+          <span>${i.name} [Size: ${i.selectedSize}] (x${i.qty})</span>
           <span>$${(i.price * i.qty).toFixed(2)}</span>
         </div>
       `).join('');
 
       // Build WhatsApp Message for SLAY Store
       let waMessage = `*NEW ORDER - ${orderId}*\n\n`;
-      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${fullPhone}\n- Address: ${address}\n`;
-      if(receiptMode === 'email') {
-        waMessage += `\n✉️ *Send Receipt to Email:* ${email}\n`;
-      }
-      waMessage += `\n*Items Ordered:*\n`;
+      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${fullPhone}\n- Address: ${address}\n\n`;
+      waMessage += `*Items Ordered:*\n`;
       cart.forEach(i => {
-        waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
+        waMessage += `• ${i.name} - Size: *${i.selectedSize}* (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
       });
-      waMessage += `\n*Total Amount:* $${totalPrice.toFixed(2)} (Cash on Delivery)`;
+      waMessage += `\n*Total Amount:* $${totalPrice.toFixed(2)} (Cash on Delivery)\n\n`;
+      waMessage += `📄 *Order PDF receipt generated and downloaded to device. Attached with item photos.*`;
 
       document.getElementById('receipt-modal').classList.remove('hidden');
+
+      // Auto Download PDF Receipt
+      downloadPDF();
 
       const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
       window.open(waUrl, '_blank');
@@ -518,7 +571,7 @@
       document.getElementById('checkout-form').reset();
     }
 
-    // Admin Add Product (Restored original reset & alert behavior)
+    // Admin Add Product
     function previewImages(event) {
       const files = Array.from(event.target.files);
       currentUploadedImages = [];
@@ -548,25 +601,76 @@
       const price = parseFloat(document.getElementById('admin-price').value);
       const desc = document.getElementById('admin-desc').value;
 
+      const selectedAvailSizes = [];
+      ALL_SIZES.forEach(sz => {
+        if(document.getElementById(`add-size-${sz}`).checked) selectedAvailSizes.push(sz);
+      });
+
       const newProduct = {
         id: Date.now(),
         name: title,
         category: category,
         price: price,
         description: desc,
+        availableSizes: selectedAvailSizes.length ? selectedAvailSizes : ALL_SIZES,
         images: [...currentUploadedImages]
       };
 
       products.unshift(newProduct);
       saveData();
 
-      // Reset Form completely
       document.getElementById('add-product-form').reset();
       currentUploadedImages = [];
       document.getElementById('image-previews-container').innerHTML = '';
       document.getElementById('image-previews-container').classList.add('hidden');
 
       showAdminAlert('Product added successfully!');
+    }
+
+    function openEditModal(productId) {
+      const prod = products.find(p => p.id === productId);
+      if(!prod) return;
+
+      document.getElementById('edit-id').value = prod.id;
+      document.getElementById('edit-title').value = prod.name;
+      document.getElementById('edit-price').value = prod.price;
+      document.getElementById('edit-desc').value = prod.description;
+
+      const categorySelect = document.getElementById('edit-category');
+      categorySelect.innerHTML = categories.map(c => `<option value="${c}" ${c === prod.category ? 'selected' : ''}>${c}</option>`).join('');
+
+      const avail = prod.availableSizes || ALL_SIZES;
+      ALL_SIZES.forEach(sz => {
+        document.getElementById(`edit-size-${sz}`).checked = avail.includes(sz);
+      });
+
+      document.getElementById('edit-product-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-product-modal').classList.add('hidden');
+    }
+
+    function saveEditedProduct(e) {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-id').value);
+      const prod = products.find(p => p.id === id);
+      if(!prod) return;
+
+      prod.name = document.getElementById('edit-title').value;
+      prod.category = document.getElementById('edit-category').value;
+      prod.price = parseFloat(document.getElementById('edit-price').value);
+      prod.description = document.getElementById('edit-desc').value;
+
+      const newAvailSizes = [];
+      ALL_SIZES.forEach(sz => {
+        if(document.getElementById(`edit-size-${sz}`).checked) newAvailSizes.push(sz);
+      });
+
+      prod.availableSizes = newAvailSizes;
+      saveData();
+      closeEditModal();
+      showAdminAlert('Product updated successfully!');
     }
 
     function showAdminAlert(msg) {
@@ -577,7 +681,6 @@
       setTimeout(() => alertBox.classList.add('hidden'), 3000);
     }
 
-    // Category Management
     function addCategory() {
       const input = document.getElementById('new-category-input');
       const val = input.value.trim();
@@ -620,24 +723,25 @@
       document.getElementById('admin-item-count').innerText = products.length;
       list.innerHTML = products.map(p => {
         const thumb = (p.images && p.images[0]) ? p.images[0] : p.image;
+        const avail = (p.availableSizes || ALL_SIZES).join(', ');
         return `
           <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700 text-xs">
             <div class="flex items-center space-x-3">
               <img src="${thumb}" class="w-10 h-10 object-cover rounded">
               <div>
                 <p class="font-bold text-white line-clamp-1">${p.name}</p>
-                <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)}</p>
+                <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)} • Sizes: [${avail}]</p>
               </div>
             </div>
-            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 px-2">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="openEditModal(${p.id})" class="text-pink-400 hover:text-pink-300 font-bold px-1.5 py-1 bg-zinc-900 rounded"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+              <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 px-1"><i class="fa-solid fa-trash"></i></button>
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    // Admin Orders Management
     function renderAdminOrders() {
       const container = document.getElementById('admin-orders-list');
       if(orders.length === 0) {
@@ -662,10 +766,9 @@
           <div>
             <p><strong>Customer:</strong> ${o.name} (${o.phone})</p>
             <p><strong>Address:</strong> ${o.address}</p>
-            ${o.email ? `<p><strong>Receipt Email:</strong> ${o.email}</p>` : ''}
           </div>
           <div class="bg-zinc-950 p-2 rounded text-[11px] space-y-0.5">
-            ${o.items.map(i => `<div class="flex justify-between"><span>${i.name} (x${i.qty})</span><span>$${(i.price*i.qty).toFixed(2)}</span></div>`).join('')}
+            ${o.items.map(i => `<div class="flex justify-between"><span>${i.name} [Size: ${i.selectedSize}] (x${i.qty})</span><span>$${(i.price*i.qty).toFixed(2)}</span></div>`).join('')}
             <div class="flex justify-between font-bold border-t border-zinc-800 pt-1 text-pink-400"><span>Total:</span><span>$${Number(o.total).toFixed(2)}</span></div>
           </div>
         </div>
@@ -687,7 +790,6 @@
       }
     }
 
-    // Analytics & Graph
     function updateAnalytics() {
       const filter = document.getElementById('analytics-filter').value;
       const now = new Date();
@@ -741,7 +843,6 @@
       });
     }
 
-    // Switch Admin Tabs (2 tabs)
     function switchAdminTab(tab) {
       document.getElementById('admin-tab-orders').classList.add('hidden');
       document.getElementById('admin-tab-store').classList.add('hidden');
@@ -753,7 +854,7 @@
       document.getElementById(`tab-btn-${tab}`).className = "bg-pink-500 text-white px-4 py-2 rounded-lg text-xs font-bold";
     }
 
-    // Lightbox / Image Zoom (Close when clicking anywhere)
+    // Lightbox / Image Zoom
     function openImageModal(id) {
       const prod = products.find(p => p.id === id);
       if(!prod) return;
@@ -769,6 +870,18 @@
 
     function closeImageModal() {
       document.getElementById('image-modal').classList.add('hidden');
+    }
+
+    function handleModalBgClick(e) {
+      if(e.target.tagName !== 'I' && e.target.tagName !== 'BUTTON') {
+        closeImageModal();
+      }
+    }
+
+    function scrollModalSlider(direction) {
+      const slider = document.getElementById('modal-slider');
+      const scrollAmount = slider.clientWidth;
+      slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
 
     // Common Helpers
@@ -799,20 +912,27 @@
     function filterCategory(cat) { currentCategory = cat; renderCategories(); renderProducts(); }
 
     function addToCart(id) {
-      const item = cart.find(x => x.id === id);
-      if(item) { item.qty++; } else {
-        const prod = products.find(x => x.id === id);
-        cart.push({ ...prod, qty: 1 });
+      const prod = products.find(x => x.id === id);
+      if(!prod) return;
+
+      const avail = prod.availableSizes || ALL_SIZES;
+      const chosenSize = selectedSizes[id] || avail[0];
+
+      const existing = cart.find(x => x.id === id && x.selectedSize === chosenSize);
+      if(existing) {
+        existing.qty++;
+      } else {
+        cart.push({ ...prod, qty: 1, selectedSize: chosenSize });
       }
       updateCartUI();
       toggleCart();
     }
 
-    function changeQty(id, delta) {
-      const item = cart.find(x => x.id === id);
+    function changeQty(id, size, delta) {
+      const item = cart.find(x => x.id === id && x.selectedSize === size);
       if(item) {
         item.qty += delta;
-        if(item.qty <= 0) cart = cart.filter(x => x.id !== id);
+        if(item.qty <= 0) cart = cart.filter(x => !(x.id === id && x.selectedSize === size));
       }
       updateCartUI();
     }
@@ -836,13 +956,13 @@
             <img src="${item.images ? item.images[0] : item.image}" class="w-10 h-10 object-cover rounded">
             <div>
               <h4 class="font-semibold text-white">${item.name}</h4>
-              <p class="text-zinc-400">$${Number(item.price).toFixed(2)} x ${item.qty}</p>
+              <p class="text-zinc-400">Size: <span class="text-pink-400 font-bold">${item.selectedSize}</span> • $${Number(item.price).toFixed(2)} x ${item.qty}</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 rounded">-</button>
+            <button onclick="changeQty(${item.id}, '${item.selectedSize}', -1)" class="w-6 h-6 bg-zinc-800 rounded">-</button>
             <span>${item.qty}</span>
-            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 rounded">+</button>
+            <button onclick="changeQty(${item.id}, '${item.selectedSize}', 1)" class="w-6 h-6 bg-zinc-800 rounded">+</button>
           </div>
         </div>
       `).join('');
