@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SLAY. | Women's Fashion</title>
+  <title>SLAY. | Admin Dashboard & Store</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +22,7 @@
   <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
-      WHATSAPP_NUMBER: "96100000000" // Replace with WhatsApp phone number (with country code, no +)
+      WHATSAPP_NUMBER: "96100000000" // Remplacez par son numéro WhatsApp (ex: 96170000000 sans le +)
     };
   </script>
 
@@ -31,34 +31,43 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <a href="#" class="text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
-      <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none">
-        <i class="fa-solid fa-bag-shopping"></i>
-        <span id="cart-count" class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
-      </button>
+      <div class="flex items-center gap-3">
+        <!-- Admin Toggle Button -->
+        <button onclick="toggleAdminModal()" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-full font-semibold transition border border-zinc-700 flex items-center gap-1.5">
+          <i class="fa-solid fa-lock text-pink-400"></i> Admin Access
+        </button>
+
+        <!-- Cart Button -->
+        <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span id="cart-count" class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+      </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <section class="text-center py-12 px-4 bg-gradient-to-b from-zinc-900 to-black">
-    <h1 class="text-4xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
-    <p class="text-zinc-400 text-sm md:text-base">Delivering all over Lebanon • Cash on Delivery</p>
+  <section class="text-center py-10 px-4 bg-gradient-to-b from-zinc-900 to-black">
+    <h1 class="text-3xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
+    <p class="text-zinc-400 text-xs md:text-sm">Delivering all over Lebanon • Cash on Delivery</p>
   </section>
 
   <!-- Category Filters -->
-  <section class="max-w-6xl mx-auto px-4 py-6 w-full">
+  <section class="max-w-6xl mx-auto px-4 py-4 w-full">
     <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container">
-      <button onclick="filterCategory('All')" class="category-btn active bg-pink-500 text-white px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">All</button>
-      <button onclick="filterCategory('Tops')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Tops</button>
-      <button onclick="filterCategory('Pants')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Pants</button>
-      <button onclick="filterCategory('Skirts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Skirts</button>
-      <button onclick="filterCategory('Shorts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Shorts</button>
+      <button onclick="filterCategory('All')" class="category-btn active bg-pink-500 text-white px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">All</button>
+      <button onclick="filterCategory('Tops')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Tops</button>
+      <button onclick="filterCategory('Pants')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Pants</button>
+      <button onclick="filterCategory('Skirts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Skirts</button>
+      <button onclick="filterCategory('Shorts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Shorts</button>
+      <button onclick="filterCategory('Dresses')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Dresses</button>
     </div>
   </section>
 
   <!-- Product Grid -->
   <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
     <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-      <!-- Products dynamically loaded -->
+      <!-- Products loaded dynamically -->
     </div>
   </main>
 
@@ -95,7 +104,71 @@
     </div>
   </div>
 
-  <!-- Receipt / Order Ticket (Hidden Modal for PDF & Printing) -->
+  <!-- ADMIN MODAL -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+        <h2 class="text-xl font-bold text-pink-500 flex items-center gap-2">
+          <i class="fa-solid fa-sliders"></i> Admin Dashboard
+        </h2>
+        <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+      </div>
+
+      <!-- Add Product Form -->
+      <form onsubmit="addNewProduct(event)" class="space-y-4 bg-zinc-950 p-4 rounded-lg border border-zinc-800">
+        <h3 class="text-sm font-bold uppercase tracking-wide text-zinc-300">Add New Product</h3>
+        
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Product Image</label>
+          <input type="file" id="admin-img-file" accept="image/*" required onchange="previewImage(event)" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
+          <div id="image-preview" class="mt-2 hidden">
+            <img id="preview-img-tag" src="" class="w-20 h-20 object-cover rounded border border-zinc-700">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Product Title</label>
+          <input type="text" id="admin-title" placeholder="e.g. Summer Floral Dress" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">Category</label>
+            <select id="admin-category" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
+              <option value="Tops">Tops</option>
+              <option value="Pants">Pants</option>
+              <option value="Skirts">Skirts</option>
+              <option value="Shorts">Shorts</option>
+              <option value="Dresses">Dresses</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1">Price ($)</label>
+            <input type="number" step="0.01" id="admin-price" placeholder="25.00" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Description</label>
+          <textarea id="admin-desc" placeholder="Sizes, fabric, details..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded text-xs uppercase tracking-wider transition">
+          <i class="fa-solid fa-plus mr-1"></i> Add Item to Store
+        </button>
+      </form>
+
+      <!-- Manage Current Items List -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-zinc-400">Manage Items (<span id="admin-item-count">0</span>)</h3>
+        <div id="admin-products-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt / Order Ticket Modal -->
   <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white text-black p-6 rounded-lg max-w-sm w-full space-y-4 text-sm" id="receipt-content">
       <div class="text-center border-b pb-3">
@@ -139,22 +212,55 @@
 
   <!-- App Logic -->
   <script>
-    let products = [];
+    // Initial Default Products
+    const defaultProducts = [
+      {
+        id: 1,
+        name: "Dantel Top - Blue & Off-White",
+        category: "Tops",
+        price: 25.00,
+        description: "Elegant lace floral top. Sizes: S, M, L.",
+        image: "https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&q=80&w=600"
+      },
+      {
+        id: 2,
+        name: "High-Waist Off-White Jeans",
+        category: "Pants",
+        price: 35.00,
+        description: "Chic straight-leg denim pants with belt.",
+        image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600"
+      },
+      {
+        id: 3,
+        name: "Summer Mini Skirt",
+        category: "Skirts",
+        price: 20.00,
+        description: "Lightweight denim mini skirt.",
+        image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&q=80&w=600"
+      },
+      {
+        id: 4,
+        name: "Casual Summer Shorts",
+        category: "Shorts",
+        price: 18.00,
+        description: "Comfortable high-waist beige shorts.",
+        image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&q=80&w=600"
+      }
+    ];
+
+    let products = JSON.parse(localStorage.getItem('slay_products')) || defaultProducts;
     let cart = [];
     let currentCategory = 'All';
+    let currentBase64Image = '';
 
-    // Fetch Products from JSON
-    async function fetchProducts() {
-      try {
-        const res = await fetch('products.json');
-        products = await res.json();
-        renderProducts();
-      } catch (e) {
-        console.error("Error loading products:", e);
-      }
+    // Save to LocalStorage
+    function saveProducts() {
+      localStorage.setItem('slay_products', JSON.stringify(products));
+      renderProducts();
+      renderAdminProducts();
     }
 
-    // Render Products
+    // Render Products Grid
     function renderProducts() {
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
@@ -162,6 +268,11 @@
       const filtered = currentCategory === 'All' 
         ? products 
         : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
+
+      if(filtered.length === 0) {
+        grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10">No products found in this category.</p>';
+        return;
+      }
 
       filtered.forEach(p => {
         grid.innerHTML += `
@@ -175,14 +286,88 @@
               </div>
             </div>
             <div class="p-3 pt-0 flex justify-between items-center mt-2">
-              <span class="font-extrabold text-pink-400">$${p.price.toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded transition">
+              <span class="font-extrabold text-pink-400">$${Number(p.price).toFixed(2)}</span>
+              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded transition font-semibold">
                 + Add
               </button>
             </div>
           </div>
         `;
       });
+    }
+
+    // Admin Image Preview & Conversion
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentBase64Image = e.target.result;
+          document.getElementById('preview-img-tag').src = currentBase64Image;
+          document.getElementById('image-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Add New Product from Admin Form
+    function addNewProduct(e) {
+      e.preventDefault();
+      if (!currentBase64Image) {
+        alert('Please select an image!');
+        return;
+      }
+
+      const title = document.getElementById('admin-title').value;
+      const category = document.getElementById('admin-category').value;
+      const price = parseFloat(document.getElementById('admin-price').value);
+      const desc = document.getElementById('admin-desc').value;
+
+      const newProduct = {
+        id: Date.now(),
+        name: title,
+        category: category,
+        price: price,
+        description: desc,
+        image: currentBase64Image
+      };
+
+      products.unshift(newProduct);
+      saveProducts();
+
+      // Reset Form
+      e.target.reset();
+      currentBase64Image = '';
+      document.getElementById('image-preview').classList.add('hidden');
+      alert('New item added successfully!');
+    }
+
+    // Delete Product (Admin)
+    function deleteProduct(id) {
+      if (confirm('Are you sure you want to delete this product?')) {
+        products = products.filter(p => p.id !== id);
+        saveProducts();
+      }
+    }
+
+    // Render Admin Products List
+    function renderAdminProducts() {
+      const list = document.getElementById('admin-products-list');
+      document.getElementById('admin-item-count').innerText = products.length;
+      list.innerHTML = products.map(p => `
+        <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700">
+          <div class="flex items-center space-x-3">
+            <img src="${p.image}" class="w-10 h-10 object-cover rounded">
+            <div>
+              <p class="text-xs font-bold text-white line-clamp-1">${p.name}</p>
+              <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)}</p>
+            </div>
+          </div>
+          <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 text-sm px-2">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
     }
 
     // Category Filter Handler
@@ -201,8 +386,15 @@
 
     // Cart Operations
     function toggleCart() {
-      const sidebar = document.getElementById('cart-sidebar');
-      sidebar.classList.toggle('translate-x-full');
+      document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
+    }
+
+    function toggleAdminModal() {
+      const modal = document.getElementById('admin-modal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        renderAdminProducts();
+      }
     }
 
     function addToCart(id) {
@@ -250,7 +442,7 @@
             <img src="${item.image}" class="w-12 h-12 object-cover rounded">
             <div>
               <h4 class="font-semibold text-xs text-white">${item.name}</h4>
-              <p class="text-zinc-400 text-xs">$${item.price.toFixed(2)} x ${item.qty}</p>
+              <p class="text-zinc-400 text-xs">$${Number(item.price).toFixed(2)} x ${item.qty}</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
@@ -262,7 +454,7 @@
       `).join('');
     }
 
-    // Process Checkout: PDF Ticket + WhatsApp Order Link
+    // Checkout: Ticket PDF + WhatsApp
     function processCheckout(e) {
       e.preventDefault();
       if(cart.length === 0) {
@@ -305,18 +497,17 @@
       // Open Receipt Modal
       document.getElementById('receipt-modal').classList.remove('hidden');
 
-      // Open WhatsApp in new tab
+      // Open WhatsApp
       const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
       window.open(waUrl, '_blank');
 
-      // Clear Cart
+      // Reset
       cart = [];
       updateCartUI();
       toggleCart();
       document.getElementById('checkout-form').reset();
     }
 
-    // PDF Download Function
     function downloadPDF() {
       const element = document.getElementById('receipt-content');
       const opt = {
@@ -333,8 +524,8 @@
       document.getElementById('receipt-modal').classList.add('hidden');
     }
 
-    // Initialize
-    fetchProducts();
+    // Init
+    renderProducts();
   </script>
 </body>
 </html>
