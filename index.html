@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SLAY. | Admin Dashboard & Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SLAY. | Women's Fashion</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,61 +13,63 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
-    body { font-family: 'Montserrat', sans-serif; }
+    body { font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
     .neon-text { text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+    /* Snap slider for mobile swipe like Instagram */
+    .snap-x-mandatory { scroll-snap-type: x mandatory; }
+    .snap-center { scroll-snap-align: center; }
   </style>
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col">
+<body class="bg-black text-white min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
 
   <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
       WHATSAPP_NUMBER: "96100000000", // Remplacez par le numéro WhatsApp (sans le +)
-      ADMIN_PIN: "1234"              // <<--- CHANGEZ LE MOT DE PASSE ADMIN ICI
+      ADMIN_PIN: "1234"              // Mot de passe Administrateur
     };
   </script>
 
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="#" class="text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
-      <div class="flex items-center gap-3">
-        <!-- Admin Toggle Button -->
-        <button onclick="requestAdminAccess()" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-full font-semibold transition border border-zinc-700 flex items-center gap-1.5">
-          <i class="fa-solid fa-lock text-pink-400"></i> Admin Access
+      <div class="flex items-center gap-2 md:gap-3">
+        <!-- Admin Access Button -->
+        <button onclick="requestAdminAccess()" class="bg-zinc-800 hover:bg-pink-500 active:scale-95 text-white text-[11px] md:text-xs px-2.5 py-1.5 md:px-3 md:py-2 rounded-full font-semibold transition border border-zinc-700 flex items-center gap-1">
+          <i class="fa-solid fa-lock text-pink-400"></i> <span class="hidden sm:inline">Admin</span>
         </button>
 
         <!-- Cart Button -->
-        <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none">
+        <button onclick="toggleCart()" class="relative text-lg md:text-xl p-2 focus:outline-none active:scale-95 transition">
           <i class="fa-solid fa-bag-shopping"></i>
-          <span id="cart-count" class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+          <span id="cart-count" class="absolute top-0 right-0 bg-pink-500 text-white text-[10px] w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center font-bold">0</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <section class="text-center py-10 px-4 bg-gradient-to-b from-zinc-900 to-black">
-    <h1 class="text-3xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
+  <section class="text-center py-6 md:py-10 px-4 bg-gradient-to-b from-zinc-900 to-black">
+    <h1 class="text-2xl md:text-5xl font-black uppercase mb-1 md:mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
     <p class="text-zinc-400 text-xs md:text-sm">Delivering all over Lebanon • Cash on Delivery</p>
   </section>
 
-  <!-- Category Filters -->
-  <section class="max-w-6xl mx-auto px-4 py-4 w-full">
-    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container">
-      <button onclick="filterCategory('All')" class="category-btn active bg-pink-500 text-white px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">All</button>
-      <button onclick="filterCategory('Tops')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Tops</button>
-      <button onclick="filterCategory('Pants')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Pants</button>
-      <button onclick="filterCategory('Skirts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Skirts</button>
-      <button onclick="filterCategory('Shorts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Shorts</button>
-      <button onclick="filterCategory('Dresses')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Dresses</button>
+  <!-- Category Filters (Dynamic) -->
+  <section class="max-w-6xl mx-auto px-4 py-3 w-full">
+    <div class="flex space-x-2 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center" id="categories-container">
+      <!-- Dynamic Categories injected here -->
     </div>
   </section>
 
   <!-- Product Grid -->
-  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
-    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+  <main class="max-w-6xl mx-auto px-3 md:px-4 py-4 flex-grow w-full">
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
       <!-- Products loaded dynamically -->
     </div>
   </main>
@@ -75,8 +77,8 @@
   <!-- Sliding Cart Sidebar -->
   <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
     <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-      <h2 class="text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
-      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+      <h2 class="text-lg md:text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
+      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl p-2">&times;</button>
     </div>
 
     <!-- Cart Items -->
@@ -86,26 +88,26 @@
 
     <!-- Cart Footer & Checkout Form -->
     <div class="p-4 border-t border-zinc-800 bg-zinc-950">
-      <div class="flex justify-between font-bold text-lg mb-4">
+      <div class="flex justify-between font-bold text-base md:text-lg mb-3">
         <span>Total:</span>
         <span id="cart-total" class="text-pink-500">$0.00</span>
       </div>
 
-      <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
-        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
-        <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
-        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+      <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-2.5">
+        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
         
-        <p class="text-xs text-zinc-400 mb-2"><i class="fa-solid fa-truck"></i> Payment method: <b>Cash on Delivery</b></p>
+        <p class="text-[11px] text-zinc-400 mb-1"><i class="fa-solid fa-truck"></i> Payment method: <b>Cash on Delivery</b></p>
         
-        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded transition uppercase tracking-wider text-sm flex items-center justify-center gap-2">
-          <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order via WhatsApp
+        <button type="submit" class="w-full bg-pink-500 active:bg-pink-600 text-white font-bold py-3 rounded transition uppercase tracking-wider text-xs md:text-sm flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-base"></i> Complete Order via WhatsApp
         </button>
       </form>
     </div>
   </div>
 
-  <!-- ADMIN PASSWORD MODAL -->
+  <!-- ADMIN LOGIN MODAL -->
   <div id="admin-login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 text-center">
       <div class="w-12 h-12 bg-pink-500/10 text-pink-500 rounded-full flex items-center justify-center mx-auto text-xl">
@@ -119,31 +121,31 @@
         <p id="pin-error" class="text-xs text-red-400 hidden">Incorrect PIN code!</p>
         <div class="flex gap-2">
           <button type="button" onclick="closeAdminLogin()" class="flex-1 bg-zinc-800 text-zinc-400 py-2 rounded text-xs font-bold">Cancel</button>
-          <button type="submit" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2 rounded text-xs font-bold">Access</button>
+          <button type="submit" class="flex-1 bg-pink-500 text-white py-2 rounded text-xs font-bold">Access</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ADMIN DASHBOARD MODAL -->
-  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto">
+  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 md:p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-lg w-full space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h2 class="text-xl font-bold text-pink-500 flex items-center gap-2">
+        <h2 class="text-lg md:text-xl font-bold text-pink-500 flex items-center gap-2">
           <i class="fa-solid fa-sliders"></i> Admin Dashboard
         </h2>
         <button onclick="closeAdminDashboard()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
       </div>
 
       <!-- Add Product Form -->
-      <form onsubmit="addNewProduct(event)" class="space-y-4 bg-zinc-950 p-4 rounded-lg border border-zinc-800">
-        <h3 class="text-sm font-bold uppercase tracking-wide text-zinc-300">Add New Product</h3>
+      <form onsubmit="addNewProduct(event)" class="space-y-3.5 bg-zinc-950 p-3.5 md:p-4 rounded-lg border border-zinc-800">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-zinc-300">Add New Product</h3>
         
         <div>
-          <label class="block text-xs text-zinc-400 mb-1">Product Image</label>
-          <input type="file" id="admin-img-file" accept="image/*" required onchange="previewImage(event)" class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
-          <div id="image-preview" class="mt-2 hidden">
-            <img id="preview-img-tag" src="" class="w-20 h-20 object-cover rounded border border-zinc-700">
+          <label class="block text-xs text-zinc-400 mb-1">Product Images (Select multiple for Instagram carousel)</label>
+          <input type="file" id="admin-img-file" accept="image/*" multiple required onchange="previewImages(event)" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
+          <div id="image-previews-container" class="flex gap-2 mt-2 overflow-x-auto no-scrollbar hidden">
+            <!-- Preview thumbnails populated dynamically -->
           </div>
         </div>
 
@@ -156,11 +158,7 @@
           <div>
             <label class="block text-xs text-zinc-400 mb-1">Category</label>
             <select id="admin-category" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
-              <option value="Tops">Tops</option>
-              <option value="Pants">Pants</option>
-              <option value="Skirts">Skirts</option>
-              <option value="Shorts">Shorts</option>
-              <option value="Dresses">Dresses</option>
+              <!-- Dynamically populated categories -->
             </select>
           </div>
           <div>
@@ -174,10 +172,22 @@
           <textarea id="admin-desc" placeholder="Sizes, fabric, details..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
         </div>
 
-        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded text-xs uppercase tracking-wider transition">
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 active:scale-98 text-white font-bold py-2.5 rounded text-xs uppercase tracking-wider transition">
           <i class="fa-solid fa-plus mr-1"></i> Add Item to Store
         </button>
       </form>
+
+      <!-- Manage Categories Section -->
+      <div class="bg-zinc-950 p-3.5 md:p-4 rounded-lg border border-zinc-800 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-zinc-300">Manage Categories</h3>
+        <div class="flex gap-2">
+          <input type="text" id="new-category-input" placeholder="New Category Name (e.g. Coats)" class="flex-1 bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white px-3 py-2 rounded text-xs font-bold transition">Add</button>
+        </div>
+        <div id="admin-categories-list" class="flex flex-wrap gap-1.5 pt-1">
+          <!-- Dynamically populated category badges with delete -->
+        </div>
+      </div>
 
       <!-- Manage Current Items List -->
       <div class="space-y-2">
@@ -233,7 +243,8 @@
 
   <!-- App Logic -->
   <script>
-    // Initial Default Products
+    const defaultCategories = ["Tops", "Pants", "Skirts", "Shorts", "Dresses"];
+
     const defaultProducts = [
       {
         id: 1,
@@ -241,7 +252,10 @@
         category: "Tops",
         price: 25.00,
         description: "Elegant lace floral top. Sizes: S, M, L.",
-        image: "https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&q=80&w=600"
+        images: [
+          "https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&q=80&w=600",
+          "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600"
+        ]
       },
       {
         id: 2,
@@ -249,7 +263,7 @@
         category: "Pants",
         price: 35.00,
         description: "Chic straight-leg denim pants with belt.",
-        image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600"
+        images: ["https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600"]
       },
       {
         id: 3,
@@ -257,31 +271,44 @@
         category: "Skirts",
         price: 20.00,
         description: "Lightweight denim mini skirt.",
-        image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&q=80&w=600"
-      },
-      {
-        id: 4,
-        name: "Casual Summer Shorts",
-        category: "Shorts",
-        price: 18.00,
-        description: "Comfortable high-waist beige shorts.",
-        image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&q=80&w=600"
+        images: ["https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&q=80&w=600"]
       }
     ];
 
+    let categories = JSON.parse(localStorage.getItem('slay_categories')) || defaultCategories;
     let products = JSON.parse(localStorage.getItem('slay_products')) || defaultProducts;
     let cart = [];
     let currentCategory = 'All';
-    let currentBase64Image = '';
+    let currentUploadedImages = [];
 
-    // Save to LocalStorage
-    function saveProducts() {
+    // Save Data
+    function saveData() {
+      localStorage.setItem('slay_categories', JSON.stringify(categories));
       localStorage.setItem('slay_products', JSON.stringify(products));
+      renderCategories();
       renderProducts();
       renderAdminProducts();
+      renderAdminCategories();
     }
 
-    // Render Products Grid
+    // Render Categories Filters
+    function renderCategories() {
+      const container = document.getElementById('categories-container');
+      let html = `<button onclick="filterCategory('All')" class="category-btn ${currentCategory === 'All' ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300'} px-4 py-1.5 md:px-5 md:py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">All</button>`;
+      
+      categories.forEach(cat => {
+        const isActive = currentCategory.toLowerCase() === cat.toLowerCase();
+        html += `<button onclick="filterCategory('${cat}')" class="category-btn ${isActive ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'} px-4 py-1.5 md:px-5 md:py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">${cat}</button>`;
+      });
+      
+      container.innerHTML = html;
+
+      // Update dropdown in admin modal
+      const adminSelect = document.getElementById('admin-category');
+      adminSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    // Render Products Grid with Instagram Carousel
     function renderProducts() {
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
@@ -291,30 +318,98 @@
         : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
 
       if(filtered.length === 0) {
-        grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10">No products found in this category.</p>';
+        grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10 text-xs md:text-sm">No products found in this category.</p>';
         return;
       }
 
       filtered.forEach(p => {
+        const imgs = p.images || [p.image];
+        const hasMultiple = imgs.length > 1;
+
+        // Carousel slides
+        const carouselSlides = imgs.map((img, idx) => `
+          <div class="snap-center shrink-0 w-full h-56 md:h-64 relative">
+            <img src="${img}" class="w-full h-full object-cover">
+          </div>
+        `).join('');
+
+        // Dots indicator
+        const dots = hasMultiple ? `
+          <div class="absolute bottom-2 left-0 right-0 flex justify-center space-x-1 z-10 pointer-events-none">
+            ${imgs.map((_, i) => `<span class="w-1.5 h-1.5 rounded-full bg-white/70"></span>`).join('')}
+          </div>
+        ` : '';
+
         grid.innerHTML += `
           <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col justify-between">
             <div>
-              <img src="${p.image}" alt="${p.name}" class="w-full h-56 object-cover">
-              <div class="p-3">
-                <span class="text-[10px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
-                <h3 class="font-bold text-sm text-white mt-1 line-clamp-1">${p.name}</h3>
-                <p class="text-zinc-400 text-xs mt-1 line-clamp-2">${p.description}</p>
+              <div class="relative group">
+                <div class="flex overflow-x-auto snap-x-mandatory no-scrollbar w-full" id="slider-${p.id}">
+                  ${carouselSlides}
+                </div>
+                ${dots}
+              </div>
+              <div class="p-2.5 md:p-3">
+                <span class="text-[9px] md:text-[10px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
+                <h3 class="font-bold text-xs md:text-sm text-white mt-0.5 line-clamp-1">${p.name}</h3>
+                <p class="text-zinc-400 text-[11px] md:text-xs mt-1 line-clamp-2">${p.description}</p>
               </div>
             </div>
-            <div class="p-3 pt-0 flex justify-between items-center mt-2">
-              <span class="font-extrabold text-pink-400">$${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded transition font-semibold">
+            <div class="p-2.5 md:p-3 pt-0 flex justify-between items-center mt-1">
+              <span class="font-extrabold text-pink-400 text-xs md:text-sm">$${Number(p.price).toFixed(2)}</span>
+              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 active:scale-95 text-white text-[11px] md:text-xs px-2.5 py-1.5 md:px-3 md:py-2 rounded transition font-semibold">
                 + Add
               </button>
             </div>
           </div>
         `;
       });
+    }
+
+    // Admin Multiple Image Upload Preview
+    function previewImages(event) {
+      const files = Array.from(event.target.files);
+      currentUploadedImages = [];
+      const container = document.getElementById('image-previews-container');
+      container.innerHTML = '';
+      container.classList.remove('hidden');
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentUploadedImages.push(e.target.result);
+          container.innerHTML += `<img src="${e.target.result}" class="w-14 h-14 object-cover rounded border border-zinc-700 shrink-0">`;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Category Management
+    function addCategory() {
+      const input = document.getElementById('new-category-input');
+      const val = input.value.trim();
+      if(val && !categories.some(c => c.toLowerCase() === val.toLowerCase())) {
+        categories.push(val);
+        input.value = '';
+        saveData();
+      }
+    }
+
+    function removeCategory(catName) {
+      if(confirm(`Delete category "${catName}"?`)) {
+        categories = categories.filter(c => c.toLowerCase() !== catName.toLowerCase());
+        saveData();
+      }
+    }
+
+    function renderAdminCategories() {
+      const list = document.getElementById('admin-categories-list');
+      list.innerHTML = categories.map(c => `
+        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5">
+          ${c}
+          <button onclick="removeCategory('${c}')" class="text-zinc-500 hover:text-red-400 text-xs">&times;</button>
+        </span>
+      `).join('');
     }
 
     // Admin Auth Logic
@@ -336,6 +431,7 @@
         closeAdminLogin();
         document.getElementById('admin-modal').classList.remove('hidden');
         renderAdminProducts();
+        renderAdminCategories();
       } else {
         document.getElementById('pin-error').classList.remove('hidden');
       }
@@ -345,25 +441,11 @@
       document.getElementById('admin-modal').classList.add('hidden');
     }
 
-    // Admin Image Preview
-    function previewImage(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          currentBase64Image = e.target.result;
-          document.getElementById('preview-img-tag').src = currentBase64Image;
-          document.getElementById('image-preview').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    // Add New Product from Admin Form
+    // Add New Product
     function addNewProduct(e) {
       e.preventDefault();
-      if (!currentBase64Image) {
-        alert('Please select an image!');
+      if (currentUploadedImages.length === 0) {
+        alert('Please select at least one image!');
         return;
       }
 
@@ -378,58 +460,53 @@
         category: category,
         price: price,
         description: desc,
-        image: currentBase64Image
+        images: [...currentUploadedImages]
       };
 
       products.unshift(newProduct);
-      saveProducts();
+      saveData();
 
-      // Reset Form
+      // Reset
       e.target.reset();
-      currentBase64Image = '';
-      document.getElementById('image-preview').classList.add('hidden');
+      currentUploadedImages = [];
+      document.getElementById('image-previews-container').classList.add('hidden');
       alert('New item added successfully!');
     }
 
-    // Delete Product (Admin)
+    // Delete Product
     function deleteProduct(id) {
-      if (confirm('Are you sure you want to delete this product?')) {
+      if (confirm('Delete this product?')) {
         products = products.filter(p => p.id !== id);
-        saveProducts();
+        saveData();
       }
     }
 
-    // Render Admin Products List
     function renderAdminProducts() {
       const list = document.getElementById('admin-products-list');
       document.getElementById('admin-item-count').innerText = products.length;
-      list.innerHTML = products.map(p => `
-        <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700">
-          <div class="flex items-center space-x-3">
-            <img src="${p.image}" class="w-10 h-10 object-cover rounded">
-            <div>
-              <p class="text-xs font-bold text-white line-clamp-1">${p.name}</p>
-              <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)}</p>
+      list.innerHTML = products.map(p => {
+        const thumb = (p.images && p.images[0]) ? p.images[0] : p.image;
+        return `
+          <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700">
+            <div class="flex items-center space-x-3">
+              <img src="${thumb}" class="w-10 h-10 object-cover rounded">
+              <div>
+                <p class="text-xs font-bold text-white line-clamp-1">${p.name}</p>
+                <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)} (${p.images ? p.images.length : 1} photos)</p>
+              </div>
             </div>
+            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 text-sm px-2">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
-          <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 text-sm px-2">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // Category Filter Handler
     function filterCategory(cat) {
       currentCategory = cat;
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('bg-pink-500', 'text-white');
-        btn.classList.add('bg-zinc-800', 'text-zinc-300');
-        if(btn.innerText === cat) {
-          btn.classList.add('bg-pink-500', 'text-white');
-          btn.classList.remove('bg-zinc-800', 'text-zinc-300');
-        }
-      });
+      renderCategories();
       renderProducts();
     }
 
@@ -473,26 +550,29 @@
       totalEl.innerText = `$${totalPrice.toFixed(2)}`;
 
       if(cart.length === 0) {
-        container.innerHTML = '<p class="text-zinc-500 text-center py-8">Your bag is empty.</p>';
+        container.innerHTML = '<p class="text-zinc-500 text-center py-8 text-xs">Your bag is empty.</p>';
         return;
       }
 
-      container.innerHTML = cart.map(item => `
-        <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-          <div class="flex items-center space-x-3">
-            <img src="${item.image}" class="w-12 h-12 object-cover rounded">
-            <div>
-              <h4 class="font-semibold text-xs text-white">${item.name}</h4>
-              <p class="text-zinc-400 text-xs">$${Number(item.price).toFixed(2)} x ${item.qty}</p>
+      container.innerHTML = cart.map(item => {
+        const thumb = (item.images && item.images[0]) ? item.images[0] : item.image;
+        return `
+          <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+            <div class="flex items-center space-x-3">
+              <img src="${thumb}" class="w-12 h-12 object-cover rounded">
+              <div>
+                <h4 class="font-semibold text-xs text-white">${item.name}</h4>
+                <p class="text-zinc-400 text-xs">$${Number(item.price).toFixed(2)} x ${item.qty}</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">-</button>
+              <span class="text-xs">${item.qty}</span>
+              <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">+</button>
             </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">-</button>
-            <span class="text-xs">${item.qty}</span>
-            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">+</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // Checkout: Ticket PDF + WhatsApp
@@ -566,6 +646,7 @@
     }
 
     // Init
+    renderCategories();
     renderProducts();
   </script>
 </body>
