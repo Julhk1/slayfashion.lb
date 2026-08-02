@@ -24,10 +24,10 @@
   <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
-      WHATSAPP_NUMBER: "96100000000", // Numéro WhatsApp professionnel
+      WHATSAPP_NUMBER: "96100000000", // Ton numéro WhatsApp professionnel
       DELIVERY_FEE: 4.00,
-      SUPABASE_URL: "https://TON_PROJECT_ID.supabase.co", // Remplace par ton URL Supabase
-      SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ" // Ta clé publique
+      SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co/rest/v1/", // REMPLACE PAR TON URL SUPABASE COMPLÈTE
+      SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ"
     };
 
     // Initialisation du client Supabase
@@ -314,14 +314,12 @@
 
     // --- REALTIME SUBSCRIPTIONS ---
     function setupRealtimeSubscriptions() {
-      // Écoute en direct des changements sur les Catégories (Ajout/Suppression chez n'importe quel utilisateur)
       db.channel('public:categories')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => {
           fetchCategories();
         })
         .subscribe();
 
-      // Écoute en direct des changements sur les Produits
       db.channel('public:products')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
           fetchProducts();
@@ -388,7 +386,7 @@
         alert('Error adding category: ' + error.message);
       } else {
         input.value = '';
-        fetchCategories(); // Rafraîchit immédiatement
+        fetchCategories();
       }
     }
 
@@ -680,7 +678,7 @@
     // Initialisation
     fetchCategories();
     fetchProducts();
-    setupRealtimeSubscriptions(); // Écoute temps réel activée
+    setupRealtimeSubscriptions();
   </script>
 </body>
 </html>
