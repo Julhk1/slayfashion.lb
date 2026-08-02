@@ -2,292 +2,432 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SLAY. | Women's Fashion</title>
   
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Chart.js & html2pdf -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2pdf Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
-    body { font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Montserrat', sans-serif; }
     .neon-text { text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .snap-x-mandatory { scroll-snap-type: x mandatory; }
-    .snap-center { scroll-snap-align: center; }
   </style>
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
+<body class="bg-black text-white min-h-screen flex flex-col">
 
-  <!-- CONFIGURATION SUPABASE -->
+  <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
-      WHATSAPP_NUMBER: "33765231464", // Numéro WhatsApp du magasin
-      ADMIN_PIN: "1234",              // Code PIN Admin
-      SUPABASE_URL: "TON_URL_SUPABASE_ICI", // <--- Remplace uniquement cette URL
-      SUPABASE_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ"
+      WHATSAPP_NUMBER: "96100000000", // Replace with your WhatsApp number
+      DELIVERY_FEE: 4.00
     };
-
-    // Initialisation du client Supabase
-    const db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
   </script>
 
   <!-- Header -->
   <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="#" class="text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
-      <div class="flex items-center gap-2 md:gap-3">
-        <button onclick="requestAdminAccess()" class="bg-zinc-900 hover:bg-pink-500 active:scale-95 text-zinc-400 hover:text-white text-[11px] md:text-xs px-2.5 py-1.5 md:px-3 md:py-2 rounded-full font-semibold transition border border-zinc-800 flex items-center gap-1">
-          <i class="fa-solid fa-lock text-pink-500"></i> <span class="hidden sm:inline">Admin</span>
+      <div class="flex items-center space-x-4">
+        <!-- Admin Dashboard Trigger -->
+        <button onclick="toggleAdminModal()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2 rounded transition flex items-center gap-1">
+          <i class="fa-solid fa-gear"></i> Admin
         </button>
 
-        <button onclick="toggleCart()" class="relative text-lg md:text-xl p-2 focus:outline-none active:scale-95 transition">
+        <!-- Cart Trigger -->
+        <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none">
           <i class="fa-solid fa-bag-shopping"></i>
-          <span id="cart-count" class="absolute top-0 right-0 bg-pink-500 text-white text-[10px] w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center font-bold">0</span>
+          <span id="cart-count" class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <section class="text-center py-6 md:py-10 px-4 bg-gradient-to-b from-zinc-900 to-black">
-    <h1 class="text-2xl md:text-5xl font-black uppercase mb-1 md:mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
-    <p class="text-zinc-400 text-xs md:text-sm">Delivering all over Lebanon • Cash on Delivery</p>
+  <section class="text-center py-12 px-4 bg-gradient-to-b from-zinc-900 to-black">
+    <h1 class="text-4xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
+    <p class="text-zinc-400 text-sm md:text-base">Delivering across Lebanon within 1-3 business days • Cash on Delivery</p>
   </section>
 
-  <!-- Category Filters -->
-  <section class="max-w-6xl mx-auto px-4 py-3 w-full">
-    <div class="flex space-x-2 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center" id="categories-container">
-      <!-- Dynamic Categories -->
+  <!-- Key Highlights Bar -->
+  <section class="border-y border-zinc-800 bg-zinc-950 py-3 text-xs text-zinc-400">
+    <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-around gap-4 text-center">
+      <span><i class="fa-solid fa-truck text-pink-500 mr-2"></i>Flat Delivery: $4 All Lebanon</span>
+      <span><i class="fa-solid fa-clock text-pink-500 mr-2"></i>1-3 Business Days Delivery</span>
+      <button onclick="togglePolicyModal()" class="underline hover:text-pink-400 transition"><i class="fa-solid fa-rotate-left text-pink-500 mr-2"></i>2-Day Exchange Policy</button>
+    </div>
+  </section>
+
+  <!-- Dynamic Category Filters -->
+  <section class="max-w-6xl mx-auto px-4 py-6 w-full">
+    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container">
+      <!-- Category Buttons dynamically added here -->
     </div>
   </section>
 
   <!-- Product Grid -->
-  <main class="max-w-6xl mx-auto px-3 md:px-4 py-4 flex-grow w-full">
-    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-      <div class="col-span-full text-center py-12 text-zinc-500">Loading collection...</div>
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <!-- Products loaded dynamically -->
     </div>
   </main>
+
+  <!-- ADMIN DASHBOARD MODAL -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 text-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+        <h2 class="text-xl font-extrabold text-pink-500">Admin Dashboard</h2>
+        <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white text-xl">&times;</button>
+      </div>
+
+      <!-- Add New Product Form -->
+      <div class="bg-black/50 p-4 rounded-lg border border-zinc-800 space-y-4">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Add New Product</h3>
+        
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Product Image</label>
+          <input type="file" id="admin-img-file" accept="image/*" onchange="previewImage(event)" class="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
+          <div id="img-preview" class="mt-2 hidden">
+            <img src="" id="preview-src" class="w-16 h-16 object-cover rounded border border-zinc-700">
+          </div>
+        </div>
+
+        <input type="text" id="admin-name" placeholder="Product Title (e.g. Dantel Top)" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+
+        <div class="grid grid-cols-2 gap-3">
+          <select id="admin-category-select" class="bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+            <!-- Dynamic Category Options -->
+          </select>
+          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Available Sizes</label>
+          <div class="flex gap-4 text-xs">
+            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="S" checked class="accent-pink-500"> S</label>
+            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="M" checked class="accent-pink-500"> M</label>
+            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="L" checked class="accent-pink-500"> L</label>
+            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="XL" checked class="accent-pink-500"> XL</label>
+          </div>
+        </div>
+
+        <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+
+        <button onclick="saveProduct()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 rounded transition uppercase text-xs">
+          + Add Item to Store
+        </button>
+      </div>
+
+      <!-- Manage Categories -->
+      <div class="bg-black/50 p-4 rounded-lg border border-zinc-800 space-y-3">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Manage Categories</h3>
+        <div class="flex gap-2">
+          <input type="text" id="new-category-input" placeholder="New Category Name (e.g. Skirts)" class="flex-grow bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded text-xs transition">Add</button>
+        </div>
+        <div id="category-list-tags" class="flex flex-wrap gap-2 pt-2">
+          <!-- Categories list tags -->
+        </div>
+      </div>
+
+      <!-- Current Inventory -->
+      <div class="bg-black/50 p-4 rounded-lg border border-zinc-800 space-y-3">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Current Items (<span id="item-count">0</span>)</h3>
+        <div id="admin-inventory-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Item list with delete buttons -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Sliding Cart Sidebar -->
   <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
     <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-      <h2 class="text-lg md:text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
-      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl p-2">&times;</button>
+      <h2 class="text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
+      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
     </div>
 
+    <!-- Cart Items -->
     <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
       <p class="text-zinc-500 text-center py-8">Your bag is empty.</p>
     </div>
 
-    <div class="p-4 border-t border-zinc-800 bg-zinc-950 overflow-y-auto max-h-[60vh]">
-      <div class="flex justify-between font-bold text-base md:text-lg mb-3">
-        <span>Total:</span>
-        <span id="cart-total" class="text-pink-500">$0.00</span>
+    <!-- Cart Footer & Checkout Form -->
+    <div class="p-4 border-t border-zinc-800 bg-zinc-950">
+      <div class="space-y-1 text-sm mb-4 border-b border-zinc-800 pb-3">
+        <div class="flex justify-between text-zinc-400">
+          <span>Subtotal:</span>
+          <span id="cart-subtotal">$0.00</span>
+        </div>
+        <div class="flex justify-between text-zinc-400">
+          <span>Delivery Fee (Lebanon):</span>
+          <span id="cart-delivery">$4.00</span>
+        </div>
+        <div class="flex justify-between font-bold text-base text-white pt-1">
+          <span>Total (Cash on Delivery):</span>
+          <span id="cart-total" class="text-pink-500">$0.00</span>
+        </div>
       </div>
 
       <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
-        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700">
+        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
         
-        <div class="flex gap-2">
-          <select id="cust-country-code" class="w-28 bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700">
-            <option value="+961">🇱🇧 +961</option>
-            <option value="+33" selected>🇫🇷 +33</option>
-            <option value="+1">🇺🇸 +1</option>
-          </select>
-          <input type="tel" id="cust-phone" placeholder="Phone Number" required class="flex-1 bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700">
-        </div>
+        <p class="text-[11px] text-zinc-400">
+          <i class="fa-solid fa-circle-info text-pink-500 mr-1"></i>
+          Exchanges allowed within 2 days of delivery (delivery fees apply).
+        </p>
 
-        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs md:text-sm border border-zinc-700"></textarea>
-        
-        <p class="text-[11px] text-zinc-400"><i class="fa-solid fa-truck"></i> Payment method: <b>Cash on Delivery</b></p>
-        
-        <button type="submit" class="w-full bg-pink-500 active:bg-pink-600 text-white font-bold py-3 rounded uppercase text-xs md:text-sm flex items-center justify-center gap-2">
-          <i class="fa-brands fa-whatsapp text-base"></i> Complete Order via WhatsApp
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded transition uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order via WhatsApp
         </button>
       </form>
     </div>
   </div>
 
-  <!-- LIGHTBOX -->
-  <div id="image-modal" onclick="handleModalBgClick(event)" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-    <div class="flex justify-between items-center text-white pointer-events-none">
-      <span id="modal-item-title" class="text-sm font-bold tracking-wider"></span>
-      <span class="text-xs text-zinc-400 bg-zinc-800 px-3 py-1 rounded-full">Tap anywhere outside to close &times;</span>
-    </div>
-    
-    <div class="relative flex-grow flex items-center justify-center overflow-hidden my-4">
-      <button onclick="scrollModalSlider(-1)" class="absolute left-2 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center border border-zinc-700">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-
-      <div id="modal-slider" class="flex overflow-x-auto snap-x-mandatory no-scrollbar w-full h-full items-center"></div>
-
-      <button onclick="scrollModalSlider(1)" class="absolute right-2 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center border border-zinc-700">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- ADMIN LOGIN -->
-  <div id="admin-login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 text-center">
-      <h3 class="text-lg font-bold">Admin Security Check</h3>
-      <form onsubmit="verifyAdminPin(event)" class="space-y-3">
-        <input type="password" id="admin-pin-input" placeholder="Enter PIN code" required class="w-full text-center tracking-widest text-lg bg-zinc-800 text-white rounded p-2 border border-zinc-700">
-        <p id="pin-error" class="text-xs text-red-400 hidden">Incorrect PIN code!</p>
-        <div class="flex gap-2">
-          <button type="button" onclick="closeAdminLogin()" class="flex-1 bg-zinc-800 text-zinc-400 py-2 rounded text-xs font-bold">Cancel</button>
-          <button type="submit" class="flex-1 bg-pink-500 text-white py-2 rounded text-xs font-bold">Access</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ADMIN DASHBOARD -->
-  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-2 md:p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 md:p-6 max-w-3xl w-full space-y-4 max-h-[95vh] overflow-y-auto">
+  <!-- Policy Modal -->
+  <div id="policy-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 text-white p-6 rounded-lg max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h2 class="text-lg md:text-xl font-bold text-pink-500">Admin Dashboard</h2>
-        <button onclick="closeAdminDashboard()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
-      </div>
-
-      <div id="admin-alert" class="hidden bg-emerald-500/10 border border-emerald-500 text-emerald-400 p-3 rounded-lg text-xs flex justify-between">
-        <span id="admin-alert-text">Done!</span>
-        <i class="fa-solid fa-check"></i>
-      </div>
-
-      <!-- Add Product Form -->
-      <form id="add-product-form" onsubmit="addNewProduct(event)" class="space-y-3 bg-zinc-950 p-3.5 rounded-lg border border-zinc-800">
-        <h3 class="text-xs font-bold uppercase text-zinc-300">Add New Product</h3>
-        <div>
-          <label class="block text-xs text-zinc-400 mb-1">Product Images</label>
-          <input type="file" id="admin-img-file" accept="image/*" multiple required onchange="previewImages(event)" class="w-full text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-pink-500 file:text-white">
-          <div id="image-previews-container" class="flex gap-2 mt-2 overflow-x-auto no-scrollbar hidden"></div>
-        </div>
-        <div>
-          <input type="text" id="admin-title" placeholder="Title" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <select id="admin-category" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></select>
-          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" required class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-        </div>
-        <div>
-          <div class="flex gap-4 bg-zinc-900 p-2 rounded border border-zinc-800 text-xs">
-            <label><input type="checkbox" id="add-size-S" checked class="accent-pink-500"> S</label>
-            <label><input type="checkbox" id="add-size-M" checked class="accent-pink-500"> M</label>
-            <label><input type="checkbox" id="add-size-L" checked class="accent-pink-500"> L</label>
-            <label><input type="checkbox" id="add-size-XL" checked class="accent-pink-500"> XL</label>
-          </div>
-        </div>
-        <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700"></textarea>
-        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded text-xs uppercase">
-          <i class="fa-solid fa-plus mr-1"></i> Add Item to Store
-        </button>
-      </form>
-
-      <div class="bg-zinc-950 p-3.5 rounded-lg border border-zinc-800 space-y-3">
-        <h3 class="text-xs font-bold uppercase text-zinc-300">Manage Categories</h3>
-        <div class="flex gap-2">
-          <input type="text" id="new-category-input" placeholder="New Category Name" class="flex-1 bg-zinc-800 text-white rounded p-2 text-xs border border-zinc-700">
-          <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white px-3 py-2 rounded text-xs font-bold">Add</button>
-        </div>
-        <div id="admin-categories-list" class="flex flex-wrap gap-1.5 pt-1"></div>
+        <h3 class="text-lg font-bold text-pink-500 uppercase tracking-wide">Store Policies</h3>
+        <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-white text-xl">&times;</button>
       </div>
 
       <div class="space-y-2">
-        <h3 class="text-xs font-bold uppercase text-zinc-400">Current Items (<span id="admin-item-count">0</span>)</h3>
-        <div id="admin-products-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
+        <h4 class="font-bold text-sm text-zinc-200 border-b border-zinc-800 pb-1 flex items-center gap-2">
+          <i class="fa-solid fa-truck text-pink-500"></i> Delivery Information
+        </h4>
+        <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
+          <li>We deliver across all regions in Lebanon.</li>
+          <li>Flat delivery fee: <strong>$4.00</strong>.</li>
+          <li>Estimated delivery time: <strong>1 to 3 business days</strong>.</li>
+          <li>Payment method: <strong>Cash on Delivery (COD)</strong>.</li>
+        </ul>
       </div>
+
+      <div class="space-y-2 pt-2">
+        <h4 class="font-bold text-sm text-zinc-200 border-b border-zinc-800 pb-1 flex items-center gap-2">
+          <i class="fa-solid fa-rotate-left text-pink-500"></i> Exchange Policy
+        </h4>
+        <p class="text-xs font-semibold text-zinc-300">We offer exchanges only. No refunds.</p>
+        <p class="text-xs text-zinc-400">Exchange requests are accepted within <strong>2 days</strong> of receiving your order.</p>
+        
+        <p class="text-xs font-semibold text-zinc-300 pt-1">Items must be:</p>
+        <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
+          <li>Unworn & unused</li>
+          <li>Unwashed</li>
+          <li>With original tags attached</li>
+        </ul>
+
+        <p class="text-xs font-semibold text-zinc-300 pt-1">Exchange options:</p>
+        <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
+          <li>Size change</li>
+          <li>Color change</li>
+          <li>Another available item</li>
+        </ul>
+      </div>
+
+      <button onclick="togglePolicyModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded transition">
+        Close
+      </button>
     </div>
   </div>
 
-  <!-- Receipt Ticket Modal -->
+  <!-- Receipt Modal -->
   <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white text-black p-6 rounded-lg max-w-sm w-full space-y-4 text-sm" id="receipt-content">
       <div class="text-center border-b pb-3">
-        <h2 class="text-2xl font-black">SLAY.</h2>
+        <h2 class="text-2xl font-black tracking-widest">SLAY.</h2>
         <p class="text-xs text-gray-500">Official Order Receipt</p>
       </div>
 
       <div class="space-y-1 text-xs">
         <p><strong>Order ID:</strong> <span id="r-id"></span></p>
+        <p><strong>Date:</strong> <span id="r-date"></span></p>
         <p><strong>Customer:</strong> <span id="r-name"></span></p>
         <p><strong>Phone:</strong> <span id="r-phone"></span></p>
         <p><strong>Address:</strong> <span id="r-address"></span></p>
       </div>
 
       <div class="border-t border-b py-2 my-2">
+        <p class="font-bold mb-2">Order Items:</p>
         <div id="r-items" class="space-y-1"></div>
       </div>
 
-      <div class="flex justify-between font-bold text-base">
+      <div class="space-y-1 text-xs border-b pb-2">
+        <div class="flex justify-between">
+          <span>Items Subtotal:</span>
+          <span id="r-subtotal"></span>
+        </div>
+        <div class="flex justify-between">
+          <span>Delivery Fee:</span>
+          <span>$4.00</span>
+        </div>
+      </div>
+
+      <div class="flex justify-between font-bold text-base pt-1">
         <span>Total Due (COD):</span>
         <span id="r-total"></span>
       </div>
 
+      <p class="text-center text-[10px] text-gray-500 pt-2">
+        Exchanges accepted within 2 days of delivery.<br>
+        Thank you for choosing <strong>SLAY.</strong> ❤️
+      </p>
+
       <div class="flex gap-2 pt-2" data-html2canvas-ignore="true">
-        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold">Download Ticket PDF</button>
+        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold hover:bg-black transition">
+          <i class="fa-solid fa-download mr-1"></i> Save Ticket (PDF)
+        </button>
         <button onclick="closeReceipt()" class="bg-gray-300 text-black px-4 py-2 rounded text-xs font-bold">Close</button>
       </div>
     </div>
   </div>
 
-  <footer class="border-t border-zinc-800 text-center py-6 text-xs text-zinc-500 mt-12">
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800 text-center py-6 text-xs text-zinc-500 mt-12 space-y-2">
+    <div>
+      <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-pink-500 underline mx-2">Exchange Policy</button>
+      •
+      <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-pink-500 underline mx-2">Delivery Fees</button>
+    </div>
     <p>&copy; 2026 SLAY. All rights reserved.</p>
   </footer>
 
+  <!-- Application Logic -->
   <script>
-    const ALL_SIZES = ["S", "M", "L", "XL"];
-    let categories = [];
-    let products = [];
+    // State initialization from LocalStorage or Defaults
+    let categories = JSON.parse(localStorage.getItem('slay_categories')) || ['Tops', 'Pants', 'Skirts', 'Shorts'];
+    let products = JSON.parse(localStorage.getItem('slay_products')) || [
+      {
+        id: 1,
+        name: "Dantel Top - Blue & Off-White",
+        category: "Tops",
+        price: 25.00,
+        description: "Elegant lace floral top.",
+        sizes: ["S", "M", "L"],
+        image: "https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&q=80&w=600"
+      }
+    ];
     let cart = [];
-    let selectedSizes = {};
     let currentCategory = 'All';
-    let currentUploadedImages = [];
+    let uploadedImageBase64 = '';
 
-    // --- LOGIQUE SUPABASE ---
-    async function loadDataFromSupabase() {
-      const { data: catData } = await db.from('categories').select('*');
-      if (catData && catData.length) {
-        categories = catData.map(c => c.name);
-      } else {
-        categories = ["Tops", "Pants", "Skirts", "Shorts", "Dresses"];
+    // --- CATEGORY MANAGEMENT ---
+    function renderCategories() {
+      // 1. Store filters
+      const container = document.getElementById('categories-container');
+      container.innerHTML = `
+        <button onclick="filterCategory('All')" class="category-btn active ${currentCategory === 'All' ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300'} px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">All</button>
+      `;
+      
+      categories.forEach(cat => {
+        const isActive = currentCategory.toLowerCase() === cat.toLowerCase();
+        container.innerHTML += `
+          <button onclick="filterCategory('${cat}')" class="category-btn ${isActive ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'} px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">${cat}</button>
+        `;
+      });
+
+      // 2. Admin Select Dropdown
+      const select = document.getElementById('admin-category-select');
+      select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      // 3. Admin Tag Badges
+      const tagsContainer = document.getElementById('category-list-tags');
+      tagsContainer.innerHTML = categories.map(c => `
+        <span class="bg-zinc-800 text-zinc-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-2 border border-zinc-700">
+          ${c}
+          <button onclick="deleteCategory('${c}')" class="text-pink-500 hover:text-pink-400 font-bold">&times;</button>
+        </span>
+      `).join('');
+    }
+
+    function addCategory() {
+      const input = document.getElementById('new-category-input');
+      const val = input.value.trim();
+      if(val && !categories.some(c => c.toLowerCase() === val.toLowerCase())) {
+        categories.push(val);
+        localStorage.setItem('slay_categories', JSON.stringify(categories));
+        input.value = '';
+        renderCategories();
       }
+    }
 
-      const { data: prodData } = await db.from('products').select('*').order('id', { ascending: false });
-      if (prodData) {
-        products = prodData;
-      }
+    function deleteCategory(cat) {
+      categories = categories.filter(c => c !== cat);
+      localStorage.setItem('slay_categories', JSON.stringify(categories));
+      renderCategories();
+    }
 
+    function filterCategory(cat) {
+      currentCategory = cat;
       renderCategories();
       renderProducts();
     }
 
-    function renderCategories() {
-      const container = document.getElementById('categories-container');
-      let html = `<button onclick="filterCategory('All')" class="category-btn ${currentCategory === 'All' ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300'} px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">All</button>`;
-      categories.forEach(cat => {
-        const isActive = currentCategory.toLowerCase() === cat.toLowerCase();
-        html += `<button onclick="filterCategory('${cat}')" class="category-btn ${isActive ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'} px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap">${cat}</button>`;
-      });
-      container.innerHTML = html;
-
-      const adminSelect = document.getElementById('admin-category');
-      if(adminSelect) adminSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    // --- PRODUCT MANAGEMENT ---
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImageBase64 = e.target.result;
+          document.getElementById('preview-src').src = uploadedImageBase64;
+          document.getElementById('img-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
-    function selectProductSize(productId, size) {
-      selectedSizes[productId] = size;
+    function saveProduct() {
+      const name = document.getElementById('admin-name').value.trim();
+      const category = document.getElementById('admin-category-select').value;
+      const price = parseFloat(document.getElementById('admin-price').value);
+      const description = document.getElementById('admin-desc').value.trim();
+      
+      const sizeInputs = document.querySelectorAll('input[name="sizes"]:checked');
+      const sizes = Array.from(sizeInputs).map(cb => cb.value);
+
+      if(!name || isNaN(price) || !uploadedImageBase64) {
+        alert('Please fill out Name, Price and select an Image.');
+        return;
+      }
+
+      const newProd = {
+        id: Date.now(),
+        name,
+        category,
+        price,
+        description,
+        sizes,
+        image: uploadedImageBase64
+      };
+
+      products.push(newProd);
+      localStorage.setItem('slay_products', JSON.stringify(products));
+
+      // Reset form
+      document.getElementById('admin-name').value = '';
+      document.getElementById('admin-price').value = '';
+      document.getElementById('admin-desc').value = '';
+      document.getElementById('admin-img-file').value = '';
+      document.getElementById('img-preview').classList.add('hidden');
+      uploadedImageBase64 = '';
+
       renderProducts();
+      renderAdminInventory();
+    }
+
+    function deleteProduct(id) {
+      products = products.filter(p => p.id !== id);
+      localStorage.setItem('slay_products', JSON.stringify(products));
+      renderProducts();
+      renderAdminInventory();
     }
 
     function renderProducts() {
@@ -299,46 +439,24 @@
         : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
 
       if(filtered.length === 0) {
-        grid.innerHTML = '<p class="col-span-full text-center text-zinc-500 py-10 text-xs">No products found in this category.</p>';
+        grid.innerHTML = `<p class="col-span-full text-center text-zinc-500 py-12">No products available in this category.</p>`;
         return;
       }
 
       filtered.forEach(p => {
-        const imgs = p.images || [];
-        const firstImg = imgs.length ? imgs[0] : 'https://via.placeholder.com/300';
-        const availSizes = p.availableSizes || ALL_SIZES;
-        const currentSelectedSize = selectedSizes[p.id] || availSizes[0];
-
-        const sizePills = ALL_SIZES.map(sz => {
-          const isAvailable = availSizes.includes(sz);
-          const isSelected = currentSelectedSize === sz;
-
-          if(!isAvailable) {
-            return `<span class="px-2 py-0.5 text-[10px] rounded border border-zinc-800 text-zinc-600 line-through select-none cursor-not-allowed">${sz}</span>`;
-          }
-          return `<button onclick="selectProductSize(${p.id}, '${sz}')" class="px-2 py-0.5 text-[10px] rounded border font-semibold transition ${isSelected ? 'bg-pink-500 text-white border-pink-500' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-pink-500'}">${sz}</button>`;
-        }).join('');
-
         grid.innerHTML += `
           <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col justify-between">
             <div>
-              <div class="relative cursor-pointer" onclick="openImageModal(${p.id})">
-                <img src="${firstImg}" class="w-full h-56 object-cover">
-              </div>
-              <div class="p-2.5">
-                <span class="text-[9px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
-                <h3 class="font-bold text-xs text-white mt-0.5 line-clamp-1">${p.name}</h3>
-                <p class="text-zinc-400 text-[11px] mt-1 line-clamp-2">${p.description || ''}</p>
-                
-                <div class="mt-2.5">
-                  <span class="text-[10px] text-zinc-400 font-semibold block mb-1">Select Size:</span>
-                  <div class="flex gap-1 flex-wrap">${sizePills}</div>
-                </div>
+              <img src="${p.image}" alt="${p.name}" class="w-full h-56 object-cover">
+              <div class="p-3">
+                <span class="text-[10px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
+                <h3 class="font-bold text-sm text-white mt-1 line-clamp-1">${p.name}</h3>
+                <p class="text-zinc-400 text-xs mt-1 line-clamp-2">${p.description}</p>
               </div>
             </div>
-            <div class="p-2.5 pt-0 flex justify-between items-center mt-3">
-              <span class="font-extrabold text-pink-400 text-xs">$${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 active:scale-95 text-white text-[11px] px-2.5 py-1.5 rounded transition font-semibold">
+            <div class="p-3 pt-0 flex justify-between items-center mt-2">
+              <span class="font-extrabold text-pink-400">$${p.price.toFixed(2)}</span>
+              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded transition">
                 + Add
               </button>
             </div>
@@ -347,165 +465,155 @@
       });
     }
 
-    async function addNewProduct(e) {
-      e.preventDefault();
-      if (currentUploadedImages.length === 0) {
-        alert('Please select at least one image!');
+    function renderAdminInventory() {
+      const list = document.getElementById('admin-inventory-list');
+      document.getElementById('item-count').innerText = products.length;
+
+      if(products.length === 0) {
+        list.innerHTML = `<p class="text-xs text-zinc-500">No products added yet.</p>`;
         return;
       }
 
-      const title = document.getElementById('admin-title').value;
-      const category = document.getElementById('admin-category').value;
-      const price = parseFloat(document.getElementById('admin-price').value);
-      const desc = document.getElementById('admin-desc').value;
-
-      const selectedAvailSizes = [];
-      ALL_SIZES.forEach(sz => {
-        if(document.getElementById(`add-size-${sz}`).checked) selectedAvailSizes.push(sz);
-      });
-
-      const newProduct = {
-        id: Date.now(),
-        name: title,
-        category: category,
-        price: price,
-        description: desc,
-        availableSizes: selectedAvailSizes,
-        images: currentUploadedImages
-      };
-
-      await db.from('products').insert([newProduct]);
-      await loadDataFromSupabase();
-
-      document.getElementById('add-product-form').reset();
-      currentUploadedImages = [];
-      document.getElementById('image-previews-container').classList.add('hidden');
-
-      showAdminAlert('Product added successfully!');
-    }
-
-    async function deleteProduct(id) {
-      if (confirm('Delete this product?')) {
-        await db.from('products').delete().eq('id', id);
-        await loadDataFromSupabase();
-        showAdminAlert('Product deleted.');
-      }
-    }
-
-    async function addCategory() {
-      const input = document.getElementById('new-category-input');
-      const val = input.value.trim();
-      if(val) {
-        await db.from('categories').insert([{ name: val }]);
-        input.value = '';
-        await loadDataFromSupabase();
-        showAdminAlert(`Category "${val}" added!`);
-      }
-    }
-
-    async function removeCategory(catName) {
-      if(confirm(`Delete category "${catName}"?`)) {
-        await db.from('categories').delete().eq('name', catName);
-        await loadDataFromSupabase();
-        showAdminAlert(`Category "${catName}" removed.`);
-      }
-    }
-
-    function previewImages(event) {
-      const files = Array.from(event.target.files);
-      currentUploadedImages = [];
-      const container = document.getElementById('image-previews-container');
-      container.innerHTML = '';
-      container.classList.remove('hidden');
-
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          currentUploadedImages.push(e.target.result);
-          container.innerHTML += `<img src="${e.target.result}" class="w-12 h-12 object-cover rounded border border-zinc-700 shrink-0">`;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function showAdminAlert(msg) {
-      const alertBox = document.getElementById('admin-alert');
-      const alertText = document.getElementById('admin-alert-text');
-      alertText.innerText = msg;
-      alertBox.classList.remove('hidden');
-      setTimeout(() => alertBox.classList.add('hidden'), 3000);
-    }
-
-    function renderAdminCategories() {
-      const list = document.getElementById('admin-categories-list');
-      list.innerHTML = categories.map(c => `
-        <span class="bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5">
-          ${c}
-          <button onclick="removeCategory('${c}')" class="text-zinc-500 hover:text-red-400 text-xs font-bold">&times;</button>
-        </span>
+      list.innerHTML = products.map(p => `
+        <div class="flex justify-between items-center bg-zinc-800/50 p-2 rounded border border-zinc-700/50 text-xs">
+          <div class="flex items-center gap-2">
+            <img src="${p.image}" class="w-8 h-8 object-cover rounded">
+            <div>
+              <span class="font-semibold text-white">${p.name}</span>
+              <span class="text-pink-400 block">$${p.price.toFixed(2)}</span>
+            </div>
+          </div>
+          <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-1">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       `).join('');
     }
 
-    function renderAdminProducts() {
-      const list = document.getElementById('admin-products-list');
-      document.getElementById('admin-item-count').innerText = products.length;
-      list.innerHTML = products.map(p => {
-        const thumb = (p.images && p.images[0]) ? p.images[0] : '';
-        const avail = (p.availableSizes || ALL_SIZES).join(', ');
-        return `
-          <div class="flex items-center justify-between bg-zinc-800 p-2 rounded border border-zinc-700 text-xs">
-            <div class="flex items-center space-x-3">
-              <img src="${thumb}" class="w-10 h-10 object-cover rounded">
-              <div>
-                <p class="font-bold text-white line-clamp-1">${p.name}</p>
-                <p class="text-[10px] text-zinc-400">${p.category} • $${Number(p.price).toFixed(2)} • Sizes: [${avail}]</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 px-1"><i class="fa-solid fa-trash"></i></button>
+    // --- MODAL & CART UI ---
+    function toggleAdminModal() {
+      const modal = document.getElementById('admin-modal');
+      modal.classList.toggle('hidden');
+      if(!modal.classList.contains('hidden')) {
+        renderCategories();
+        renderAdminInventory();
+      }
+    }
+
+    function toggleCart() {
+      document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
+    }
+
+    function togglePolicyModal() {
+      document.getElementById('policy-modal').classList.toggle('hidden');
+    }
+
+    function addToCart(id) {
+      const item = cart.find(x => x.id === id);
+      if(item) {
+        item.qty++;
+      } else {
+        const prod = products.find(x => x.id === id);
+        cart.push({ ...prod, qty: 1 });
+      }
+      updateCartUI();
+      toggleCart();
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(x => x.id === id);
+      if(item) {
+        item.qty += delta;
+        if(item.qty <= 0) {
+          cart = cart.filter(x => x.id !== id);
+        }
+      }
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const container = document.getElementById('cart-items');
+      const countEl = document.getElementById('cart-count');
+      const subtotalEl = document.getElementById('cart-subtotal');
+      const totalEl = document.getElementById('cart-total');
+
+      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const deliveryFee = cart.length > 0 ? CONFIG.DELIVERY_FEE : 0;
+      const total = subtotal + deliveryFee;
+
+      countEl.innerText = totalItems;
+      subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
+      totalEl.innerText = `$${total.toFixed(2)}`;
+
+      if(cart.length === 0) {
+        container.innerHTML = '<p class="text-zinc-500 text-center py-8">Your bag is empty.</p>';
+        return;
+      }
+
+      container.innerHTML = cart.map(item => `
+        <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+          <div class="flex items-center space-x-3">
+            <img src="${item.image}" class="w-12 h-12 object-cover rounded">
+            <div>
+              <h4 class="font-semibold text-xs text-white">${item.name}</h4>
+              <p class="text-zinc-400 text-xs">$${item.price.toFixed(2)} x ${item.qty}</p>
             </div>
           </div>
-        `;
-      }).join('');
+          <div class="flex items-center space-x-2">
+            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">-</button>
+            <span class="text-xs">${item.qty}</span>
+            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">+</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     function processCheckout(e) {
       e.preventDefault();
-      if(cart.length === 0) return;
+      if(cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
 
       const name = document.getElementById('cust-name').value;
-      const countryCode = document.getElementById('cust-country-code').value;
-      const phoneNum = document.getElementById('cust-phone').value;
-      const fullPhone = `${countryCode} ${phoneNum}`;
+      const phone = document.getElementById('cust-phone').value;
       const address = document.getElementById('cust-address').value;
-
       const orderId = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
-      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const date = new Date().toLocaleDateString('en-US', { dateStyle: 'medium' });
+      
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const total = (subtotal + CONFIG.DELIVERY_FEE).toFixed(2);
 
+      // Populate Receipt Modal
       document.getElementById('r-id').innerText = orderId;
+      document.getElementById('r-date').innerText = date;
       document.getElementById('r-name').innerText = name;
-      document.getElementById('r-phone').innerText = fullPhone;
+      document.getElementById('r-phone').innerText = phone;
       document.getElementById('r-address').innerText = address;
-      document.getElementById('r-total').innerText = `$${totalPrice.toFixed(2)}`;
+      document.getElementById('r-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+      document.getElementById('r-total').innerText = `$${total}`;
 
       const receiptItems = document.getElementById('r-items');
       receiptItems.innerHTML = cart.map(i => `
         <div class="flex justify-between text-xs">
-          <span>${i.name} [Size: ${i.selectedSize}] (x${i.qty})</span>
+          <span>${i.name} (x${i.qty})</span>
           <span>$${(i.price * i.qty).toFixed(2)}</span>
         </div>
       `).join('');
 
+      // Build WhatsApp Message
       let waMessage = `*NEW ORDER - ${orderId}*\n\n`;
-      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${fullPhone}\n- Address: ${address}\n\n`;
+      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${phone}\n- Address: ${address}\n\n`;
       waMessage += `*Items Ordered:*\n`;
       cart.forEach(i => {
-        waMessage += `• ${i.name} - Size: *${i.selectedSize}* (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
+        waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
       });
-      waMessage += `\n*Total Amount:* $${totalPrice.toFixed(2)} (Cash on Delivery)\n\n`;
+      waMessage += `\n*Subtotal:* $${subtotal.toFixed(2)}`;
+      waMessage += `\n*Delivery Fee:* $${CONFIG.DELIVERY_FEE.toFixed(2)}`;
+      waMessage += `\n*Total Amount:* $${total} (Cash on Delivery)`;
 
       document.getElementById('receipt-modal').classList.remove('hidden');
-      downloadPDF();
 
       const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
       window.open(waUrl, '_blank');
@@ -516,103 +624,25 @@
       document.getElementById('checkout-form').reset();
     }
 
-    function requestAdminAccess() {
-      document.getElementById('admin-login-modal').classList.remove('hidden');
-      document.getElementById('admin-pin-input').focus();
-    }
-
-    function closeAdminLogin() {
-      document.getElementById('admin-login-modal').classList.add('hidden');
-      document.getElementById('admin-pin-input').value = '';
-    }
-
-    function verifyAdminPin(e) {
-      e.preventDefault();
-      if (document.getElementById('admin-pin-input').value === CONFIG.ADMIN_PIN) {
-        closeAdminLogin();
-        document.getElementById('admin-modal').classList.remove('hidden');
-        renderAdminProducts();
-        renderAdminCategories();
-      } else {
-        document.getElementById('pin-error').classList.remove('hidden');
-      }
-    }
-
-    function closeAdminDashboard() { document.getElementById('admin-modal').classList.add('hidden'); }
-    function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('translate-x-full'); }
-    function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
-    function filterCategory(cat) { currentCategory = cat; renderCategories(); renderProducts(); }
-
-    function addToCart(id) {
-      const prod = products.find(x => x.id === id);
-      if(!prod) return;
-
-      const avail = prod.availableSizes || ALL_SIZES;
-      const chosenSize = selectedSizes[id] || avail[0];
-
-      const existing = cart.find(x => x.id === id && x.selectedSize === chosenSize);
-      if(existing) {
-        existing.qty++;
-      } else {
-        cart.push({ ...prod, qty: 1, selectedSize: chosenSize });
-      }
-      updateCartUI();
-      toggleCart();
-    }
-
-    function updateCartUI() {
-      const container = document.getElementById('cart-items');
-      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-      document.getElementById('cart-count').innerText = totalItems;
-      document.getElementById('cart-total').innerText = `$${totalPrice.toFixed(2)}`;
-
-      if(cart.length === 0) {
-        container.innerHTML = '<p class="text-zinc-500 text-center py-8 text-xs">Your bag is empty.</p>';
-        return;
-      }
-
-      container.innerHTML = cart.map(item => `
-        <div class="flex justify-between items-center border-b border-zinc-800 pb-3 text-xs">
-          <div class="flex items-center space-x-3">
-            <img src="${item.images ? item.images[0] : ''}" class="w-10 h-10 object-cover rounded">
-            <div>
-              <h4 class="font-semibold text-white">${item.name}</h4>
-              <p class="text-zinc-400">Size: <span class="text-pink-400 font-bold">${item.selectedSize}</span> • $${Number(item.price).toFixed(2)} x ${item.qty}</p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
     function downloadPDF() {
       const element = document.getElementById('receipt-content');
-      html2pdf().set({ margin: 10, filename: 'SLAY_Order_Receipt.pdf' }).from(element).save();
+      const opt = {
+        margin:       10,
+        filename:     `SLAY_Order_Receipt.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a6', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
     }
 
-    function openImageModal(id) {
-      const prod = products.find(p => p.id === id);
-      if(!prod) return;
-      document.getElementById('modal-item-title').innerText = prod.name;
-      const imgs = prod.images || [];
-      document.getElementById('modal-slider').innerHTML = imgs.map(img => `
-        <div class="snap-center shrink-0 w-full h-full flex items-center justify-center p-2">
-          <img src="${img}" class="max-h-full max-w-full object-contain rounded-lg">
-        </div>
-      `).join('');
-      document.getElementById('image-modal').classList.remove('hidden');
+    function closeReceipt() {
+      document.getElementById('receipt-modal').classList.add('hidden');
     }
 
-    function closeImageModal() { document.getElementById('image-modal').classList.add('hidden'); }
-    function handleModalBgClick(e) { if(e.target.tagName !== 'I' && e.target.tagName !== 'BUTTON') closeImageModal(); }
-    function scrollModalSlider(direction) {
-      const slider = document.getElementById('modal-slider');
-      slider.scrollBy({ left: direction * slider.clientWidth, behavior: 'smooth' });
-    }
-
-    // Chargement initial
-    loadDataFromSupabase();
+    // App Startup
+    renderCategories();
+    renderProducts();
   </script>
 </body>
 </html>
