@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SLAY. | Women's Fashion</title>
   
   <!-- Tailwind CSS & FontAwesome -->
@@ -15,138 +15,182 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
-    body { font-family: 'Montserrat', sans-serif; }
+    body { font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
     .neon-text { text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
+    .neon-border { box-shadow: 0 0 10px rgba(255, 0, 127, 0.4); }
   </style>
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col">
+<body class="bg-black text-white min-h-screen flex flex-col selection:bg-pink-500 selection:text-white">
 
   <!-- CONFIGURATION -->
   <script>
     const CONFIG = {
-      WHATSAPP_NUMBER: "96100000000", // Ton numéro WhatsApp professionnel
+      WHATSAPP_NUMBER: "96100000000",
       DELIVERY_FEE: 4.00,
-      SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co", // REMPLACE PAR TON URL SUPABASE COMPLÈTE
-      SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ"
+      SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co", // Remplacez si besoin par votre URL Supabase exacte
+      SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ",
+      ADMIN_PIN: "1234" // Code PIN Admin modifiable ici
     };
 
-    // Initialisation du client Supabase
     const db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
   </script>
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="#" class="text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
+  <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b border-zinc-800">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center">
+      <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
-      <div class="flex items-center space-x-4">
-        <!-- Dashboard Admin -->
-        <button onclick="toggleAdminModal()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2 rounded transition flex items-center gap-1">
-          <i class="fa-solid fa-gear"></i> Admin
+      <div class="flex items-center space-x-3">
+        <!-- Dashboard Admin avec Cadenas inspiré des couleurs -->
+        <button onclick="requestAdminAccess()" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-pink-500/50 px-3 py-2 rounded-full transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-lock text-pink-500"></i> <span class="hidden sm:inline">Admin</span>
         </button>
 
         <!-- Panier -->
-        <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none">
+        <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none text-zinc-200 hover:text-pink-500 transition">
           <i class="fa-solid fa-bag-shopping"></i>
-          <span id="cart-count" class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+          <span id="cart-count" class="absolute top-0 right-0 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <section class="text-center py-12 px-4 bg-gradient-to-b from-zinc-900 to-black">
-    <h1 class="text-4xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
-    <p class="text-zinc-400 text-sm md:text-base">Delivering across Lebanon within 1-3 business days • Cash on Delivery</p>
+  <section class="text-center py-8 md:py-12 px-4 bg-gradient-to-b from-zinc-900 to-black">
+    <h1 class="text-2xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
+    <p class="text-zinc-400 text-xs md:text-base">Delivering across Lebanon within 1-3 business days • Cash on Delivery</p>
   </section>
 
   <!-- Highlights Bar -->
-  <section class="border-y border-zinc-800 bg-zinc-950 py-3 text-xs text-zinc-400">
-    <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-around gap-4 text-center">
-      <span><i class="fa-solid fa-truck text-pink-500 mr-2"></i>Flat Delivery: $4 All Lebanon</span>
-      <span><i class="fa-solid fa-clock text-pink-500 mr-2"></i>1-3 Business Days Delivery</span>
-      <button onclick="togglePolicyModal()" class="underline hover:text-pink-400 transition"><i class="fa-solid fa-rotate-left text-pink-500 mr-2"></i>2-Day Exchange Policy</button>
+  <section class="border-y border-zinc-800 bg-zinc-950 py-2.5 text-xs text-zinc-400">
+    <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-around gap-3 text-center">
+      <span><i class="fa-solid fa-truck text-pink-500 mr-1.5"></i>Flat Delivery: $4</span>
+      <span><i class="fa-solid fa-clock text-pink-500 mr-1.5"></i>1-3 Days Delivery</span>
+      <button onclick="togglePolicyModal()" class="underline hover:text-pink-400 transition"><i class="fa-solid fa-rotate-left text-pink-500 mr-1.5"></i>2-Day Exchange</button>
     </div>
   </section>
 
-  <!-- Categories Filters (Dynamic + Realtime) -->
-  <section class="max-w-6xl mx-auto px-4 py-6 w-full">
+  <!-- Categories Filters -->
+  <section class="max-w-6xl mx-auto px-4 py-4 w-full">
     <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container">
       <!-- Dynamic categories -->
     </div>
   </section>
 
-  <!-- Product Grid (Dynamic + Realtime) -->
-  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
-    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+  <!-- Product Grid -->
+  <main class="max-w-6xl mx-auto px-4 py-4 flex-grow w-full">
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
       <!-- Dynamic products -->
     </div>
   </main>
 
-  <!-- ADMIN DASHBOARD MODAL -->
-  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 text-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6">
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h2 class="text-xl font-extrabold text-pink-500">Admin Dashboard</h2>
-        <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white text-xl">&times;</button>
+  <!-- INSTAGRAM-STYLE LIGHTBOX / MEDIA VIEWER MODAL -->
+  <div id="media-modal" onclick="handleLightboxBackdropClick(event)" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 md:p-4">
+    <div class="relative max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+      
+      <!-- Top Bar info -->
+      <div class="flex justify-between items-center p-3 border-b border-zinc-800 bg-black/40">
+        <span id="lb-category" class="text-[10px] text-pink-500 font-bold uppercase tracking-widest"></span>
+        <button onclick="closeLightbox()" class="text-zinc-400 hover:text-white text-2xl px-2">&times;</button>
       </div>
 
-      <!-- Add Product Form -->
-      <div class="bg-black/50 p-4 rounded-lg border border-zinc-800 space-y-4">
-        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Add New Product</h3>
+      <!-- Main Image Container with Carousel controls -->
+      <div class="relative w-full h-80 md:h-96 bg-black flex items-center justify-center overflow-hidden group">
+        <img id="lb-image" src="" alt="Product View" class="w-full h-full object-contain transition-transform duration-300 select-none">
+        
+        <!-- Navigation Arrows (Left/Right) -->
+        <button id="lb-prev" onclick="prevPhoto()" class="absolute left-2 bg-black/60 hover:bg-pink-500 text-white w-9 h-9 rounded-full flex items-center justify-center transition border border-zinc-700 shadow-lg">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <button id="lb-next" onclick="nextPhoto()" class="absolute right-2 bg-black/60 hover:bg-pink-500 text-white w-9 h-9 rounded-full flex items-center justify-center transition border border-zinc-700 shadow-lg">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+
+        <!-- Counter Indicator (ex: 1/3) -->
+        <div class="absolute bottom-3 bg-black/70 backdrop-blur-sm text-white text-[11px] px-3 py-1 rounded-full border border-zinc-700 font-semibold">
+          <span id="lb-current-index">1</span> / <span id="lb-total-index">1</span>
+        </div>
+      </div>
+
+      <!-- Details Section -->
+      <div class="p-4 space-y-3 bg-zinc-900 overflow-y-auto">
+        <div class="flex justify-between items-start">
+          <h3 id="lb-name" class="font-bold text-base md:text-lg text-white"></h3>
+          <span id="lb-price" class="font-extrabold text-pink-400 text-base md:text-lg"></span>
+        </div>
+        <p id="lb-desc" class="text-zinc-400 text-xs md:text-sm leading-relaxed"></p>
+        
+        <div class="pt-2">
+          <button id="lb-add-btn" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition uppercase tracking-wider text-xs shadow-lg">
+            + Add to Bag
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD MODAL -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 text-white p-5 md:p-6 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+        <h2 class="text-lg md:text-xl font-extrabold text-pink-500 flex items-center gap-2">
+          <i class="fa-solid fa-lock-open text-xs"></i> Admin Dashboard
+        </h2>
+        <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+      </div>
+
+      <!-- Add Product Form (Multi-photos support) -->
+      <div class="bg-black/50 p-4 rounded-xl border border-zinc-800 space-y-4">
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Add New Product (1 to 4 Photos)</h3>
         
         <div>
-          <label class="block text-xs text-zinc-400 mb-1">Product Image</label>
-          <input type="file" id="admin-img-file" accept="image/*" onchange="previewImage(event)" class="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
-          <div id="img-preview" class="mt-2 hidden">
-            <img src="" id="preview-src" class="w-16 h-16 object-cover rounded border border-zinc-700">
-          </div>
+          <label class="block text-xs text-zinc-400 mb-1">Select Product Images (Choose up to 4)</label>
+          <input type="file" id="admin-img-files" accept="image/*" multiple onchange="previewMultipleImages(event)" class="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600 cursor-pointer w-full">
+          <!-- Aperçu multiple -->
+          <div id="multi-img-preview" class="mt-3 flex gap-2 flex-wrap hidden"></div>
         </div>
 
-        <input type="text" id="admin-name" placeholder="Product Title (e.g. Dantel Top)" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <input type="text" id="admin-name" placeholder="Product Title (e.g. Satin Dress)" class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
 
         <div class="grid grid-cols-2 gap-3">
-          <select id="admin-category-select" class="bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <select id="admin-category-select" class="bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
             <!-- Dynamic Category Options -->
           </select>
-          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
         </div>
 
         <div>
           <label class="block text-xs text-zinc-400 mb-1">Available Sizes</label>
           <div class="flex gap-4 text-xs">
-            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="S" checked class="accent-pink-500"> S</label>
-            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="M" checked class="accent-pink-500"> M</label>
-            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="L" checked class="accent-pink-500"> L</label>
-            <label class="flex items-center gap-1"><input type="checkbox" name="sizes" value="XL" checked class="accent-pink-500"> XL</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="S" checked class="accent-pink-500"> S</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="M" checked class="accent-pink-500"> M</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="L" checked class="accent-pink-500"> L</label>
+            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="XL" checked class="accent-pink-500"> XL</label>
           </div>
         </div>
 
-        <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+        <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
 
-        <button onclick="saveProduct()" id="btn-save-prod" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 rounded transition uppercase text-xs">
+        <button onclick="saveProduct()" id="btn-save-prod" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl transition uppercase text-xs shadow-md">
           + Add Item to Store
         </button>
       </div>
 
       <!-- Manage Categories -->
-      <div class="bg-black/50 p-4 rounded-lg border border-zinc-800 space-y-3">
+      <div class="bg-black/50 p-4 rounded-xl border border-zinc-800 space-y-3">
         <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Manage Categories</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-category-input" placeholder="New Category Name (e.g. Skirts)" class="flex-grow bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
-          <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded text-xs transition">Add</button>
+          <input type="text" id="new-category-input" placeholder="New Category (e.g. Skirts)" class="flex-grow bg-zinc-800 text-white rounded-xl p-2.5 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+          <button onclick="addCategory()" class="bg-zinc-700 hover:bg-pink-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">Add</button>
         </div>
-        <div id="category-list-tags" class="flex flex-wrap gap-2 pt-2">
-          <!-- Dynamic category badges -->
-        </div>
+        <div id="category-list-tags" class="flex flex-wrap gap-2 pt-2"></div>
       </div>
 
       <!-- Current Inventory -->
-      <div class="bg-black/50 p-4 rounded-lg border border-zinc-800 space-y-3">
+      <div class="bg-black/50 p-4 rounded-xl border border-zinc-800 space-y-3">
         <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Current Items (<span id="item-count">0</span>)</h3>
-        <div id="admin-inventory-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-          <!-- Inventory items -->
-        </div>
+        <div id="admin-inventory-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
       </div>
     </div>
   </div>
@@ -154,8 +198,8 @@
   <!-- Cart Sidebar -->
   <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
     <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-      <h2 class="text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
-      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+      <h2 class="text-lg font-bold uppercase tracking-wider">Your Shopping Bag</h2>
+      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl px-2">&times;</button>
     </div>
 
     <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
@@ -179,16 +223,16 @@
       </div>
 
       <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
-        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
-        <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
-        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
         
         <p class="text-[11px] text-zinc-400">
           <i class="fa-solid fa-circle-info text-pink-500 mr-1"></i>
-          Exchanges allowed within 2 days of delivery (delivery fees apply).
+          Exchanges allowed within 2 days of delivery.
         </p>
 
-        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded transition uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3.5 rounded-xl transition uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg">
           <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order via WhatsApp
         </button>
       </form>
@@ -197,47 +241,27 @@
 
   <!-- Policies Modal -->
   <div id="policy-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 text-white p-6 rounded-lg max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-zinc-900 border border-zinc-800 text-white p-6 rounded-2xl max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
         <h3 class="text-lg font-bold text-pink-500 uppercase tracking-wide">Store Policies</h3>
-        <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-white text-xl">&times;</button>
+        <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
       </div>
 
-      <div class="space-y-2">
+      <div class="space-y-2 text-xs text-zinc-400">
         <h4 class="font-bold text-sm text-zinc-200 border-b border-zinc-800 pb-1 flex items-center gap-2">
-          <i class="fa-solid fa-truck text-pink-500"></i> Delivery Information
+          <i class="fa-solid fa-truck text-pink-500"></i> Delivery
         </h4>
-        <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
-          <li>We deliver across all regions in Lebanon.</li>
-          <li>Flat delivery fee: <strong>$4.00</strong>.</li>
-          <li>Estimated delivery time: <strong>1 to 3 business days</strong>.</li>
-          <li>Payment method: <strong>Cash on Delivery (COD)</strong>.</li>
-        </ul>
+        <p>We deliver across all regions in Lebanon. Flat fee: <strong>$4.00</strong> (1-3 business days). Cash on Delivery.</p>
       </div>
 
-      <div class="space-y-2 pt-2">
+      <div class="space-y-2 text-xs text-zinc-400 pt-2">
         <h4 class="font-bold text-sm text-zinc-200 border-b border-zinc-800 pb-1 flex items-center gap-2">
           <i class="fa-solid fa-rotate-left text-pink-500"></i> Exchange Policy
         </h4>
-        <p class="text-xs font-semibold text-zinc-300">We offer exchanges only. No refunds.</p>
-        <p class="text-xs text-zinc-400">Exchange requests are accepted within <strong>2 days</strong> of receiving your order.</p>
-        
-        <p class="text-xs font-semibold text-zinc-300 pt-1">Items must be:</p>
-        <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
-          <li>Unworn & unused</li>
-          <li>Unwashed</li>
-          <li>With original tags attached</li>
-        </ul>
-
-        <p class="text-xs font-semibold text-zinc-300 pt-1">Exchange options:</p>
-        <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
-          <li>Size change</li>
-          <li>Color change</li>
-          <li>Another available item</li>
-        </ul>
+        <p>Exchanges accepted within <strong>2 days</strong> of receipt. Items must be unworn, unwashed with original tags.</p>
       </div>
 
-      <button onclick="togglePolicyModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-2 rounded transition">
+      <button onclick="togglePolicyModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-3 rounded-xl transition">
         Close
       </button>
     </div>
@@ -245,7 +269,7 @@
 
   <!-- Receipt Modal -->
   <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white text-black p-6 rounded-lg max-w-sm w-full space-y-4 text-sm" id="receipt-content">
+    <div class="bg-white text-black p-6 rounded-2xl max-w-sm w-full space-y-4 text-sm shadow-2xl" id="receipt-content">
       <div class="text-center border-b pb-3">
         <h2 class="text-2xl font-black tracking-widest">SLAY.</h2>
         <p class="text-xs text-gray-500">Official Order Receipt</p>
@@ -266,7 +290,7 @@
 
       <div class="space-y-1 text-xs border-b pb-2">
         <div class="flex justify-between">
-          <span>Items Subtotal:</span>
+          <span>Subtotal:</span>
           <span id="r-subtotal"></span>
         </div>
         <div class="flex justify-between">
@@ -280,16 +304,11 @@
         <span id="r-total"></span>
       </div>
 
-      <p class="text-center text-[10px] text-gray-500 pt-2">
-        Exchanges accepted within 2 days of delivery.<br>
-        Thank you for choosing <strong>SLAY.</strong> ❤️
-      </p>
-
-      <div class="flex gap-2 pt-2" data-html2canvas-ignore="true">
-        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold hover:bg-black transition">
-          <i class="fa-solid fa-download mr-1"></i> Save Ticket (PDF)
+      <div class="flex gap-2 pt-3" data-html2canvas-ignore="true">
+        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-black transition">
+          <i class="fa-solid fa-download mr-1"></i> Save PDF
         </button>
-        <button onclick="closeReceipt()" class="bg-gray-300 text-black px-4 py-2 rounded text-xs font-bold">Close</button>
+        <button onclick="closeReceipt()" class="bg-gray-200 text-black px-4 py-2.5 rounded-xl text-xs font-bold">Close</button>
       </div>
     </div>
   </div>
@@ -304,71 +323,89 @@
     <p>&copy; 2026 SLAY. All rights reserved.</p>
   </footer>
 
-  <!-- App Script with Supabase Realtime -->
+  <!-- App Script -->
   <script>
     let categories = [];
     let products = [];
     let cart = [];
     let currentCategory = 'All';
-    let uploadedImageBase64 = '';
+    let uploadedImagesArray = []; // Tableau stockant plusieurs images (max 4)
+
+    // État actif de la visionneuse Instagram
+    let currentLightboxProduct = null;
+    let currentPhotoIndex = 0;
+
+    // --- SÉCURITÉ ADMIN PAR PIN ---
+    function requestAdminAccess() {
+      const pin = prompt("🔒 Enter Admin PIN Code:");
+      if (pin === null) return;
+      if (pin === CONFIG.ADMIN_PIN) {
+        toggleAdminModal();
+      } else {
+        alert("❌ Incorrect PIN code.");
+      }
+    }
 
     // --- REALTIME SUBSCRIPTIONS ---
     function setupRealtimeSubscriptions() {
       db.channel('public:categories')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => {
-          fetchCategories();
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => fetchCategories())
         .subscribe();
 
       db.channel('public:products')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
-          fetchProducts();
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
         .subscribe();
     }
 
-    // --- SUPABASE FETCHING ---
     async function fetchCategories() {
-      const { data, error } = await db.from('categories').select('*').order('name', { ascending: true });
-      if (error) {
-        console.error('Error loading categories:', error);
-        return;
-      }
+      const { data } = await db.from('categories').select('*').order('name', { ascending: true });
       categories = data || [];
       renderCategoriesUI();
     }
 
     async function fetchProducts() {
-      const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
-      if (error) {
-        console.error('Error loading products:', error);
-        return;
-      }
+      const { data } = await db.from('products').select('*').order('created_at', { ascending: false });
       products = data || [];
       renderProductsUI();
       renderAdminInventoryUI();
     }
 
-    // --- CATEGORY ACTIONS ---
+    // --- GESTION MULTI-PHOTOS (Admin) ---
+    async function previewMultipleImages(event) {
+      const files = Array.from(event.target.files).slice(0, 4); // Max 4 photos
+      uploadedImagesArray = [];
+      const previewContainer = document.getElementById('multi-img-preview');
+      previewContainer.innerHTML = '';
+      previewContainer.classList.remove('hidden');
+
+      for (let file of files) {
+        const reader = new FileReader();
+        await new Promise(resolve => {
+          reader.onload = function(e) {
+            uploadedImagesArray.push(e.target.result);
+            previewContainer.innerHTML += `<img src="${e.target.result}" class="w-16 h-16 object-cover rounded-xl border border-zinc-700 shadow-sm">`;
+            resolve();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    // --- CATEGORIES UI ---
     function renderCategoriesUI() {
       const container = document.getElementById('categories-container');
       container.innerHTML = `
-        <button onclick="filterCategory('All')" class="category-btn active ${currentCategory === 'All' ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300'} px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">All</button>
+        <button onclick="filterCategory('All')" class="category-btn active ${currentCategory === 'All' ? 'bg-pink-500 text-white shadow-md' : 'bg-zinc-900 text-zinc-300 border border-zinc-800'} px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition">All</button>
       `;
-      
       categories.forEach(cat => {
         const isActive = currentCategory.toLowerCase() === cat.name.toLowerCase();
         container.innerHTML += `
-          <button onclick="filterCategory('${cat.name}')" class="category-btn ${isActive ? 'bg-pink-500 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'} px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">${cat.name}</button>
+          <button onclick="filterCategory('${cat.name}')" class="category-btn ${isActive ? 'bg-pink-500 text-white shadow-md' : 'bg-zinc-900 text-zinc-300 border border-zinc-800 hover:bg-zinc-800'} px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition">${cat.name}</button>
         `;
       });
-
-      const select = document.getElementById('admin-category-select');
-      select.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-
-      const tagsContainer = document.getElementById('category-list-tags');
-      tagsContainer.innerHTML = categories.map(c => `
-        <span class="bg-zinc-800 text-zinc-300 text-xs px-2.5 py-1 rounded-full flex items-center gap-2 border border-zinc-700">
+      document.getElementById('admin-category-select').innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+      document.getElementById('category-list-tags').innerHTML = categories.map(c => `
+        <span class="bg-zinc-800 text-zinc-300 text-xs px-3 py-1 rounded-full flex items-center gap-2 border border-zinc-700">
           ${c.name}
           <button onclick="deleteCategory(${c.id})" class="text-pink-500 hover:text-pink-400 font-bold">&times;</button>
         </span>
@@ -378,25 +415,15 @@
     async function addCategory() {
       const input = document.getElementById('new-category-input');
       const name = input.value.trim();
-
       if(!name) return;
-
       const { error } = await db.from('categories').insert([{ name }]);
-      if(error) {
-        alert('Error adding category: ' + error.message);
-      } else {
-        input.value = '';
-        fetchCategories();
-      }
+      if(error) alert(error.message);
+      else { input.value = ''; fetchCategories(); }
     }
 
     async function deleteCategory(id) {
-      const { error } = await db.from('categories').delete().eq('id', id);
-      if(error) {
-        alert('Error deleting category: ' + error.message);
-      } else {
-        fetchCategories();
-      }
+      await db.from('categories').delete().eq('id', id);
+      fetchCategories();
     }
 
     function filterCategory(cat) {
@@ -405,31 +432,16 @@
       renderProductsUI();
     }
 
-    // --- PRODUCT ACTIONS ---
-    function previewImage(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          uploadedImageBase64 = e.target.result;
-          document.getElementById('preview-src').src = uploadedImageBase64;
-          document.getElementById('img-preview').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
+    // --- PRODUCTS ACTIONS ---
     async function saveProduct() {
       const name = document.getElementById('admin-name').value.trim();
       const category = document.getElementById('admin-category-select').value;
       const price = parseFloat(document.getElementById('admin-price').value);
       const description = document.getElementById('admin-desc').value.trim();
-      
-      const sizeInputs = document.querySelectorAll('input[name="sizes"]:checked');
-      const sizes = Array.from(sizeInputs).map(cb => cb.value);
+      const sizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
 
-      if(!name || isNaN(price) || !uploadedImageBase64) {
-        alert('Please fill out Name, Price and select an Image.');
+      if(!name || isNaN(price) || uploadedImagesArray.length === 0) {
+        alert('Please fill out Name, Price and select at least 1 image.');
         return;
       }
 
@@ -438,36 +450,28 @@
       btn.disabled = true;
 
       const { error } = await db.from('products').insert([{
-        name,
-        category,
-        price,
-        description,
-        sizes,
-        image: uploadedImageBase64
+        name, category, price, description, sizes, images: uploadedImagesArray
       }]);
 
       btn.innerText = '+ Add Item to Store';
       btn.disabled = false;
 
       if(error) {
-        alert('Error adding product: ' + error.message);
+        alert('Error: ' + error.message);
       } else {
         document.getElementById('admin-name').value = '';
         document.getElementById('admin-price').value = '';
         document.getElementById('admin-desc').value = '';
-        document.getElementById('admin-img-file').value = '';
-        document.getElementById('img-preview').classList.add('hidden');
-        uploadedImageBase64 = '';
-
+        document.getElementById('admin-img-files').value = '';
+        document.getElementById('multi-img-preview').classList.add('hidden');
+        uploadedImagesArray = [];
         fetchProducts();
       }
     }
 
     async function deleteProduct(id) {
-      const { error } = await db.from('products').delete().eq('id', id);
-      if(error) {
-        alert('Error deleting product: ' + error.message);
-      } else {
+      if(confirm("Delete this item?")) {
+        await db.from('products').delete().eq('id', id);
         fetchProducts();
       }
     }
@@ -475,30 +479,35 @@
     function renderProductsUI() {
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
-
-      const filtered = currentCategory === 'All' 
-        ? products 
-        : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
+      const filtered = currentCategory === 'All' ? products : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
 
       if(filtered.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-zinc-500 py-12">No products available in this category.</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-zinc-500 py-12 text-xs">No products found.</p>`;
         return;
       }
 
       filtered.forEach(p => {
+        // S'assure de récupérer la première image du tableau 'images'
+        const imgList = Array.isArray(p.images) ? p.images : [p.image || 'https://via.placeholder.com/300'];
+        const firstImg = imgList[0];
+
         grid.innerHTML += `
-          <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col justify-between">
+          <div class="bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 flex flex-col justify-between shadow-md">
             <div>
-              <img src="${p.image}" alt="${p.name}" class="w-full h-56 object-cover">
+              <!-- Clic sur l'image ouvre la visionneuse Instagram -->
+              <div class="relative cursor-pointer overflow-hidden group" onclick='openLightbox(${JSON.stringify(p)})'>
+                <img src="${firstImg}" alt="${p.name}" class="w-full h-48 md:h-64 object-cover group-hover:scale-105 transition duration-500">
+                ${imgList.length > 1 ? `<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm"><i class="fa-regular fa-images mr-1"></i>${imgList.length}</span>` : ''}
+              </div>
               <div class="p-3">
                 <span class="text-[10px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
-                <h3 class="font-bold text-sm text-white mt-1 line-clamp-1">${p.name}</h3>
-                <p class="text-zinc-400 text-xs mt-1 line-clamp-2">${p.description || ''}</p>
+                <h3 onclick='openLightbox(${JSON.stringify(p)})' class="font-bold text-xs md:text-sm text-white mt-0.5 line-clamp-1 cursor-pointer hover:text-pink-400">${p.name}</h3>
+                <p class="text-zinc-400 text-[11px] mt-1 line-clamp-1">${p.description || ''}</p>
               </div>
             </div>
-            <div class="p-3 pt-0 flex justify-between items-center mt-2">
-              <span class="font-extrabold text-pink-400">$${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded transition">
+            <div class="p-3 pt-0 flex justify-between items-center mt-1">
+              <span class="font-extrabold text-pink-400 text-sm">$${Number(p.price).toFixed(2)}</span>
+              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-xl transition shadow">
                 + Add
               </button>
             </div>
@@ -510,48 +519,116 @@
     function renderAdminInventoryUI() {
       const list = document.getElementById('admin-inventory-list');
       document.getElementById('item-count').innerText = products.length;
-
       if(products.length === 0) {
         list.innerHTML = `<p class="text-xs text-zinc-500">No products added yet.</p>`;
         return;
       }
-
-      list.innerHTML = products.map(p => `
-        <div class="flex justify-between items-center bg-zinc-800/50 p-2 rounded border border-zinc-700/50 text-xs">
-          <div class="flex items-center gap-2">
-            <img src="${p.image}" class="w-8 h-8 object-cover rounded">
-            <div>
-              <span class="font-semibold text-white">${p.name}</span>
-              <span class="text-pink-400 block">$${Number(p.price).toFixed(2)}</span>
+      list.innerHTML = products.map(p => {
+        const imgList = Array.isArray(p.images) ? p.images : [p.image];
+        return `
+          <div class="flex justify-between items-center bg-zinc-800/40 p-2.5 rounded-xl border border-zinc-700/50 text-xs">
+            <div class="flex items-center gap-2">
+              <img src="${imgList[0]}" class="w-9 h-9 object-cover rounded-lg">
+              <div>
+                <span class="font-semibold text-white block">${p.name}</span>
+                <span class="text-pink-400">$${Number(p.price).toFixed(2)}</span>
+              </div>
             </div>
+            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-2">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
-          <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-1">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
+
+    // --- INSTAGRAM-STYLE LIGHTBOX & CAROUSEL LOGIC ---
+    function openLightbox(product) {
+      currentLightboxProduct = product;
+      currentPhotoIndex = 0;
+      updateLightboxContent();
+      document.getElementById('media-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Empêche le scroll en arrière-plan
+    }
+
+    function closeLightbox() {
+      document.getElementById('media-modal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function handleLightboxBackdropClick(e) {
+      // Si l'utilisateur clique en dehors de la boîte centrale, ferme la modale
+      closeLightbox();
+    }
+
+    function updateLightboxContent() {
+      if (!currentLightboxProduct) return;
+      const imgList = Array.isArray(currentLightboxProduct.images) ? currentLightboxProduct.images : [currentLightboxProduct.image];
+      
+      document.getElementById('lb-image').src = imgList[currentPhotoIndex];
+      document.getElementById('lb-category').innerText = currentLightboxProduct.category;
+      document.getElementById('lb-name').innerText = currentLightboxProduct.name;
+      document.getElementById('lb-price').innerText = `$${Number(currentLightboxProduct.price).toFixed(2)}`;
+      document.getElementById('lb-desc').innerText = currentLightboxProduct.description || 'No description provided.';
+      
+      document.getElementById('lb-current-index').innerText = currentPhotoIndex + 1;
+      document.getElementById('lb-total-index').innerText = imgList.length;
+
+      // Masque ou affiche les flèches selon le nombre d'images
+      const prevBtn = document.getElementById('lb-prev');
+      const nextBtn = document.getElementById('lb-next');
+      if (imgList.length <= 1) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+      } else {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+      }
+
+      // Action bouton Ajouter depuis la modale
+      document.getElementById('lb-add-btn').onclick = () => {
+        addToCart(currentLightboxProduct.id);
+        closeLightbox();
+      };
+    }
+
+    function nextPhoto() {
+      if (!currentLightboxProduct) return;
+      const imgList = Array.isArray(currentLightboxProduct.images) ? currentLightboxProduct.images : [currentLightboxProduct.image];
+      currentPhotoIndex = (currentPhotoIndex + 1) % imgList.length;
+      updateLightboxContent();
+    }
+
+    function prevPhoto() {
+      if (!currentLightboxProduct) return;
+      const imgList = Array.isArray(currentLightboxProduct.images) ? currentLightboxProduct.images : [currentLightboxProduct.image];
+      currentPhotoIndex = (currentPhotoIndex - 1 + imgList.length) % imgList.length;
+      updateLightboxContent();
+    }
+
+    // Gestion Swipe tactile mobile (Instagram style)
+    let touchStartX = 0;
+    const lightboxModalEl = document.getElementById('media-modal');
+    lightboxModalEl.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    lightboxModalEl.addEventListener('touchend', e => {
+      let touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) nextPhoto(); // Glisser vers la gauche
+      if (touchEndX > touchStartX + 50) prevPhoto(); // Glisser vers la droite
+    }, {passive: true});
+
 
     // --- CART & MODALS ---
-    function toggleAdminModal() {
-      document.getElementById('admin-modal').classList.toggle('hidden');
-    }
-
-    function toggleCart() {
-      document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
-    }
-
-    function togglePolicyModal() {
-      document.getElementById('policy-modal').classList.toggle('hidden');
-    }
+    function toggleAdminModal() { document.getElementById('admin-modal').classList.toggle('hidden'); }
+    function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('translate-x-full'); }
+    function togglePolicyModal() { document.getElementById('policy-modal').classList.toggle('hidden'); }
 
     function addToCart(id) {
       const item = cart.find(x => x.id === id);
-      if(item) {
-        item.qty++;
-      } else {
+      if(item) { item.qty++; } 
+      else {
         const prod = products.find(x => x.id === id);
-        cart.push({ ...prod, qty: 1 });
+        const imgList = Array.isArray(prod.images) ? prod.images : [prod.image];
+        cart.push({ ...prod, image: imgList[0], qty: 1 });
       }
       updateCartUI();
       toggleCart();
@@ -561,9 +638,7 @@
       const item = cart.find(x => x.id === id);
       if(item) {
         item.qty += delta;
-        if(item.qty <= 0) {
-          cart = cart.filter(x => x.id !== id);
-        }
+        if(item.qty <= 0) cart = cart.filter(x => x.id !== id);
       }
       updateCartUI();
     }
@@ -584,23 +659,23 @@
       totalEl.innerText = `$${total.toFixed(2)}`;
 
       if(cart.length === 0) {
-        container.innerHTML = '<p class="text-zinc-500 text-center py-8">Your bag is empty.</p>';
+        container.innerHTML = '<p class="text-zinc-500 text-center py-8 text-xs">Your bag is empty.</p>';
         return;
       }
 
       container.innerHTML = cart.map(item => `
         <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
           <div class="flex items-center space-x-3">
-            <img src="${item.image}" class="w-12 h-12 object-cover rounded">
+            <img src="${item.image}" class="w-12 h-12 object-cover rounded-xl">
             <div>
               <h4 class="font-semibold text-xs text-white">${item.name}</h4>
               <p class="text-zinc-400 text-xs">$${Number(item.price).toFixed(2)} x ${item.qty}</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">-</button>
-            <span class="text-xs">${item.qty}</span>
-            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">+</button>
+            <button onclick="changeQty(${item.id}, -1)" class="w-7 h-7 bg-zinc-800 rounded-lg text-xs font-bold">-</button>
+            <span class="text-xs font-semibold">${item.qty}</span>
+            <button onclick="changeQty(${item.id}, 1)" class="w-7 h-7 bg-zinc-800 rounded-lg text-xs font-bold">+</button>
           </div>
         </div>
       `).join('');
@@ -608,10 +683,7 @@
 
     function processCheckout(e) {
       e.preventDefault();
-      if(cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
-      }
+      if(cart.length === 0) { alert("Your cart is empty!"); return; }
 
       const name = document.getElementById('cust-name').value;
       const phone = document.getElementById('cust-phone').value;
@@ -630,28 +702,19 @@
       document.getElementById('r-subtotal').innerText = `$${subtotal.toFixed(2)}`;
       document.getElementById('r-total').innerText = `$${total}`;
 
-      const receiptItems = document.getElementById('r-items');
-      receiptItems.innerHTML = cart.map(i => `
+      document.getElementById('r-items').innerHTML = cart.map(i => `
         <div class="flex justify-between text-xs">
           <span>${i.name} (x${i.qty})</span>
           <span>$${(i.price * i.qty).toFixed(2)}</span>
         </div>
       `).join('');
 
-      let waMessage = `*NEW ORDER - ${orderId}*\n\n`;
-      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${phone}\n- Address: ${address}\n\n`;
-      waMessage += `*Items Ordered:*\n`;
-      cart.forEach(i => {
-        waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
-      });
-      waMessage += `\n*Subtotal:* $${subtotal.toFixed(2)}`;
-      waMessage += `\n*Delivery Fee:* $${CONFIG.DELIVERY_FEE.toFixed(2)}`;
-      waMessage += `\n*Total Amount:* $${total} (Cash on Delivery)`;
+      let waMessage = `*NEW ORDER - ${orderId}*\n\n*Customer:*\n- Name: ${name}\n- Phone: ${phone}\n- Address: ${address}\n\n*Items:*\n`;
+      cart.forEach(i => { waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`; });
+      waMessage += `\n*Subtotal:* $${subtotal.toFixed(2)}\n*Delivery:* $${CONFIG.DELIVERY_FEE.toFixed(2)}\n*Total:* $${total} (COD)`;
 
       document.getElementById('receipt-modal').classList.remove('hidden');
-
-      const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
-      window.open(waUrl, '_blank');
+      window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
 
       cart = [];
       updateCartUI();
@@ -660,20 +723,15 @@
     }
 
     function downloadPDF() {
-      const element = document.getElementById('receipt-content');
-      const opt = {
-        margin:       10,
-        filename:     `SLAY_Order_Receipt.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a6', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
+      html2pdf().set({
+        margin: 10, filename: `SLAY_Order_Receipt.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+      }).from(document.getElementById('receipt-content')).save();
     }
 
-    function closeReceipt() {
-      document.getElementById('receipt-modal').classList.add('hidden');
-    }
+    function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
 
     // Initialisation
     fetchCategories();
