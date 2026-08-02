@@ -496,24 +496,24 @@
     <button onclick="toggleCart()" class="text-[var(--muted)] hover:text-[var(--ink)] text-2xl px-2">&times;</button>
   </div>
 
-  <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
+  <div id="cart-items" class="p-4 overflow-y-auto flex-1 min-h-0 space-y-3">
     <p class="text-[var(--muted)] text-center py-8 text-xs">Your bag is empty.</p>
   </div>
 
-  <div class="p-4 border-t border-[var(--line)] bg-[var(--inset)]">
-    <div class="space-y-1 text-sm mb-4 border-b border-[var(--line)] pb-3">
+  <div class="p-4 border-t border-[var(--line)] bg-[var(--inset)] flex-1 min-h-0 overflow-y-auto">
+    <div class="space-y-0.5 text-xs mb-3 border-b border-[var(--line)] pb-2.5">
       <div class="flex justify-between text-[var(--muted)]">
         <span>Subtotal:</span><span id="cart-subtotal">$0.00</span>
       </div>
       <div class="flex justify-between text-[var(--muted)]">
         <span>Delivery (Lebanon):</span><span id="cart-delivery">$4.00</span>
       </div>
-      <div class="flex justify-between font-bold text-base text-[var(--ink)] pt-1">
+      <div class="flex justify-between font-bold text-[13px] text-[var(--ink)] pt-1">
         <span>Total (cash on delivery):</span><span id="cart-total" class="text-[var(--accent)]">$0.00</span>
       </div>
     </div>
 
-    <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
+    <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-2.5">
       <input type="text" id="cust-name" placeholder="Full name *" required class="w-full bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] placeholder:text-xs">
       <div class="flex gap-2">
         <select id="cust-phone-code" class="bg-[var(--surface-2)] text-[var(--ink)] rounded-xl p-2.5 text-xs border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] w-[108px] flex-shrink-0"></select>
@@ -527,8 +527,8 @@
         <span>Also email me a copy of the receipt <span class="text-[var(--muted)]">(optional)</span></span>
       </label>
 
-      <button type="submit" id="checkout-submit-btn" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3.5 rounded-xl transition uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg">
-        <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order
+      <button type="submit" id="checkout-submit-btn" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-2.5 rounded-xl transition uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-lg">
+        <i class="fa-brands fa-whatsapp text-sm"></i> Complete Order
       </button>
       <p class="text-[10px] text-[var(--muted)] text-center pt-1 leading-relaxed">Your receipt is ready to download right away, marked "Pending". Our team will confirm your order by WhatsApp shortly, then send you an updated receipt marked "Confirmed".</p>
     </form>
