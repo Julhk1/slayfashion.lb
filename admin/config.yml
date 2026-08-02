@@ -1,6 +1,7 @@
 backend:
-  name: git-gateway
-  branch: main # ou master selon le nom de votre branche principale
+  name: github
+  repo: Julhk1/slayfashion.lb
+  branch: main
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
