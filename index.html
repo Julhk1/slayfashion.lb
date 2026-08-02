@@ -631,6 +631,9 @@
       const prod = products.find(p => p.id === productId);
       if(!prod) return;
 
+      // Close Admin Dashboard automatically when Edit opens
+      closeAdminDashboard();
+
       document.getElementById('edit-id').value = prod.id;
       document.getElementById('edit-title').value = prod.name;
       document.getElementById('edit-price').value = prod.price;
