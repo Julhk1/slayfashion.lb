@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b0b0c">
-<title>SLAY. | Mode Femme — Liban</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<title>SLAY. | Women's Fashion — Lebanon</title>
 
 <!-- Tailwind CSS & FontAwesome -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- html2pdf (tickets PDF) -->
+<!-- html2pdf (PDF receipts) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<!-- Chart.js (statistiques admin) -->
+<!-- Chart.js (admin analytics) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <!-- Supabase JS Client v2 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -76,9 +77,12 @@
 <body class="bg-[var(--bg)] text-[var(--ink)] min-h-screen flex flex-col">
 
 <!-- ============ CONFIGURATION ============ -->
+<!-- Single source of truth for the WhatsApp number: every "contact us" link on the -->
+<!-- site is generated from CONFIG.WHATSAPP_NUMBER at load time (see initContactLinks below), -->
+<!-- so there is only ONE place to update when you switch from the test number to the real one. -->
 <script>
   const CONFIG = {
-    WHATSAPP_NUMBER: "33765231464",
+    WHATSAPP_NUMBER: "33765231464", // Test number — replace with the store's real number when going live
     DELIVERY_FEE: 4.00,
     SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co",
     SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ",
@@ -91,13 +95,13 @@
 <header class="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--line)]">
   <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
     <a href="#top" class="flex flex-col leading-none">
-      <span class="font-display text-2xl md:text-3xl font-bold tracking-plus text-[var(--ink)]">SLAY<span class="text-[var(--accent)]">.</span></span>
-      <span class="hidden md:block text-[9px] text-[var(--muted)] tracking-[0.35em] uppercase mt-1">Women's Fashion — Lebanon</span>
+      <img src="assets/logo.png" alt="SLAY." class="h-7 md:h-9 w-auto">
+      <span class="hidden md:block text-[9px] text-[var(--muted)] tracking-[0.35em] uppercase mt-1.5">Women's Fashion — Lebanon</span>
     </a>
 
     <div class="flex items-center gap-2">
-      <a href="https://wa.link/gem37j" target="_blank" class="hidden md:flex items-center gap-1.5 text-[11px] text-[var(--muted)] hover:text-[var(--ink)] transition border border-[var(--line)] px-3 py-2 rounded-full">
-        <i class="fa-brands fa-whatsapp text-emerald-400"></i> Nous écrire
+      <a id="contact-link-desktop" href="#" target="_blank" class="hidden md:flex items-center gap-1.5 text-[11px] text-[var(--muted)] hover:text-[var(--ink)] transition border border-[var(--line)] px-3 py-2 rounded-full">
+        <i class="fa-brands fa-whatsapp text-emerald-400"></i> Contact us
       </a>
       <button onclick="toggleCart()" class="relative text-lg p-2.5 rounded-full border border-[var(--line)] hover:border-[var(--accent)] transition text-[var(--ink)]">
         <i class="fa-solid fa-bag-shopping"></i>
@@ -116,16 +120,16 @@
 <section id="top" class="relative overflow-hidden border-b border-[var(--line)]" style="background:radial-gradient(120% 100% at 50% -10%, #1c1216 0%, var(--bg) 55%);">
   <div class="hero-watermark">SLAY.</div>
   <div class="relative max-w-3xl mx-auto text-center px-5 py-16 md:py-24">
-    <span class="inline-block text-[10px] md:text-xs tracking-[0.4em] uppercase text-[var(--gold)] mb-4">Nouvelle collection</span>
+    <span class="inline-block text-[10px] md:text-xs tracking-[0.4em] uppercase text-[var(--gold)] mb-4">New collection</span>
     <h1 class="font-display text-4xl md:text-6xl font-semibold leading-[1.05] mb-4">
       Wear it. Love it.<br class="hidden md:block"> <span class="glow text-[var(--accent)] italic">Slay it.</span>
     </h1>
     <p class="text-[var(--muted)] text-sm md:text-base max-w-md mx-auto mb-7">
-      Pièces sélectionnées pour la femme libanaise moderne. Livraison partout au Liban, paiement à la livraison.
+      Curated pieces for the modern Lebanese woman. Delivery across Lebanon, cash on delivery.
     </p>
     <div class="flex items-center justify-center gap-3">
       <a href="#product-grid" class="bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-semibold text-xs md:text-sm px-6 py-3.5 rounded-full transition tracking-wide uppercase shadow-lg shadow-[var(--accent)]/20">
-        Découvrir la collection
+        Discover the collection
       </a>
     </div>
     <div class="divider-gold w-24 mx-auto mt-10"></div>
@@ -135,27 +139,27 @@
 <!-- Trust bar -->
 <section class="bg-[var(--surface)] border-b border-[var(--line)] py-3">
   <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-center gap-x-8 gap-y-2 text-[11px] md:text-xs text-[var(--muted)]">
-    <span><i class="fa-solid fa-truck text-[var(--accent)] mr-1.5"></i>Livraison: $4 flat</span>
-    <span><i class="fa-solid fa-clock text-[var(--accent)] mr-1.5"></i>1-3 jours ouvrés</span>
-    <span><i class="fa-solid fa-money-bill-wave text-[var(--accent)] mr-1.5"></i>Paiement à la livraison</span>
-    <button onclick="togglePolicyModal()" class="underline hover:text-[var(--ink)] transition"><i class="fa-solid fa-rotate-left text-[var(--accent)] mr-1.5"></i>Échange sous 2 jours</button>
+    <span><i class="fa-solid fa-truck text-[var(--accent)] mr-1.5"></i>Flat delivery: $4</span>
+    <span><i class="fa-solid fa-clock text-[var(--accent)] mr-1.5"></i>1-3 business days</span>
+    <span><i class="fa-solid fa-money-bill-wave text-[var(--accent)] mr-1.5"></i>Cash on delivery</span>
+    <button onclick="togglePolicyModal()" class="underline hover:text-[var(--ink)] transition"><i class="fa-solid fa-rotate-left text-[var(--accent)] mr-1.5"></i>2-day exchange</button>
   </div>
 </section>
 
 <!-- ============ PRODUCT GRID ============ -->
 <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
   <div class="flex items-center justify-between mb-5">
-    <h2 class="font-display text-xl md:text-2xl font-semibold" id="grid-title">Toute la collection</h2>
+    <h2 class="font-display text-xl md:text-2xl font-semibold" id="grid-title">Full collection</h2>
     <span id="grid-count" class="text-[11px] text-[var(--muted)]"></span>
   </div>
   <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6"></div>
 </main>
 
 <footer class="border-t border-[var(--line)] py-8 text-center">
-  <div class="font-display text-lg tracking-plus mb-2">SLAY<span class="text-[var(--accent)]">.</span></div>
+  <img src="assets/logo.png" alt="SLAY." class="h-8 w-auto mx-auto mb-3">
   <p class="text-[10px] text-[var(--muted)] uppercase tracking-[0.3em] mb-4">Wear it • Love it • Slay it</p>
   <button onclick="openPinModal()" class="text-[10px] text-[var(--muted)]/60 hover:text-[var(--muted)] transition underline underline-offset-2">
-    Espace gestion boutique
+    Store management
   </button>
 </footer>
 
@@ -163,7 +167,7 @@
 <nav class="bottom-nav md:hidden fixed bottom-0 inset-x-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-t border-[var(--line)] flex justify-around items-center py-2">
   <a href="#top" class="flex flex-col items-center gap-1 text-[var(--ink)] px-3 py-1">
     <i class="fa-solid fa-house text-lg"></i>
-    <span class="text-[9px] font-medium">Boutique</span>
+    <span class="text-[9px] font-medium">Shop</span>
   </a>
   <a href="#product-grid" class="flex flex-col items-center gap-1 text-[var(--muted)] px-3 py-1">
     <i class="fa-solid fa-shirt text-lg"></i>
@@ -172,9 +176,9 @@
   <button onclick="toggleCart()" class="relative flex flex-col items-center gap-1 text-[var(--muted)] px-3 py-1">
     <i class="fa-solid fa-bag-shopping text-lg"></i>
     <span id="cart-count-mobile" class="absolute -top-0.5 right-1.5 bg-[var(--accent)] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
-    <span class="text-[9px] font-medium">Sac</span>
+    <span class="text-[9px] font-medium">Bag</span>
   </button>
-  <a href="https://wa.link/gem37j" target="_blank" class="flex flex-col items-center gap-1 text-[var(--muted)] px-3 py-1">
+  <a id="contact-link-mobile" href="#" target="_blank" class="flex flex-col items-center gap-1 text-[var(--muted)] px-3 py-1">
     <i class="fa-brands fa-whatsapp text-lg"></i>
     <span class="text-[9px] font-medium">Contact</span>
   </a>
@@ -188,13 +192,13 @@
       <i class="fa-solid fa-shield-halved text-[var(--accent)] text-xl"></i>
     </div>
     <div>
-      <h3 class="font-bold text-lg font-display">Accès Administration</h3>
-      <p class="text-xs text-[var(--muted)] mt-1">Entrez le code PIN pour continuer</p>
+      <h3 class="font-bold text-lg font-display">Admin Access</h3>
+      <p class="text-xs text-[var(--muted)] mt-1">Enter the PIN code to continue</p>
     </div>
     <form onsubmit="submitPinForm(event)" class="space-y-4">
       <input type="password" id="manual-pin-input" placeholder="••••" maxlength="8" class="w-full text-center text-xl tracking-widest bg-black text-[var(--accent)] border border-[var(--line)] rounded-xl p-3 focus:outline-none focus:border-[var(--accent)]">
       <button type="submit" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg">
-        Déverrouiller
+        Unlock
       </button>
     </form>
   </div>
@@ -204,11 +208,11 @@
 <div id="policy-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-4" onclick="togglePolicyModal()">
   <div class="bg-[var(--surface)] border border-[var(--line)] rounded-2xl max-w-sm w-full p-6 space-y-3" onclick="event.stopPropagation()">
     <div class="flex justify-between items-center">
-      <h3 class="font-display font-semibold text-lg">Politique d'échange</h3>
+      <h3 class="font-display font-semibold text-lg">Exchange Policy</h3>
       <button onclick="togglePolicyModal()" class="text-[var(--muted)] hover:text-white text-2xl">&times;</button>
     </div>
     <p class="text-xs text-[var(--muted)] leading-relaxed">
-      Vous disposez de 2 jours après réception pour échanger un article (taille ou modèle), sous réserve que le produit soit non porté, avec ses étiquettes. Contactez-nous directement via WhatsApp pour organiser l'échange.
+      You have 2 days after receiving your order to exchange an item (size or style), provided it is unworn and with its original tags. Contact us directly via WhatsApp to arrange the exchange.
     </p>
   </div>
 </div>
@@ -240,13 +244,13 @@
         <span id="lb-price" class="font-extrabold text-[var(--accent)] text-base md:text-lg"></span>
       </div>
       <div>
-        <label class="block text-[11px] text-[var(--muted)] uppercase font-bold mb-1">Taille :</label>
+        <label class="block text-[11px] text-[var(--muted)] uppercase font-bold mb-1">Size:</label>
         <div id="lb-sizes-container" class="flex gap-2 flex-wrap text-xs"></div>
       </div>
       <p id="lb-desc" class="text-[var(--muted)] text-xs md:text-sm leading-relaxed"></p>
       <div class="pt-2">
         <button id="lb-add-btn" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition uppercase tracking-wider text-xs shadow-lg">
-          + Ajouter au sac
+          + Add to Bag
         </button>
       </div>
     </div>
@@ -258,45 +262,45 @@
   <div class="bg-[var(--surface)] border border-[var(--line)] text-white p-4 md:p-6 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto space-y-5 shadow-2xl">
     <div class="flex justify-between items-center border-b border-[var(--line)] pb-3">
       <h2 class="text-lg md:text-xl font-display font-semibold text-[var(--accent)] flex items-center gap-2">
-        <i class="fa-solid fa-gauge-high"></i> Gestion Boutique
+        <i class="fa-solid fa-gauge-high"></i> Store Management
       </h2>
       <button onclick="toggleAdminModal()" class="text-[var(--muted)] hover:text-white text-2xl">&times;</button>
     </div>
 
     <!-- Tabs -->
     <div class="flex gap-2 flex-wrap">
-      <button id="admin-tabbtn-catalog" onclick="switchAdminTab('catalog')" class="px-4 py-2 rounded-full text-xs font-bold bg-[var(--accent)] text-white transition">Catalogue</button>
-      <button id="admin-tabbtn-orders" onclick="switchAdminTab('orders')" class="px-4 py-2 rounded-full text-xs font-bold bg-[var(--surface-2)] text-[var(--muted)] transition">Commandes</button>
-      <button id="admin-tabbtn-analytics" onclick="switchAdminTab('analytics')" class="px-4 py-2 rounded-full text-xs font-bold bg-[var(--surface-2)] text-[var(--muted)] transition">Statistiques</button>
+      <button id="admin-tabbtn-catalog" onclick="switchAdminTab('catalog')" class="px-4 py-2 rounded-full text-xs font-bold bg-[var(--accent)] text-white transition">Catalog</button>
+      <button id="admin-tabbtn-orders" onclick="switchAdminTab('orders')" class="px-4 py-2 rounded-full text-xs font-bold bg-[var(--surface-2)] text-[var(--muted)] transition">Orders</button>
+      <button id="admin-tabbtn-analytics" onclick="switchAdminTab('analytics')" class="px-4 py-2 rounded-full text-xs font-bold bg-[var(--surface-2)] text-[var(--muted)] transition">Analytics</button>
     </div>
 
     <div id="admin-alert" class="hidden bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 p-3 rounded-xl text-xs flex items-center gap-2">
-      <i class="fa-solid fa-circle-check"></i> <span id="admin-alert-msg">Article ajouté avec succès !</span>
+      <i class="fa-solid fa-circle-check"></i> <span id="admin-alert-msg">Item added successfully!</span>
     </div>
 
     <!-- ===== TAB: CATALOG ===== -->
     <div id="admin-tab-catalog" class="space-y-5">
       <div class="bg-black/30 p-4 rounded-xl border border-[var(--line)] space-y-4">
         <div class="flex justify-between items-center">
-          <h3 id="form-heading" class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Ajouter un produit</h3>
-          <button id="btn-cancel-edit" onclick="resetAdminForm()" class="hidden text-xs text-[var(--accent)] underline">Annuler</button>
+          <h3 id="form-heading" class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Add New Product</h3>
+          <button id="btn-cancel-edit" onclick="resetAdminForm()" class="hidden text-xs text-[var(--accent)] underline">Cancel Edit</button>
         </div>
 
         <div>
-          <label class="block text-xs text-[var(--muted)] mb-1">Photos du produit (max 4)</label>
+          <label class="block text-xs text-[var(--muted)] mb-1">Product Photos (up to 4)</label>
           <input type="file" id="admin-img-files" accept="image/*" multiple onchange="previewMultipleImages(event)" class="text-xs text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[var(--accent)] file:text-white cursor-pointer w-full">
           <div id="multi-img-preview" class="mt-3 flex gap-2 flex-wrap hidden"></div>
         </div>
 
-        <input type="text" id="admin-name" placeholder="Nom du produit (ex : Robe satinée)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+        <input type="text" id="admin-name" placeholder="Product name (e.g. Satin Dress)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
 
         <div class="grid grid-cols-2 gap-3">
           <select id="admin-category-select" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></select>
-          <input type="number" step="0.01" id="admin-price" placeholder="Prix ($)" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+          <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
         </div>
 
         <div>
-          <label class="block text-xs text-[var(--muted)] mb-1">Tailles disponibles</label>
+          <label class="block text-xs text-[var(--muted)] mb-1">Available sizes</label>
           <div class="flex gap-4 text-xs">
             <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="sizes" value="S" checked class="accent-[var(--accent)]"> S</label>
             <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="sizes" value="M" checked class="accent-[var(--accent)]"> M</label>
@@ -308,21 +312,21 @@
         <textarea id="admin-desc" placeholder="Description..." rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
 
         <button onclick="saveProduct()" id="btn-save-prod" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition uppercase text-xs shadow-md">
-          + Ajouter à la boutique
+          + Add Item to Store
         </button>
       </div>
 
       <div class="bg-black/30 p-4 rounded-xl border border-[var(--line)] space-y-3">
-        <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Catégories</h3>
+        <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Categories</h3>
         <div class="flex gap-2">
-          <input type="text" id="new-category-input" placeholder="Nouvelle catégorie (ex : Jupes)" class="flex-grow bg-[var(--surface-2)] text-white rounded-xl p-2.5 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-          <button onclick="addCategory()" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">Ajouter</button>
+          <input type="text" id="new-category-input" placeholder="New category (e.g. Skirts)" class="flex-grow bg-[var(--surface-2)] text-white rounded-xl p-2.5 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+          <button onclick="addCategory()" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">Add</button>
         </div>
         <div id="category-list-tags" class="flex flex-wrap gap-2 pt-2"></div>
       </div>
 
       <div class="bg-black/30 p-4 rounded-xl border border-[var(--line)] space-y-3">
-        <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Articles en boutique (<span id="item-count">0</span>)</h3>
+        <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Current Items (<span id="item-count">0</span>)</h3>
         <div id="admin-inventory-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
       </div>
     </div>
@@ -337,37 +341,37 @@
     <div id="admin-tab-analytics" class="hidden space-y-5">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
-          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">Aujourd'hui</div>
+          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">Today</div>
           <div id="stat-today" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
-          <div id="stat-today-count" class="text-[10px] text-[var(--muted)]">0 commande(s)</div>
+          <div id="stat-today-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
         <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
-          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">Cette semaine</div>
+          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">This Week</div>
           <div id="stat-week" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
-          <div id="stat-week-count" class="text-[10px] text-[var(--muted)]">0 commande(s)</div>
+          <div id="stat-week-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
         <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
-          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">Ce mois</div>
+          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">This Month</div>
           <div id="stat-month" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
-          <div id="stat-month-count" class="text-[10px] text-[var(--muted)]">0 commande(s)</div>
+          <div id="stat-month-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
         <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3.5">
-          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">Cette année</div>
+          <div class="text-[10px] text-[var(--muted)] uppercase tracking-wider">This Year</div>
           <div id="stat-year" class="text-lg font-extrabold text-[var(--accent)] font-display mt-1">$0.00</div>
-          <div id="stat-year-count" class="text-[10px] text-[var(--muted)]">0 commande(s)</div>
+          <div id="stat-year-count" class="text-[10px] text-[var(--muted)]">0 order(s)</div>
         </div>
       </div>
 
       <div class="bg-black/30 border border-[var(--line)] rounded-xl p-4">
         <div class="flex justify-between items-center mb-3">
-          <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Évolution des ventes</h3>
+          <h3 class="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">Sales Over Time</h3>
           <div class="flex gap-1.5">
-            <button id="range-btn-days" onclick="setAnalyticsRange('days')" class="px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--accent)] text-white">14 jours</button>
-            <button id="range-btn-months" onclick="setAnalyticsRange('months')" class="px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--surface-2)] text-[var(--muted)]">12 mois</button>
+            <button id="range-btn-days" onclick="setAnalyticsRange('days')" class="px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--accent)] text-white">14 days</button>
+            <button id="range-btn-months" onclick="setAnalyticsRange('months')" class="px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--surface-2)] text-[var(--muted)]">12 months</button>
           </div>
         </div>
         <div class="h-64"><canvas id="sales-chart"></canvas></div>
-        <p class="text-[10px] text-[var(--muted)] mt-2">Les commandes annulées sont exclues des totaux.</p>
+        <p class="text-[10px] text-[var(--muted)] mt-2">Cancelled orders are excluded from totals.</p>
       </div>
     </div>
   </div>
@@ -384,36 +388,36 @@
     <div id="oe-items" class="space-y-1 text-xs text-[var(--muted)] bg-black/30 rounded-xl p-3 border border-[var(--line)]"></div>
 
     <div class="grid grid-cols-2 gap-3 text-xs">
-      <div><span class="text-[var(--muted)]">Client</span><div id="oe-name" class="text-white font-semibold"></div></div>
-      <div><span class="text-[var(--muted)]">Téléphone</span><div id="oe-phone" class="text-white font-semibold"></div></div>
+      <div><span class="text-[var(--muted)]">Customer</span><div id="oe-name" class="text-white font-semibold"></div></div>
+      <div><span class="text-[var(--muted)]">Phone</span><div id="oe-phone" class="text-white font-semibold"></div></div>
     </div>
 
     <div>
-      <label class="block text-xs text-[var(--muted)] mb-1">Adresse de livraison</label>
+      <label class="block text-xs text-[var(--muted)] mb-1">Delivery address</label>
       <textarea id="oe-address" rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
     </div>
 
     <div>
-      <label class="block text-xs text-[var(--muted)] mb-1">Statut</label>
+      <label class="block text-xs text-[var(--muted)] mb-1">Status</label>
       <select id="oe-status" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-        <option value="pending">En attente</option>
-        <option value="processing">En cours</option>
-        <option value="delivered">Livrée</option>
-        <option value="cancelled">Annulée</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-xs text-[var(--muted)] mb-1">Notes internes</label>
-      <textarea id="oe-notes" rows="2" placeholder="Ex : appeler avant livraison..." class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
+      <label class="block text-xs text-[var(--muted)] mb-1">Internal notes</label>
+      <textarea id="oe-notes" rows="2" placeholder="e.g. call before delivery..." class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
     </div>
 
     <div class="flex gap-2 pt-2">
       <button onclick="downloadOrderReceiptFromAdmin()" class="flex-1 bg-[var(--surface-2)] hover:bg-black text-white text-xs font-bold py-3 rounded-xl border border-[var(--line)]">
-        <i class="fa-solid fa-file-pdf mr-1"></i> Ticket PDF
+        <i class="fa-solid fa-file-pdf mr-1"></i> Receipt PDF
       </button>
       <button onclick="saveOrderEdit()" class="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white text-xs font-bold py-3 rounded-xl">
-        Enregistrer
+        Save
       </button>
     </div>
   </div>
@@ -426,20 +430,20 @@
       <i class="fa-solid fa-check text-emerald-400 text-2xl"></i>
     </div>
     <div>
-      <h3 class="font-display text-xl font-semibold">Commande confirmée</h3>
-      <p class="text-xs text-[var(--muted)] mt-1">Référence : <span id="confirm-order-ref" class="text-[var(--accent)] font-bold">SLAY-000000</span></p>
+      <h3 class="font-display text-xl font-semibold">Order Confirmed</h3>
+      <p class="text-xs text-[var(--muted)] mt-1">Reference: <span id="confirm-order-ref" class="text-[var(--accent)] font-bold">SLAY-000000</span></p>
     </div>
     <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3 flex justify-between items-center text-sm">
-      <span class="text-[var(--muted)]">Total (paiement livraison)</span>
+      <span class="text-[var(--muted)]">Total (cash on delivery)</span>
       <span id="confirm-order-total" class="font-extrabold text-[var(--accent)]">$0.00</span>
     </div>
     <p id="confirm-email-status" class="hidden text-[11px] text-[var(--muted)]"></p>
     <div class="space-y-2 pt-1">
       <button onclick="downloadCurrentReceipt()" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg">
-        <i class="fa-solid fa-download mr-1.5"></i> Télécharger le ticket (PDF)
+        <i class="fa-solid fa-download mr-1.5"></i> Download Receipt (PDF)
       </button>
       <button onclick="closeOrderConfirmation()" class="w-full text-[var(--muted)] hover:text-white text-xs py-2">
-        Continuer mes achats
+        Continue Shopping
       </button>
     </div>
   </div>
@@ -451,42 +455,42 @@
 <!-- ============ CART SIDEBAR ============ -->
 <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--surface)] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-[var(--line)]">
   <div class="p-4 border-b border-[var(--line)] flex justify-between items-center">
-    <h2 class="font-display text-lg font-semibold tracking-wide">Votre Sac</h2>
+    <h2 class="font-display text-lg font-semibold tracking-wide">Your Bag</h2>
     <button onclick="toggleCart()" class="text-[var(--muted)] hover:text-white text-2xl px-2">&times;</button>
   </div>
 
   <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
-    <p class="text-[var(--muted)] text-center py-8 text-xs">Votre sac est vide.</p>
+    <p class="text-[var(--muted)] text-center py-8 text-xs">Your bag is empty.</p>
   </div>
 
   <div class="p-4 border-t border-[var(--line)] bg-black/30">
     <div class="space-y-1 text-sm mb-4 border-b border-[var(--line)] pb-3">
       <div class="flex justify-between text-[var(--muted)]">
-        <span>Sous-total :</span><span id="cart-subtotal">$0.00</span>
+        <span>Subtotal:</span><span id="cart-subtotal">$0.00</span>
       </div>
       <div class="flex justify-between text-[var(--muted)]">
-        <span>Livraison (Liban) :</span><span id="cart-delivery">$4.00</span>
+        <span>Delivery (Lebanon):</span><span id="cart-delivery">$4.00</span>
       </div>
       <div class="flex justify-between font-bold text-base text-white pt-1">
-        <span>Total (paiement à la livraison) :</span><span id="cart-total" class="text-[var(--accent)]">$0.00</span>
+        <span>Total (cash on delivery):</span><span id="cart-total" class="text-[var(--accent)]">$0.00</span>
       </div>
     </div>
 
     <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
-      <input type="text" id="cust-name" placeholder="Nom complet *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-      <input type="tel" id="cust-phone" placeholder="Téléphone (WhatsApp) *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-      <input type="email" id="cust-email" placeholder="Email (optionnel)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-      <textarea id="cust-address" placeholder="Adresse de livraison & ville *" required rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
+      <input type="text" id="cust-name" placeholder="Full name *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      <input type="tel" id="cust-phone" placeholder="Phone number (WhatsApp) *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      <input type="email" id="cust-email" placeholder="Email (optional)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      <textarea id="cust-address" placeholder="Delivery address & city *" required rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
 
       <label class="flex items-start gap-2 text-[11px] text-zinc-300 cursor-pointer pt-1">
         <input type="checkbox" id="also-email-checkbox" class="mt-0.5 accent-[var(--accent)]">
-        <span>Recevoir aussi une copie du ticket par email <span class="text-[var(--muted)]">(facultatif)</span></span>
+        <span>Also email me a copy of the receipt <span class="text-[var(--muted)]">(optional)</span></span>
       </label>
 
       <button type="submit" id="checkout-submit-btn" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3.5 rounded-xl transition uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg">
-        <i class="fa-brands fa-whatsapp text-lg"></i> Finaliser la commande
+        <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order
       </button>
-      <p class="text-[10px] text-[var(--muted)] text-center pt-1">Vous pourrez télécharger votre ticket juste après la confirmation.</p>
+      <p class="text-[10px] text-[var(--muted)] text-center pt-1">You'll be able to download your receipt right after confirmation.</p>
     </form>
   </div>
 </div>
@@ -511,6 +515,15 @@
     return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
 
+  // Build every "contact us" link from CONFIG.WHATSAPP_NUMBER — single source of truth.
+  function initContactLinks(){
+    const url = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}`;
+    const desktop = document.getElementById('contact-link-desktop');
+    const mobile = document.getElementById('contact-link-mobile');
+    if (desktop) desktop.href = url;
+    if (mobile) mobile.href = url;
+  }
+
   // --- PIN / ADMIN MODAL ---
   function openPinModal(){
     document.getElementById('manual-pin-input').value = '';
@@ -526,7 +539,7 @@
       toggleAdminModal();
       switchAdminTab('catalog');
     } else {
-      alert("Code PIN incorrect");
+      alert("Incorrect PIN code");
     }
   }
   function toggleAdminModal(){ document.getElementById('admin-modal').classList.toggle('hidden'); }
@@ -598,7 +611,7 @@
   // --- CATEGORIES UI ---
   function renderCategoriesUI(){
     const container = document.getElementById('categories-container');
-    container.innerHTML = `<button onclick="filterCategory('All')" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition ${currentCategory === 'All' ? 'bg-[var(--accent)] text-white shadow-md' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)]'}">Tout</button>`;
+    container.innerHTML = `<button onclick="filterCategory('All')" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition ${currentCategory === 'All' ? 'bg-[var(--accent)] text-white shadow-md' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)]'}">All</button>`;
     categories.forEach(cat => {
       const isActive = currentCategory.toLowerCase() === cat.name.toLowerCase();
       container.innerHTML += `<button onclick="filterCategory('${cat.name}')" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition ${isActive ? 'bg-[var(--accent)] text-white shadow-md' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)] hover:text-white'}">${escapeHtml(cat.name)}</button>`;
@@ -626,7 +639,7 @@
     currentCategory = cat;
     renderCategoriesUI();
     renderProductsUI();
-    document.getElementById('grid-title').innerText = cat === 'All' ? 'Toute la collection' : cat;
+    document.getElementById('grid-title').innerText = cat === 'All' ? 'Full collection' : cat;
   }
 
   // --- PRODUCTS CRUD ---
@@ -637,10 +650,10 @@
     const description = document.getElementById('admin-desc').value.trim();
     const sizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
 
-    if(!name || isNaN(price)){ alert('Veuillez renseigner le nom et le prix.'); return; }
+    if(!name || isNaN(price)){ alert('Please enter product name and price.'); return; }
 
     const btn = document.getElementById('btn-save-prod');
-    btn.innerText = 'Enregistrement...'; btn.disabled = true;
+    btn.innerText = 'Saving...'; btn.disabled = true;
 
     let payload = { name, category, price, description, sizes };
     if (uploadedImagesArray.length > 0) payload.images = uploadedImagesArray;
@@ -651,8 +664,8 @@
       error = res.error;
     } else {
       if (uploadedImagesArray.length === 0){
-        alert('Veuillez sélectionner au moins 1 photo.');
-        btn.innerText = '+ Ajouter à la boutique'; btn.disabled = false; return;
+        alert('Please select at least 1 photo.');
+        btn.innerText = '+ Add Item to Store'; btn.disabled = false; return;
       }
       const res = await db.from('products').insert([payload]);
       error = res.error;
@@ -661,9 +674,9 @@
     btn.disabled = false;
 
     if(error){
-      alert('Erreur : ' + error.message);
+      alert('Error: ' + error.message);
     } else {
-      showAdminAlert(editingProductId ? "Produit mis à jour !" : "Nouvel article ajouté !");
+      showAdminAlert(editingProductId ? "Product updated!" : "New item added!");
       resetAdminForm();
       fetchProducts();
     }
@@ -671,8 +684,8 @@
 
   function editProduct(product){
     editingProductId = product.id;
-    document.getElementById('form-heading').innerText = "Modifier le produit (ID : " + product.id + ")";
-    document.getElementById('btn-save-prod').innerText = "Mettre à jour";
+    document.getElementById('form-heading').innerText = "Edit Product (ID: " + product.id + ")";
+    document.getElementById('btn-save-prod').innerText = "Update Product";
     document.getElementById('btn-cancel-edit').classList.remove('hidden');
 
     document.getElementById('admin-name').value = product.name;
@@ -693,8 +706,8 @@
 
   function resetAdminForm(){
     editingProductId = null;
-    document.getElementById('form-heading').innerText = "Ajouter un produit";
-    document.getElementById('btn-save-prod').innerText = "+ Ajouter à la boutique";
+    document.getElementById('form-heading').innerText = "Add New Product";
+    document.getElementById('btn-save-prod').innerText = "+ Add Item to Store";
     document.getElementById('btn-cancel-edit').classList.add('hidden');
     document.getElementById('admin-name').value = '';
     document.getElementById('admin-price').value = '';
@@ -713,7 +726,7 @@
   }
 
   async function deleteProduct(id){
-    if(confirm("Supprimer cet article ?")){
+    if(confirm("Delete this item?")){
       await db.from('products').delete().eq('id', id);
       fetchProducts();
     }
@@ -728,10 +741,10 @@
     const grid = document.getElementById('product-grid');
     grid.innerHTML = '';
     const filtered = currentCategory === 'All' ? products : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
-    document.getElementById('grid-count').innerText = filtered.length + ' article(s)';
+    document.getElementById('grid-count').innerText = filtered.length + ' item(s)';
 
     if(filtered.length === 0){
-      grid.innerHTML = `<p class="col-span-full text-center text-[var(--muted)] py-12 text-xs">Aucun produit trouvé.</p>`;
+      grid.innerHTML = `<p class="col-span-full text-center text-[var(--muted)] py-12 text-xs">No products found.</p>`;
       return;
     }
 
@@ -769,7 +782,7 @@
           <div class="p-3 pt-0 flex justify-between items-center mt-1">
             <span class="font-extrabold text-[var(--accent)] text-sm">$${Number(p.price).toFixed(2)}</span>
             <button onclick="addToCartSilently(${p.id})" class="bg-[var(--surface-2)] hover:bg-[var(--accent)] text-white text-xs px-3 py-2 rounded-xl transition shadow">
-              + Ajouter
+              + Add
             </button>
           </div>
         </div>
@@ -781,7 +794,7 @@
     const list = document.getElementById('admin-inventory-list');
     document.getElementById('item-count').innerText = products.length;
     if(products.length === 0){
-      list.innerHTML = `<p class="text-xs text-[var(--muted)]">Aucun produit ajouté.</p>`;
+      list.innerHTML = `<p class="text-xs text-[var(--muted)]">No products added yet.</p>`;
       return;
     }
     list.innerHTML = products.map(p => {
@@ -797,7 +810,7 @@
           </div>
           <div class="flex items-center gap-1">
             <button onclick='editProduct(${JSON.stringify(p)})' class="text-[var(--accent)] hover:text-white bg-[var(--accent)]/10 px-2.5 py-1.5 rounded-lg border border-[var(--accent)]/20 font-semibold">
-              <i class="fa-solid fa-pen-to-square mr-1"></i>Modifier
+              <i class="fa-solid fa-pen-to-square mr-1"></i>Edit
             </button>
             <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-1.5">
               <i class="fa-solid fa-trash"></i>
@@ -830,7 +843,7 @@
     document.getElementById('lb-category').innerText = currentLightboxProduct.category;
     document.getElementById('lb-name').innerText = currentLightboxProduct.name;
     document.getElementById('lb-price').innerText = `$${Number(currentLightboxProduct.price).toFixed(2)}`;
-    document.getElementById('lb-desc').innerText = currentLightboxProduct.description || 'Aucune description fournie.';
+    document.getElementById('lb-desc').innerText = currentLightboxProduct.description || 'No description provided.';
     document.getElementById('lb-current-index').innerText = currentPhotoIndex + 1;
     document.getElementById('lb-total-index').innerText = imgList.length;
 
@@ -904,7 +917,7 @@
     totalEl.innerText = `$${total.toFixed(2)}`;
 
     if(cart.length === 0){
-      container.innerHTML = '<p class="text-[var(--muted)] text-center py-8 text-xs">Votre sac est vide.</p>';
+      container.innerHTML = '<p class="text-[var(--muted)] text-center py-8 text-xs">Your bag is empty.</p>';
       return;
     }
 
@@ -914,7 +927,7 @@
           <img src="${item.image}" class="w-12 h-12 object-cover rounded-xl">
           <div>
             <h4 class="font-semibold text-xs text-white">${escapeHtml(item.name)}</h4>
-            <p class="text-[var(--muted)] text-xs">$${Number(item.price).toFixed(2)} x ${item.qty} • <span class="text-[var(--accent)] font-bold">Taille : ${item.selectedSize}</span></p>
+            <p class="text-[var(--muted)] text-xs">$${Number(item.price).toFixed(2)} x ${item.qty} • <span class="text-[var(--accent)] font-bold">Size: ${item.selectedSize}</span></p>
           </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -929,7 +942,7 @@
   // --- CHECKOUT / ORDER ---
   async function processCheckout(e){
     e.preventDefault();
-    if(cart.length === 0){ alert("Votre sac est vide !"); return; }
+    if(cart.length === 0){ alert("Your bag is empty!"); return; }
 
     const name = document.getElementById('cust-name').value.trim();
     const phone = document.getElementById('cust-phone').value.trim();
@@ -938,13 +951,13 @@
     const alsoEmail = document.getElementById('also-email-checkbox').checked;
 
     if (alsoEmail && !email){
-      alert("Veuillez indiquer un email pour recevoir une copie du ticket.");
+      alert("Please provide an email address to receive a copy of the receipt.");
       return;
     }
 
     const submitBtn = document.getElementById('checkout-submit-btn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Traitement...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 
     const orderRef = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
     const subtotal = cart.reduce((sum,item) => sum + (item.price * item.qty), 0);
@@ -963,20 +976,20 @@
     const { data, error } = await db.from('orders').insert([orderPayload]).select().single();
 
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Finaliser la commande';
+    submitBtn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Complete Order';
 
     if (error){
-      alert("Erreur lors de l'enregistrement de la commande : " + error.message);
+      alert("An error occurred while saving your order: " + error.message);
       return;
     }
 
-    let waMessage = `*NOUVELLE COMMANDE - ${orderRef}*\n\n`;
-    waMessage += `*Client :*\n- Nom : ${name}\n- Téléphone : ${phone}\n- Email : ${email || '—'}\n- Adresse : ${address}\n\n`;
-    waMessage += `*Articles :*\n`;
-    cart.forEach(i => { waMessage += `• ${i.name} (Taille : ${i.selectedSize}, x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`; });
-    waMessage += `\n*Sous-total :* $${subtotal.toFixed(2)}`;
-    waMessage += `\n*Livraison :* $${CONFIG.DELIVERY_FEE.toFixed(2)}`;
-    waMessage += `\n*Total :* $${total.toFixed(2)} (Paiement à la livraison)`;
+    let waMessage = `*NEW ORDER - ${orderRef}*\n\n`;
+    waMessage += `*Customer:*\n- Name: ${name}\n- Phone: ${phone}\n- Email: ${email || '—'}\n- Address: ${address}\n\n`;
+    waMessage += `*Items:*\n`;
+    cart.forEach(i => { waMessage += `• ${i.name} (Size: ${i.selectedSize}, x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`; });
+    waMessage += `\n*Subtotal:* $${subtotal.toFixed(2)}`;
+    waMessage += `\n*Delivery:* $${CONFIG.DELIVERY_FEE.toFixed(2)}`;
+    waMessage += `\n*Total:* $${total.toFixed(2)} (Cash on delivery)`;
     window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
 
     cart = []; updateCartUI(); toggleCart(); document.getElementById('checkout-form').reset();
@@ -994,11 +1007,11 @@
 
     if (alsoEmail && order.email){
       statusEl.classList.remove('hidden');
-      statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Envoi de la copie par email...`;
+      statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Sending your email copy...`;
       emailReceipt(order).then(ok => {
         statusEl.innerHTML = ok
-          ? `<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Copie envoyée à ${escapeHtml(order.email)}`
-          : `<i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> L'email n'a pas pu être envoyé. Téléchargez le ticket ci-dessous.`;
+          ? `<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Copy sent to ${escapeHtml(order.email)}`
+          : `<i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> The email couldn't be sent. Download the receipt below instead.`;
       });
     }
   }
@@ -1020,7 +1033,7 @@
             <img src="${it.image}" style="width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid #eee;">
             <div>
               <div style="font-weight:600;font-size:13px;color:#111;">${escapeHtml(it.name)}</div>
-              <div style="font-size:11px;color:#888;">Taille : ${escapeHtml(it.selectedSize)}</div>
+              <div style="font-size:11px;color:#888;">Size: ${escapeHtml(it.selectedSize)}</div>
             </div>
           </div>
         </td>
@@ -1034,25 +1047,25 @@
       <div style="width:560px;padding:36px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:18px;margin-bottom:20px;">
           <div>
-            <div style="font-size:26px;font-weight:800;letter-spacing:3px;">SLAY.</div>
-            <div style="font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Women's Fashion — Lebanon</div>
+            <img src="${window.location.origin}/assets/logo.png" style="height:30px;width:auto;display:block;border-radius:4px;">
+            <div style="font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-top:6px;">Women's Fashion — Lebanon</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;">Ticket</div>
+            <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;">Receipt</div>
             <div style="font-size:15px;font-weight:700;margin-top:2px;">${order.order_ref}</div>
-            <div style="font-size:11px;color:#999;margin-top:2px;">${new Date(order.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+            <div style="font-size:11px;color:#999;margin-top:2px;">${new Date(order.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
           </div>
         </div>
 
         <div style="display:flex;justify-content:space-between;margin-bottom:20px;gap:20px;">
           <div>
-            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Client</div>
+            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Customer</div>
             <div style="font-size:13px;font-weight:600;">${escapeHtml(order.customer_name)}</div>
             <div style="font-size:12px;color:#555;">${escapeHtml(order.phone)}</div>
             ${order.email ? `<div style="font-size:12px;color:#555;">${escapeHtml(order.email)}</div>` : ''}
           </div>
           <div style="text-align:right;max-width:240px;">
-            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Livraison</div>
+            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Delivery</div>
             <div style="font-size:12px;color:#555;">${escapeHtml(order.address)}</div>
           </div>
         </div>
@@ -1060,9 +1073,9 @@
         <table style="width:100%;border-collapse:collapse;">
           <thead>
             <tr>
-              <th style="text-align:left;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Article</th>
-              <th style="text-align:center;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Qté</th>
-              <th style="text-align:right;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">P.U.</th>
+              <th style="text-align:left;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Item</th>
+              <th style="text-align:center;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Qty</th>
+              <th style="text-align:right;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Unit</th>
               <th style="text-align:right;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Total</th>
             </tr>
           </thead>
@@ -1071,15 +1084,15 @@
 
         <div style="margin-top:16px;display:flex;justify-content:flex-end;">
           <div style="width:220px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Sous-total</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Livraison</span><span>$${Number(order.delivery_fee).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Subtotal</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Delivery</span><span>$${Number(order.delivery_fee).toFixed(2)}</span></div>
             <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;padding:8px 0;border-top:2px solid #111;margin-top:4px;"><span>Total</span><span>$${Number(order.total).toFixed(2)}</span></div>
           </div>
         </div>
 
         <div style="margin-top:28px;padding-top:16px;border-top:1px solid #eee;text-align:center;">
-          <div style="font-size:11px;color:#999;">Paiement à la livraison (Cash on Delivery)</div>
-          <div style="font-size:11px;color:#999;margin-top:6px;">Merci pour votre confiance — SLAY. Wear it • Love it • Slay it</div>
+          <div style="font-size:11px;color:#999;">Cash on delivery</div>
+          <div style="font-size:11px;color:#999;margin-top:6px;">Thank you for shopping with us — SLAY. Wear it • Love it • Slay it</div>
         </div>
       </div>
     `;
@@ -1129,7 +1142,7 @@
   }
 
   // --- ADMIN: ORDERS ---
-  function statusLabel(s){ return { All:'Toutes', pending:'En attente', processing:'En cours', delivered:'Livrée', cancelled:'Annulée' }[s] || s; }
+  function statusLabel(s){ return { All:'All', pending:'Pending', processing:'Processing', delivered:'Delivered', cancelled:'Cancelled' }[s] || s; }
   function statusBadge(s){
     const map = {
       pending: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
@@ -1158,7 +1171,7 @@
     const filtered = currentOrdersFilter === 'All' ? orders : orders.filter(o => o.status === currentOrdersFilter);
 
     if (filtered.length === 0){
-      list.innerHTML = `<p class="text-xs text-[var(--muted)] text-center py-8">Aucune commande.</p>`;
+      list.innerHTML = `<p class="text-xs text-[var(--muted)] text-center py-8">No orders yet.</p>`;
       return;
     }
 
@@ -1169,11 +1182,11 @@
             <span class="font-bold text-xs text-white">${o.order_ref}</span>
             ${statusBadge(o.status)}
           </div>
-          <div class="text-[11px] text-[var(--muted)] mt-1">${escapeHtml(o.customer_name)} • ${new Date(o.created_at).toLocaleDateString('fr-FR')}</div>
+          <div class="text-[11px] text-[var(--muted)] mt-1">${escapeHtml(o.customer_name)} • ${new Date(o.created_at).toLocaleDateString('en-GB')}</div>
         </div>
         <div class="text-right">
           <div class="text-sm font-extrabold text-[var(--accent)]">$${Number(o.total).toFixed(2)}</div>
-          <div class="text-[10px] text-[var(--muted)]">${(o.items||[]).length} article(s)</div>
+          <div class="text-[10px] text-[var(--muted)]">${(o.items||[]).length} item(s)</div>
         </div>
       </div>
     `).join('');
@@ -1210,7 +1223,7 @@
       notes: document.getElementById('oe-notes').value.trim()
     };
     const { error } = await db.from('orders').update(payload).eq('id', editingOrder.id);
-    if (error){ alert('Erreur : ' + error.message); return; }
+    if (error){ alert('Error: ' + error.message); return; }
     closeOrderEditModal();
     fetchOrders();
   }
@@ -1251,13 +1264,13 @@
     if (!statEl) return;
     const stats = computeStats();
     document.getElementById('stat-today').innerText = `$${stats.today.total.toFixed(2)}`;
-    document.getElementById('stat-today-count').innerText = `${stats.today.count} commande(s)`;
+    document.getElementById('stat-today-count').innerText = `${stats.today.count} order(s)`;
     document.getElementById('stat-week').innerText = `$${stats.week.total.toFixed(2)}`;
-    document.getElementById('stat-week-count').innerText = `${stats.week.count} commande(s)`;
+    document.getElementById('stat-week-count').innerText = `${stats.week.count} order(s)`;
     document.getElementById('stat-month').innerText = `$${stats.month.total.toFixed(2)}`;
-    document.getElementById('stat-month-count').innerText = `${stats.month.count} commande(s)`;
+    document.getElementById('stat-month-count').innerText = `${stats.month.count} order(s)`;
     document.getElementById('stat-year').innerText = `$${stats.year.total.toFixed(2)}`;
-    document.getElementById('stat-year-count').innerText = `${stats.year.count} commande(s)`;
+    document.getElementById('stat-year-count').innerText = `${stats.year.count} order(s)`;
     renderSalesChart();
   }
 
@@ -1270,14 +1283,14 @@
     if (analyticsRange === 'days'){
       for (let i = 13; i >= 0; i--){
         const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
-        labels.push(d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }));
+        labels.push(d.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit' }));
         const total = validOrders.filter(o => isSameDay(new Date(o.created_at), d)).reduce((s,o) => s + Number(o.total), 0);
         data.push(total);
       }
     } else {
       for (let i = 11; i >= 0; i--){
         const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
-        labels.push(d.toLocaleDateString('fr-FR', { month:'short', year:'2-digit' }));
+        labels.push(d.toLocaleDateString('en-GB', { month:'short', year:'2-digit' }));
         const total = validOrders.filter(o => {
           const od = new Date(o.created_at);
           return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth();
@@ -1289,7 +1302,7 @@
     if (salesChart) salesChart.destroy();
     salesChart = new Chart(ctx, {
       type: 'bar',
-      data: { labels, datasets: [{ label: 'Ventes ($)', data, backgroundColor: 'rgba(225,45,116,0.55)', borderColor: '#e12d74', borderWidth: 1, borderRadius: 4 }] },
+      data: { labels, datasets: [{ label: 'Sales ($)', data, backgroundColor: 'rgba(225,45,116,0.55)', borderColor: '#e12d74', borderWidth: 1, borderRadius: 4 }] },
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
@@ -1316,6 +1329,7 @@
   }
 
   // --- INIT ---
+  initContactLinks();
   fetchCategories();
   fetchProducts();
   fetchOrders();
