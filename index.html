@@ -474,7 +474,10 @@
 
     <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
       <input type="text" id="cust-name" placeholder="Full name *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
-      <input type="tel" id="cust-phone" placeholder="Phone number (WhatsApp) *" required class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      <div class="flex gap-2">
+        <select id="cust-phone-code" class="bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)] w-[122px] flex-shrink-0"></select>
+        <input type="tel" id="cust-phone" placeholder="Phone number (WhatsApp) *" required class="flex-1 min-w-0 bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
+      </div>
       <input type="email" id="cust-email" placeholder="Email (optional)" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
       <textarea id="cust-address" placeholder="Delivery address & city *" required rows="2" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]"></textarea>
 
@@ -509,6 +512,38 @@
   function escapeHtml(str){
     if (str === null || str === undefined) return '';
     return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // Dial codes shown in the checkout form. Lebanon is first and selected by default;
+  // the rest cover the Gulf, the Levant, and the countries with the largest Lebanese diaspora.
+  const COUNTRY_CODES = [
+    { code:'+961', flag:'🇱🇧', name:'Lebanon' },
+    { code:'+33',  flag:'🇫🇷', name:'France' },
+    { code:'+966', flag:'🇸🇦', name:'Saudi Arabia' },
+    { code:'+971', flag:'🇦🇪', name:'UAE' },
+    { code:'+974', flag:'🇶🇦', name:'Qatar' },
+    { code:'+965', flag:'🇰🇼', name:'Kuwait' },
+    { code:'+973', flag:'🇧🇭', name:'Bahrain' },
+    { code:'+968', flag:'🇴🇲', name:'Oman' },
+    { code:'+962', flag:'🇯🇴', name:'Jordan' },
+    { code:'+20',  flag:'🇪🇬', name:'Egypt' },
+    { code:'+963', flag:'🇸🇾', name:'Syria' },
+    { code:'+964', flag:'🇮🇶', name:'Iraq' },
+    { code:'+90',  flag:'🇹🇷', name:'Turkey' },
+    { code:'+357', flag:'🇨🇾', name:'Cyprus' },
+    { code:'+30',  flag:'🇬🇷', name:'Greece' },
+    { code:'+49',  flag:'🇩🇪', name:'Germany' },
+    { code:'+44',  flag:'🇬🇧', name:'UK' },
+    { code:'+1',   flag:'🇺🇸', name:'US / Canada' },
+    { code:'+61',  flag:'🇦🇺', name:'Australia' },
+    { code:'+55',  flag:'🇧🇷', name:'Brazil' }
+  ];
+
+  function initPhoneCodeSelect(){
+    const select = document.getElementById('cust-phone-code');
+    if (!select) return;
+    select.innerHTML = COUNTRY_CODES.map(c => `<option value="${c.code}">${c.flag} ${c.code}</option>`).join('');
+    select.value = '+961';
   }
 
   // Build every "contact us" link from CONFIG.WHATSAPP_NUMBER — single source of truth.
@@ -941,7 +976,9 @@
     if(cart.length === 0){ alert("Your bag is empty!"); return; }
 
     const name = document.getElementById('cust-name').value.trim();
-    const phone = document.getElementById('cust-phone').value.trim();
+    const phoneCode = document.getElementById('cust-phone-code').value;
+    const phoneNumber = document.getElementById('cust-phone').value.trim().replace(/^0+/, '');
+    const phone = phoneNumber ? `${phoneCode} ${phoneNumber}` : '';
     const email = document.getElementById('cust-email').value.trim();
     const address = document.getElementById('cust-address').value.trim();
     const alsoEmail = document.getElementById('also-email-checkbox').checked;
@@ -1020,130 +1057,113 @@
   }
 
   // --- RECEIPT / PDF ---
+  // Centered, single-column layout in the spirit of the Zara order emails: logo, order info,
+  // delivery details, one block per item (photo + name + size + unit price + qty + line amount),
+  // subtotal/delivery/total, and the full exchange policy. No status badge/stepper — order status
+  // lives in the admin dashboard, not on the customer-facing ticket.
   function buildReceiptHTML(order){
     const items = order.items || [];
-    const statusColors = {
-      pending: '#b45309', processing: '#0369a1', delivered: '#047857', cancelled: '#b91c1c'
-    };
-    const statusLabels = { pending: 'PENDING', processing: 'PROCESSING', delivered: 'DELIVERED', cancelled: 'CANCELLED' };
-    const statusColor = statusColors[order.status] || '#555';
-    const statusText = statusLabels[order.status] || (order.status || '').toUpperCase();
 
-    const itemsRows = items.map(it => `
-      <tr>
-        <td style="padding:12px 8px;border-bottom:1px solid #ececec;">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <img src="${it.image}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #eee;flex-shrink:0;">
-            <div>
-              <div style="font-weight:700;font-size:13px;color:#111;">${escapeHtml(it.name)}</div>
-              <div style="font-size:11px;color:#888;margin-top:2px;">Size: ${escapeHtml(it.selectedSize)}</div>
-              <div style="font-size:11px;color:#888;">Unit price: $${Number(it.price).toFixed(2)}</div>
-            </div>
-          </div>
-        </td>
-        <td style="padding:12px 8px;border-bottom:1px solid #ececec;text-align:center;font-size:13px;color:#333;font-weight:600;">${it.qty}</td>
-        <td style="padding:12px 8px;border-bottom:1px solid #ececec;text-align:right;font-size:13px;font-weight:700;color:#111;">$${(it.price * it.qty).toFixed(2)}</td>
-      </tr>
+    const itemBlocks = items.map((it, idx) => `
+      <div style="display:flex;align-items:center;gap:16px;padding:16px 0;${idx > 0 ? 'border-top:1px solid #eee;' : ''}">
+        <img src="${it.image}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #eee;flex-shrink:0;">
+        <div style="flex:1;text-align:left;">
+          <div style="font-weight:700;font-size:14px;color:#111;">${escapeHtml(it.name)}</div>
+          <div style="font-size:11px;color:#888;margin-top:3px;">Size: ${escapeHtml(it.selectedSize)}</div>
+          <div style="font-size:11px;color:#888;">$${Number(it.price).toFixed(2)} &times; ${it.qty}</div>
+        </div>
+        <div style="font-size:14px;font-weight:800;color:#111;flex-shrink:0;">$${(it.price * it.qty).toFixed(2)}</div>
+      </div>
     `).join('');
 
-    const barcodeBars = Array.from({ length: 46 }).map(() => {
-      const w = [1,1,2,1,3,1,2][Math.floor(Math.random() * 7)];
-      return `<div style="width:${w}px;height:100%;background:#111;"></div>`;
-    }).join('');
-
     return `
-      <div style="width:620px;padding:40px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;">
+      <div style="width:560px;padding:44px 40px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;text-align:center;">
 
-        <!-- Header -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:20px;margin-bottom:22px;">
-          <div>
-            <div style="font-size:28px;font-weight:800;letter-spacing:3px;">SLAY.</div>
-            <div style="font-size:10px;color:#999;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;">Women's Fashion — Lebanon</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1.5px;">Order Receipt</div>
-            <div style="font-size:17px;font-weight:800;margin-top:3px;">${order.order_ref}</div>
-            <div style="font-size:11px;color:#999;margin-top:3px;">${new Date(order.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} at ${new Date(order.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
-            <div style="display:inline-block;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:1px;color:#fff;background:${statusColor};">${statusText}</div>
-          </div>
-        </div>
+        <!-- Logo -->
+        <div style="font-size:26px;font-weight:800;letter-spacing:4px;">SLAY.</div>
+        <div style="font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:6px;">Women's Fashion — Lebanon</div>
 
-        <!-- Customer / delivery -->
-        <div style="display:flex;justify-content:space-between;margin-bottom:22px;gap:24px;">
-          <div style="flex:1;">
-            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;font-weight:700;">Billed To</div>
-            <div style="font-size:13px;font-weight:700;">${escapeHtml(order.customer_name)}</div>
-            <div style="font-size:12px;color:#555;margin-top:2px;">${escapeHtml(order.phone)}</div>
-            ${order.email ? `<div style="font-size:12px;color:#555;">${escapeHtml(order.email)}</div>` : ''}
-          </div>
-          <div style="flex:1;text-align:right;">
-            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;font-weight:700;">Ship To</div>
-            <div style="font-size:12px;color:#555;line-height:1.5;">${escapeHtml(order.address)}</div>
-          </div>
+        <div style="margin:26px auto 0;width:60px;height:1px;background:#111;"></div>
+
+        <!-- Order info -->
+        <div style="margin-top:22px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:2px;">Order Receipt</div>
+        <div style="font-size:18px;font-weight:800;margin-top:4px;">${order.order_ref}</div>
+        <div style="font-size:11px;color:#999;margin-top:4px;">${new Date(order.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div>
+
+        <!-- Delivery details -->
+        <div style="margin-top:30px;padding-top:24px;border-top:1px solid #eee;">
+          <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Delivery Details</div>
+          <div style="font-size:13px;font-weight:700;">${escapeHtml(order.customer_name)}</div>
+          <div style="font-size:12px;color:#555;margin-top:3px;">${escapeHtml(order.phone)}</div>
+          ${order.email ? `<div style="font-size:12px;color:#555;">${escapeHtml(order.email)}</div>` : ''}
+          <div style="font-size:12px;color:#555;margin-top:6px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.5;">${escapeHtml(order.address)}</div>
         </div>
 
         <!-- Items -->
-        <table style="width:100%;border-collapse:collapse;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:9px 8px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Item</th>
-              <th style="text-align:center;padding:9px 8px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Qty</th>
-              <th style="text-align:right;padding:9px 8px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Amount</th>
-            </tr>
-          </thead>
-          <tbody>${itemsRows}</tbody>
-        </table>
+        <div style="margin-top:30px;padding-top:24px;border-top:1px solid #eee;">
+          <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">${items.length} Item${items.length > 1 ? 's' : ''}</div>
+          <div>${itemBlocks}</div>
+        </div>
 
         <!-- Totals -->
-        <div style="margin-top:18px;display:flex;justify-content:flex-end;">
-          <div style="width:240px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:5px 0;"><span>Subtotal</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:5px 0;"><span>Delivery</span><span>$${Number(order.delivery_fee).toFixed(2)}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;padding:10px 0;border-top:2px solid #111;margin-top:5px;"><span>Total</span><span>$${Number(order.total).toFixed(2)}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:#999;padding-top:2px;"><span>Payment method</span><span>Cash on Delivery</span></div>
+        <div style="margin-top:8px;padding-top:20px;border-top:1px solid #eee;">
+          <div style="max-width:280px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Subtotal</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Delivery</span><span>$${Number(order.delivery_fee).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding:10px 0;border-top:2px solid #111;margin-top:6px;"><span>Total</span><span>$${Number(order.total).toFixed(2)}</span></div>
+            <div style="font-size:11px;color:#999;margin-top:2px;">Cash on Delivery</div>
           </div>
         </div>
 
-        <!-- Dashed divider -->
-        <div style="margin-top:26px;border-top:1px dashed #ccc;"></div>
-
         <!-- Return & exchange policy -->
-        <div style="margin-top:20px;">
-          <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:700;">Exchange Policy</div>
-          <p style="font-size:11px;color:#777;line-height:1.6;margin:0;">
-            You have 2 days from the delivery date to exchange this item for a different size or style, provided it is unworn, unwashed and returned with its original tags attached. To arrange an exchange, contact us on WhatsApp at
+        <div style="margin-top:30px;padding-top:24px;border-top:1px solid #eee;">
+          <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Exchange Policy</div>
+          <p style="font-size:11px;color:#777;line-height:1.7;margin:0;max-width:420px;margin-left:auto;margin-right:auto;">
+            You have 2 days from the delivery date to exchange this item for a different size or style, provided it is unworn, unwashed, and returned with its original tags attached. To arrange an exchange, contact us on WhatsApp at
             <strong style="color:#333;">+${CONFIG.WHATSAPP_NUMBER}</strong>
-            with your order reference above. This item was purchased with cash on delivery; no online payment was processed.
+            with your order reference above. This order was placed with cash on delivery — no online payment was processed.
           </p>
         </div>
 
-        <!-- Barcode -->
-        <div style="margin-top:26px;display:flex;flex-direction:column;align-items:center;">
-          <div style="display:flex;gap:1px;height:40px;align-items:stretch;">${barcodeBars}</div>
-          <div style="font-size:10px;letter-spacing:3px;color:#555;margin-top:6px;">${order.order_ref}</div>
-        </div>
-
         <!-- Footer -->
-        <div style="margin-top:22px;padding-top:16px;border-top:1px solid #eee;text-align:center;">
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid #eee;">
           <div style="font-size:11px;color:#999;">Thank you for shopping with us</div>
-          <div style="font-size:11px;color:#999;margin-top:4px;font-weight:700;letter-spacing:1px;">SLAY. — WEAR IT • LOVE IT • SLAY IT</div>
+          <div style="font-size:11px;color:#999;margin-top:5px;font-weight:700;letter-spacing:1px;">SLAY. — WEAR IT • LOVE IT • SLAY IT</div>
         </div>
       </div>
     `;
+  }
+
+  // html2canvas captures based on the current window scroll position. If the shopper has
+  // scrolled down the page, that offset leaks into the render and pushes the receipt content
+  // down inside a mostly-blank canvas (worse on mobile, where the page is taller). Scrolling to
+  // the top and passing explicit scroll/window overrides neutralizes that offset every time.
+  function receiptCanvasOptions(el){
+    window.scrollTo(0, 0);
+    return {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: el.scrollWidth,
+      windowHeight: el.scrollHeight
+    };
   }
 
   async function downloadReceiptPDF(order){
     const container = document.getElementById('receipt-render-area');
     container.innerHTML = buildReceiptHTML(order);
     await new Promise(r => setTimeout(r, 80));
+    const target = container.firstElementChild;
     const opt = {
       margin: 10,
       filename: `${order.order_ref}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      html2canvas: receiptCanvasOptions(target),
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    await html2pdf().set(opt).from(container.firstElementChild).save();
+    await html2pdf().set(opt).from(target).save();
     container.innerHTML = '';
   }
 
@@ -1151,13 +1171,14 @@
     const container = document.getElementById('receipt-render-area');
     container.innerHTML = buildReceiptHTML(order);
     await new Promise(r => setTimeout(r, 80));
+    const target = container.firstElementChild;
     const opt = {
       margin: 10,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      html2canvas: receiptCanvasOptions(target),
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    const dataUri = await html2pdf().set(opt).from(container.firstElementChild).outputPdf('datauristring');
+    const dataUri = await html2pdf().set(opt).from(target).outputPdf('datauristring');
     container.innerHTML = '';
     return dataUri.split(',')[1];
   }
@@ -1365,6 +1386,7 @@
   }
 
   // --- INIT ---
+  initPhoneCodeSelect();
   initContactLinks();
   fetchCategories();
   fetchProducts();
