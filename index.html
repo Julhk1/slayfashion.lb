@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b0b0c">
-<link rel="icon" type="image/png" href="assets/logo.png">
 <title>SLAY. | Women's Fashion — Lebanon</title>
 
 <!-- Tailwind CSS & FontAwesome -->
@@ -77,12 +76,9 @@
 <body class="bg-[var(--bg)] text-[var(--ink)] min-h-screen flex flex-col">
 
 <!-- ============ CONFIGURATION ============ -->
-<!-- Single source of truth for the WhatsApp number: every "contact us" link on the -->
-<!-- site is generated from CONFIG.WHATSAPP_NUMBER at load time (see initContactLinks below), -->
-<!-- so there is only ONE place to update when you switch from the test number to the real one. -->
 <script>
   const CONFIG = {
-    WHATSAPP_NUMBER: "33765231464", // Test number — replace with the store's real number when going live
+    WHATSAPP_NUMBER: "33765231464",
     DELIVERY_FEE: 4.00,
     SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co",
     SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ",
@@ -95,7 +91,7 @@
 <header class="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-b border-[var(--line)]">
   <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
     <a href="#top" class="flex flex-col leading-none">
-      <img src="assets/logo.png" alt="SLAY." class="h-7 md:h-9 w-auto">
+      <span class="font-display text-2xl md:text-3xl font-bold tracking-plus text-[var(--ink)]">SLAY<span class="text-[var(--accent)]">.</span></span>
       <span class="hidden md:block text-[9px] text-[var(--muted)] tracking-[0.35em] uppercase mt-1.5">Women's Fashion — Lebanon</span>
     </a>
 
@@ -156,7 +152,7 @@
 </main>
 
 <footer class="border-t border-[var(--line)] py-8 text-center">
-  <img src="assets/logo.png" alt="SLAY." class="h-8 w-auto mx-auto mb-3">
+  <div class="font-display text-lg tracking-plus mb-2">SLAY<span class="text-[var(--accent)]">.</span></div>
   <p class="text-[10px] text-[var(--muted)] uppercase tracking-[0.3em] mb-4">Wear it • Love it • Slay it</p>
   <button onclick="openPinModal()" class="text-[10px] text-[var(--muted)]/60 hover:text-[var(--muted)] transition underline underline-offset-2">
     Store management
@@ -1047,7 +1043,7 @@
       <div style="width:560px;padding:36px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:18px;margin-bottom:20px;">
           <div>
-            <img src="${window.location.origin}/assets/logo.png" style="height:30px;width:auto;display:block;border-radius:4px;">
+            <div style="font-size:26px;font-weight:800;letter-spacing:3px;">SLAY.</div>
             <div style="font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-top:6px;">Women's Fashion — Lebanon</div>
           </div>
           <div style="text-align:right;">
