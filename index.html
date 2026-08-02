@@ -1,1 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLAY. | Women's Fashion</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- html2pdf Library for Receipt Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
+    body { font-family: 'Montserrat', sans-serif; }
+    .neon-text { text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- CONFIGURATION -->
+  <script>
+    const CONFIG = {
+      WHATSAPP_NUMBER: "96100000000" // Replace with WhatsApp phone number (with country code, no +)
+    };
+  </script>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="#" class="text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
+      
+      <button onclick="toggleCart()" class="relative text-xl p-2 focus:outline-none">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span id="cart-count" class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="text-center py-12 px-4 bg-gradient-to-b from-zinc-900 to-black">
+    <h1 class="text-4xl md:text-5xl font-black uppercase mb-2 tracking-wide">Wear it • Love it • Slay it</h1>
+    <p class="text-zinc-400 text-sm md:text-base">Delivering all over Lebanon • Cash on Delivery</p>
+  </section>
+
+  <!-- Category Filters -->
+  <section class="max-w-6xl mx-auto px-4 py-6 w-full">
+    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container">
+      <button onclick="filterCategory('All')" class="category-btn active bg-pink-500 text-white px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">All</button>
+      <button onclick="filterCategory('Tops')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Tops</button>
+      <button onclick="filterCategory('Pants')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Pants</button>
+      <button onclick="filterCategory('Skirts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Skirts</button>
+      <button onclick="filterCategory('Shorts')" class="category-btn bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition">Shorts</button>
+    </div>
+  </section>
+
+  <!-- Product Grid -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <!-- Products dynamically loaded -->
+    </div>
+  </main>
+
+  <!-- Sliding Cart Sidebar -->
+  <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+      <h2 class="text-xl font-bold uppercase tracking-wider">Your Shopping Bag</h2>
+      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+    </div>
+
+    <!-- Cart Items -->
+    <div id="cart-items" class="p-4 overflow-y-auto flex-grow space-y-4">
+      <p class="text-zinc-500 text-center py-8">Your bag is empty.</p>
+    </div>
+
+    <!-- Cart Footer & Checkout Form -->
+    <div class="p-4 border-t border-zinc-800 bg-zinc-950">
+      <div class="flex justify-between font-bold text-lg mb-4">
+        <span>Total:</span>
+        <span id="cart-total" class="text-pink-500">$0.00</span>
+      </div>
+
+      <form id="checkout-form" onsubmit="processCheckout(event)" class="space-y-3">
+        <input type="text" id="cust-name" placeholder="Full Name" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
+        <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
+        
+        <p class="text-xs text-zinc-400 mb-2"><i class="fa-solid fa-truck"></i> Payment method: <b>Cash on Delivery</b></p>
+        
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded transition uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order via WhatsApp
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Receipt / Order Ticket (Hidden Modal for PDF & Printing) -->
+  <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white text-black p-6 rounded-lg max-w-sm w-full space-y-4 text-sm" id="receipt-content">
+      <div class="text-center border-b pb-3">
+        <h2 class="text-2xl font-black tracking-widest">SLAY.</h2>
+        <p class="text-xs text-gray-500">Official Order Receipt</p>
+      </div>
+
+      <div class="space-y-1 text-xs">
+        <p><strong>Order ID:</strong> <span id="r-id"></span></p>
+        <p><strong>Date:</strong> <span id="r-date"></span></p>
+        <p><strong>Customer:</strong> <span id="r-name"></span></p>
+        <p><strong>Phone:</strong> <span id="r-phone"></span></p>
+        <p><strong>Address:</strong> <span id="r-address"></span></p>
+      </div>
+
+      <div class="border-t border-b py-2 my-2">
+        <p class="font-bold mb-2">Order Summary:</p>
+        <div id="r-items" class="space-y-1"></div>
+      </div>
+
+      <div class="flex justify-between font-bold text-base">
+        <span>Total Due (COD):</span>
+        <span id="r-total"></span>
+      </div>
+
+      <p class="text-center text-xs text-gray-500 pt-2">Thank you for your order! We will contact you shortly on WhatsApp.</p>
+
+      <div class="flex gap-2 pt-2" data-html2canvas-ignore="true">
+        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2 rounded text-xs font-bold hover:bg-black transition">
+          <i class="fa-solid fa-download mr-1"></i> Save Ticket (PDF)
+        </button>
+        <button onclick="closeReceipt()" class="bg-gray-300 text-black px-4 py-2 rounded text-xs font-bold">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800 text-center py-6 text-xs text-zinc-500 mt-12">
+    <p>&copy; 2026 SLAY. All rights reserved.</p>
+  </footer>
+
+  <!-- App Logic -->
+  <script>
+    let products = [];
+    let cart = [];
+    let currentCategory = 'All';
+
+    // Fetch Products from JSON
+    async function fetchProducts() {
+      try {
+        const res = await fetch('products.json');
+        products = await res.json();
+        renderProducts();
+      } catch (e) {
+        console.error("Error loading products:", e);
+      }
+    }
+
+    // Render Products
+    function renderProducts() {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+
+      const filtered = currentCategory === 'All' 
+        ? products 
+        : products.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
+
+      filtered.forEach(p => {
+        grid.innerHTML += `
+          <div class="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex flex-col justify-between">
+            <div>
+              <img src="${p.image}" alt="${p.name}" class="w-full h-56 object-cover">
+              <div class="p-3">
+                <span class="text-[10px] text-pink-500 font-bold uppercase tracking-wider">${p.category}</span>
+                <h3 class="font-bold text-sm text-white mt-1 line-clamp-1">${p.name}</h3>
+                <p class="text-zinc-400 text-xs mt-1 line-clamp-2">${p.description}</p>
+              </div>
+            </div>
+            <div class="p-3 pt-0 flex justify-between items-center mt-2">
+              <span class="font-extrabold text-pink-400">$${p.price.toFixed(2)}</span>
+              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded transition">
+                + Add
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Category Filter Handler
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('bg-pink-500', 'text-white');
+        btn.classList.add('bg-zinc-800', 'text-zinc-300');
+        if(btn.innerText === cat) {
+          btn.classList.add('bg-pink-500', 'text-white');
+          btn.classList.remove('bg-zinc-800', 'text-zinc-300');
+        }
+      });
+      renderProducts();
+    }
+
+    // Cart Operations
+    function toggleCart() {
+      const sidebar = document.getElementById('cart-sidebar');
+      sidebar.classList.toggle('translate-x-full');
+    }
+
+    function addToCart(id) {
+      const item = cart.find(x => x.id === id);
+      if(item) {
+        item.qty++;
+      } else {
+        const prod = products.find(x => x.id === id);
+        cart.push({ ...prod, qty: 1 });
+      }
+      updateCartUI();
+      toggleCart();
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(x => x.id === id);
+      if(item) {
+        item.qty += delta;
+        if(item.qty <= 0) {
+          cart = cart.filter(x => x.id !== id);
+        }
+      }
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const container = document.getElementById('cart-items');
+      const countEl = document.getElementById('cart-count');
+      const totalEl = document.getElementById('cart-total');
+
+      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+      countEl.innerText = totalItems;
+      totalEl.innerText = `$${totalPrice.toFixed(2)}`;
+
+      if(cart.length === 0) {
+        container.innerHTML = '<p class="text-zinc-500 text-center py-8">Your bag is empty.</p>';
+        return;
+      }
+
+      container.innerHTML = cart.map(item => `
+        <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+          <div class="flex items-center space-x-3">
+            <img src="${item.image}" class="w-12 h-12 object-cover rounded">
+            <div>
+              <h4 class="font-semibold text-xs text-white">${item.name}</h4>
+              <p class="text-zinc-400 text-xs">$${item.price.toFixed(2)} x ${item.qty}</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">-</button>
+            <span class="text-xs">${item.qty}</span>
+            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 rounded text-xs">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Process Checkout: PDF Ticket + WhatsApp Order Link
+    function processCheckout(e) {
+      e.preventDefault();
+      if(cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const address = document.getElementById('cust-address').value;
+      const orderId = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
+      const date = new Date().toLocaleDateString('en-US', { dateStyle: 'medium' });
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0).toFixed(2);
+
+      // Populate Receipt Modal
+      document.getElementById('r-id').innerText = orderId;
+      document.getElementById('r-date').innerText = date;
+      document.getElementById('r-name').innerText = name;
+      document.getElementById('r-phone').innerText = phone;
+      document.getElementById('r-address').innerText = address;
+      document.getElementById('r-total').innerText = `$${totalPrice}`;
+
+      const receiptItems = document.getElementById('r-items');
+      receiptItems.innerHTML = cart.map(i => `
+        <div class="flex justify-between text-xs">
+          <span>${i.name} (x${i.qty})</span>
+          <span>$${(i.price * i.qty).toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      // Build WhatsApp Message
+      let waMessage = `*NEW ORDER - ${orderId}*\n\n`;
+      waMessage += `*Customer Details:*\n- Name: ${name}\n- Phone: ${phone}\n- Address: ${address}\n\n`;
+      waMessage += `*Items Ordered:*\n`;
+      cart.forEach(i => {
+        waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`;
+      });
+      waMessage += `\n*Total Amount:* $${totalPrice} (Cash on Delivery)`;
+
+      // Open Receipt Modal
+      document.getElementById('receipt-modal').classList.remove('hidden');
+
+      // Open WhatsApp in new tab
+      const waUrl = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`;
+      window.open(waUrl, '_blank');
+
+      // Clear Cart
+      cart = [];
+      updateCartUI();
+      toggleCart();
+      document.getElementById('checkout-form').reset();
+    }
+
+    // PDF Download Function
+    function downloadPDF() {
+      const element = document.getElementById('receipt-content');
+      const opt = {
+        margin:       10,
+        filename:     `SLAY_Order_Receipt.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a6', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    function closeReceipt() {
+      document.getElementById('receipt-modal').classList.add('hidden');
+    }
+
+    // Initialize
+    fetchProducts();
+  </script>
+</body>
+</html>
