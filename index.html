@@ -397,7 +397,7 @@
       <label class="block text-xs text-[var(--muted)] mb-1">Status</label>
       <select id="oe-status" class="w-full bg-[var(--surface-2)] text-white rounded-xl p-3 text-sm border border-[var(--line)] focus:outline-none focus:border-[var(--accent)]">
         <option value="pending">Pending</option>
-        <option value="processing">Processing</option>
+        <option value="confirmed">Confirmed</option>
         <option value="delivered">Delivered</option>
         <option value="cancelled">Cancelled</option>
       </select>
@@ -426,13 +426,14 @@
       <i class="fa-solid fa-check text-emerald-400 text-2xl"></i>
     </div>
     <div>
-      <h3 class="font-display text-xl font-semibold">Order Confirmed</h3>
+      <h3 class="font-display text-xl font-semibold">Order Received</h3>
       <p class="text-xs text-[var(--muted)] mt-1">Reference: <span id="confirm-order-ref" class="text-[var(--accent)] font-bold">SLAY-000000</span></p>
     </div>
     <div class="bg-black/30 border border-[var(--line)] rounded-xl p-3 flex justify-between items-center text-sm">
       <span class="text-[var(--muted)]">Total (cash on delivery)</span>
       <span id="confirm-order-total" class="font-extrabold text-[var(--accent)]">$0.00</span>
     </div>
+    <p class="text-[11px] text-[var(--muted)] leading-relaxed">Your order is marked <span class="text-amber-400 font-semibold">Pending</span>. Our team will confirm it with you on WhatsApp shortly, then send an updated receipt marked <span class="text-sky-400 font-semibold">Confirmed</span>.</p>
     <p id="confirm-email-status" class="hidden text-[11px] text-[var(--muted)]"></p>
     <div class="space-y-2 pt-1">
       <button onclick="downloadCurrentReceipt()" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg">
@@ -489,7 +490,7 @@
       <button type="submit" id="checkout-submit-btn" class="w-full bg-[var(--accent)] hover:bg-[var(--accent-dark)] text-white font-bold py-3.5 rounded-xl transition uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg">
         <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order
       </button>
-      <p class="text-[10px] text-[var(--muted)] text-center pt-1">You'll be able to download your receipt right after confirmation.</p>
+      <p class="text-[10px] text-[var(--muted)] text-center pt-1 leading-relaxed">Your receipt is ready to download right away, marked "Pending". Our team will confirm your order by WhatsApp shortly, then send you an updated receipt marked "Confirmed".</p>
     </form>
   </div>
 </div>
@@ -953,18 +954,18 @@
     }
 
     container.innerHTML = cart.map(item => `
-      <div class="flex justify-between items-center border-b border-[var(--line)] pb-3">
-        <div class="flex items-center space-x-3">
-          <img src="${item.image}" class="w-12 h-12 object-cover rounded-xl">
-          <div>
-            <h4 class="font-semibold text-xs text-white">${escapeHtml(item.name)}</h4>
-            <p class="text-[var(--muted)] text-xs">$${Number(item.price).toFixed(2)} x ${item.qty} • <span class="text-[var(--accent)] font-bold">Size: ${item.selectedSize}</span></p>
+      <div class="flex justify-between items-center gap-2 border-b border-[var(--line)] pb-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <img src="${item.image}" class="w-14 h-14 object-cover rounded-xl border border-[var(--line)] flex-shrink-0">
+          <div class="min-w-0">
+            <h4 class="font-semibold text-[13px] text-white truncate">${escapeHtml(item.name)}</h4>
+            <p class="text-[var(--muted)] text-[11px] mt-0.5">$${Number(item.price).toFixed(2)} × ${item.qty} <span class="text-[var(--accent)] font-semibold">• Size ${item.selectedSize}</span></p>
           </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <button onclick="changeQty(${item.id}, '${item.selectedSize}', -1)" class="w-7 h-7 bg-[var(--surface-2)] rounded-lg text-xs font-bold">-</button>
-          <span class="text-xs font-semibold">${item.qty}</span>
-          <button onclick="changeQty(${item.id}, '${item.selectedSize}', 1)" class="w-7 h-7 bg-[var(--surface-2)] rounded-lg text-xs font-bold">+</button>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button onclick="changeQty(${item.id}, '${item.selectedSize}', -1)" class="w-6 h-6 bg-[var(--surface-2)] rounded-lg text-[11px] font-bold">-</button>
+          <span class="text-[11px] font-semibold w-3 text-center">${item.qty}</span>
+          <button onclick="changeQty(${item.id}, '${item.selectedSize}', 1)" class="w-6 h-6 bg-[var(--surface-2)] rounded-lg text-[11px] font-bold">+</button>
         </div>
       </div>
     `).join('');
@@ -1076,6 +1077,14 @@
       </div>
     `).join('');
 
+    const statusMeta = {
+      pending:   { label: 'Pending',   color: '#b45309', bg: '#fef3e2', note: `This receipt was generated when your order was placed. It's currently <strong>pending confirmation</strong> — our team will reach out to you on WhatsApp shortly to confirm stock and delivery details. You'll then receive an updated receipt marked "Confirmed".` },
+      confirmed: { label: 'Confirmed', color: '#0369a1', bg: '#e7f2fb', note: `Your order has been confirmed by our team and is being prepared for delivery.` },
+      delivered: { label: 'Delivered', color: '#047857', bg: '#e7f7f0', note: `` },
+      cancelled: { label: 'Cancelled', color: '#b91c1c', bg: '#fdecec', note: `This order has been cancelled. Contact us on WhatsApp if you believe this is a mistake.` }
+    };
+    const meta = statusMeta[order.status] || statusMeta.pending;
+
     return `
       <div style="width:560px;padding:44px 40px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;text-align:center;">
 
@@ -1089,6 +1098,8 @@
         <div style="margin-top:22px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:2px;">Order Receipt</div>
         <div style="font-size:18px;font-weight:800;margin-top:4px;">${order.order_ref}</div>
         <div style="font-size:11px;color:#999;margin-top:4px;">${new Date(order.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div>
+        <div style="display:inline-block;margin-top:10px;padding:4px 14px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:1px;color:${meta.color};background:${meta.bg};">${meta.label.toUpperCase()}</div>
+        ${meta.note ? `<p style="font-size:10.5px;color:#888;line-height:1.6;margin:12px auto 0;max-width:400px;">${meta.note}</p>` : ''}
 
         <!-- Delivery details -->
         <div style="margin-top:30px;padding-top:24px;border-top:1px solid #eee;">
@@ -1158,13 +1169,34 @@
     const target = container.firstElementChild;
     const opt = {
       margin: 10,
-      filename: `${order.order_ref}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: receiptCanvasOptions(target),
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    await html2pdf().set(opt).from(target).save();
-    container.innerHTML = '';
+    try {
+      // Building a Blob and triggering it via a manual <a download> click is more reliable
+      // across desktop browsers than relying on html2pdf's internal save(), which uses
+      // different strategies per browser and can fail silently (notably in some desktop
+      // Chrome/Edge setups with strict download or pop-up policies).
+      const pdfBlob = await html2pdf().set(opt).from(target).outputPdf('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${order.order_ref}.pdf`;
+      document.body.appendChild(link);
+      if ('download' in link) {
+        link.click();
+      } else {
+        window.open(url, '_blank');
+      }
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      alert("We couldn't generate the PDF on this device/browser. Please try again, or use a different browser.");
+    } finally {
+      container.innerHTML = '';
+    }
   }
 
   async function getReceiptPdfBase64(order){
@@ -1199,11 +1231,11 @@
   }
 
   // --- ADMIN: ORDERS ---
-  function statusLabel(s){ return { All:'All', pending:'Pending', processing:'Processing', delivered:'Delivered', cancelled:'Cancelled' }[s] || s; }
+  function statusLabel(s){ return { All:'All', pending:'Pending', confirmed:'Confirmed', delivered:'Delivered', cancelled:'Cancelled' }[s] || s; }
   function statusBadge(s){
     const map = {
       pending: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-      processing: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
+      confirmed: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
       delivered: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
       cancelled: 'bg-red-500/15 text-red-400 border-red-500/30'
     };
@@ -1216,10 +1248,10 @@
     const list = document.getElementById('orders-list');
     if (!pillsEl || !list) return;
 
-    const counts = { All: orders.length, pending:0, processing:0, delivered:0, cancelled:0 };
+    const counts = { All: orders.length, pending:0, confirmed:0, delivered:0, cancelled:0 };
     orders.forEach(o => { counts[o.status] = (counts[o.status]||0) + 1; });
 
-    pillsEl.innerHTML = ['All','pending','processing','delivered','cancelled'].map(s => `
+    pillsEl.innerHTML = ['All','pending','confirmed','delivered','cancelled'].map(s => `
       <button onclick="setOrdersFilter('${s}')" class="px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition ${currentOrdersFilter === s ? 'bg-[var(--accent)] text-white' : 'bg-[var(--surface-2)] text-[var(--muted)] border border-[var(--line)]'}">
         ${statusLabel(s)} <span class="opacity-70">(${counts[s]||0})</span>
       </button>
@@ -1286,7 +1318,17 @@
   }
 
   function downloadOrderReceiptFromAdmin(){
-    if (editingOrder) downloadReceiptPDF(editingOrder);
+    if (!editingOrder) return;
+    // Use the live form values (status/address/notes) rather than the stale editingOrder object,
+    // so the admin can preview/download the "Confirmed" receipt right after switching the status
+    // dropdown — no need to save first if they just want the updated PDF to attach on WhatsApp.
+    const liveOrder = {
+      ...editingOrder,
+      address: document.getElementById('oe-address').value.trim(),
+      status: document.getElementById('oe-status').value,
+      notes: document.getElementById('oe-notes').value.trim()
+    };
+    downloadReceiptPDF(liveOrder);
   }
 
   // --- ADMIN: ANALYTICS ---
