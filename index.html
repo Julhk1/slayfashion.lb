@@ -17,7 +17,12 @@
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
     body { font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
     .neon-text { text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
-    .neon-border { box-shadow: 0 0 10px rgba(255, 0, 127, 0.4); }
+    .badge-pop { animation: pop 0.3s ease-in-out; }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
   </style>
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col selection:bg-pink-500 selection:text-white">
@@ -27,9 +32,9 @@
     const CONFIG = {
       WHATSAPP_NUMBER: "96100000000",
       DELIVERY_FEE: 4.00,
-      SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co", // Remplacez si besoin par votre URL Supabase exacte
+      SUPABASE_URL: "https://jwmatnmporhzloboakbg.supabase.co", 
       SUPABASE_ANON_KEY: "sb_publishable_URapW_RK8a31Bf6hHu4LiQ_ia0cO3FQ",
-      ADMIN_PIN: "1234" // Code PIN Admin modifiable ici
+      ADMIN_PIN: "1234"
     };
 
     const db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
@@ -41,8 +46,8 @@
       <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
       <div class="flex items-center space-x-3">
-        <!-- Dashboard Admin avec Cadenas inspiré des couleurs -->
-        <button onclick="requestAdminAccess()" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-pink-500/50 px-3 py-2 rounded-full transition flex items-center gap-1.5 shadow-sm">
+        <!-- Dashboard Admin avec Cadenas -->
+        <button onclick="openPinModal()" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-pink-500/50 px-3 py-2 rounded-full transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-lock text-pink-500"></i> <span class="hidden sm:inline">Admin</span>
         </button>
 
@@ -72,33 +77,66 @@
 
   <!-- Categories Filters -->
   <section class="max-w-6xl mx-auto px-4 py-4 w-full">
-    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container">
-      <!-- Dynamic categories -->
-    </div>
+    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start md:justify-center" id="categories-container"></div>
   </section>
 
   <!-- Product Grid -->
   <main class="max-w-6xl mx-auto px-4 py-4 flex-grow w-full">
-    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-      <!-- Dynamic products -->
-    </div>
+    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6"></div>
   </main>
 
+  <!-- DESIGN SÉCURISÉ : PIN CODE MODAL -->
+  <div id="pin-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-pink-500/40 p-6 rounded-3xl max-w-xs w-full text-center space-y-5 shadow-2xl relative">
+      <button onclick="closePinModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">&times;</button>
+      
+      <div class="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center mx-auto border border-pink-500/30">
+        <i class="fa-solid fa-shield-halved text-pink-500 text-xl"></i>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-lg text-white">Admin Access</h3>
+        <p class="text-xs text-zinc-400 mt-1">Enter Security PIN Code</p>
+      </div>
+
+      <!-- Affichage du PIN -->
+      <div id="pin-display" class="flex justify-center gap-2 my-4">
+        <span class="w-3 h-3 rounded-full border border-zinc-600 bg-zinc-800 pin-dot"></span>
+        <span class="w-3 h-3 rounded-full border border-zinc-600 bg-zinc-800 pin-dot"></span>
+        <span class="w-3 h-3 rounded-full border border-zinc-600 bg-zinc-800 pin-dot"></span>
+        <span class="w-3 h-3 rounded-full border border-zinc-600 bg-zinc-800 pin-dot"></span>
+      </div>
+
+      <!-- Keypad -->
+      <div class="grid grid-cols-3 gap-3 text-sm font-bold max-w-[200px] mx-auto">
+        <button onclick="pressPin('1')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">1</button>
+        <button onclick="pressPin('2')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">2</button>
+        <button onclick="pressPin('3')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">3</button>
+        <button onclick="pressPin('4')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">4</button>
+        <button onclick="pressPin('5')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">5</button>
+        <button onclick="pressPin('6')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">6</button>
+        <button onclick="pressPin('7')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">7</button>
+        <button onclick="pressPin('8')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">8</button>
+        <button onclick="pressPin('9')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">9</button>
+        <button onclick="clearPin()" class="h-12 rounded-2xl bg-zinc-800/50 text-xs text-pink-400 hover:bg-zinc-800 transition">CLEAR</button>
+        <button onclick="pressPin('0')" class="h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition">0</button>
+        <button onclick="backspacePin()" class="h-12 rounded-2xl bg-zinc-800/50 text-xs text-zinc-400 hover:bg-zinc-800 transition"><i class="fa-solid fa-delete-left"></i></button>
+      </div>
+    </div>
+  </div>
+
   <!-- INSTAGRAM-STYLE LIGHTBOX / MEDIA VIEWER MODAL -->
-  <div id="media-modal" onclick="handleLightboxBackdropClick(event)" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 md:p-4">
+  <div id="media-modal" onclick="closeLightbox()" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex items-center justify-center p-2 md:p-4">
     <div class="relative max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
       
-      <!-- Top Bar info -->
       <div class="flex justify-between items-center p-3 border-b border-zinc-800 bg-black/40">
         <span id="lb-category" class="text-[10px] text-pink-500 font-bold uppercase tracking-widest"></span>
         <button onclick="closeLightbox()" class="text-zinc-400 hover:text-white text-2xl px-2">&times;</button>
       </div>
 
-      <!-- Main Image Container with Carousel controls -->
-      <div class="relative w-full h-80 md:h-96 bg-black flex items-center justify-center overflow-hidden group">
+      <div class="relative w-full h-80 md:h-96 bg-black flex items-center justify-center overflow-hidden">
         <img id="lb-image" src="" alt="Product View" class="w-full h-full object-contain transition-transform duration-300 select-none">
         
-        <!-- Navigation Arrows (Left/Right) -->
         <button id="lb-prev" onclick="prevPhoto()" class="absolute left-2 bg-black/60 hover:bg-pink-500 text-white w-9 h-9 rounded-full flex items-center justify-center transition border border-zinc-700 shadow-lg">
           <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
@@ -106,18 +144,23 @@
           <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
 
-        <!-- Counter Indicator (ex: 1/3) -->
         <div class="absolute bottom-3 bg-black/70 backdrop-blur-sm text-white text-[11px] px-3 py-1 rounded-full border border-zinc-700 font-semibold">
           <span id="lb-current-index">1</span> / <span id="lb-total-index">1</span>
         </div>
       </div>
 
-      <!-- Details Section -->
       <div class="p-4 space-y-3 bg-zinc-900 overflow-y-auto">
         <div class="flex justify-between items-start">
           <h3 id="lb-name" class="font-bold text-base md:text-lg text-white"></h3>
           <span id="lb-price" class="font-extrabold text-pink-400 text-base md:text-lg"></span>
         </div>
+        
+        <!-- Affichage dynamique des tailles façon Zara/Celio -->
+        <div>
+          <label class="block text-[11px] text-zinc-400 uppercase font-bold mb-1">Select Size:</label>
+          <div id="lb-sizes-container" class="flex gap-2 flex-wrap text-xs"></div>
+        </div>
+
         <p id="lb-desc" class="text-zinc-400 text-xs md:text-sm leading-relaxed"></p>
         
         <div class="pt-2">
@@ -134,39 +177,44 @@
   <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-zinc-800 text-white p-5 md:p-6 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h2 class="text-lg md:text-xl font-extrabold text-pink-500 flex items-center gap-2">
-          <i class="fa-solid fa-lock-open text-xs"></i> Admin Dashboard
+        <h2 id="admin-modal-title" class="text-lg md:text-xl font-extrabold text-pink-500 flex items-center gap-2">
+          <i class="fa-solid fa-gear"></i> Admin Dashboard
         </h2>
         <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
       </div>
 
-      <!-- Add Product Form (Multi-photos support) -->
+      <!-- Message de succès temporaire -->
+      <div id="admin-alert" class="hidden bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 p-3 rounded-xl text-xs flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i> <span id="admin-alert-msg">Item added successfully!</span>
+      </div>
+
+      <!-- Formulaire Produit (Création/Édition) -->
       <div class="bg-black/50 p-4 rounded-xl border border-zinc-800 space-y-4">
-        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Add New Product (1 to 4 Photos)</h3>
+        <div class="flex justify-between items-center">
+          <h3 id="form-heading" class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Add New Product</h3>
+          <button id="btn-cancel-edit" onclick="resetAdminForm()" class="hidden text-xs text-pink-400 underline">Cancel Edit</button>
+        </div>
         
         <div>
-          <label class="block text-xs text-zinc-400 mb-1">Select Product Images (Choose up to 4)</label>
+          <label class="block text-xs text-zinc-400 mb-1">Product Images (Choose up to 4)</label>
           <input type="file" id="admin-img-files" accept="image/*" multiple onchange="previewMultipleImages(event)" class="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600 cursor-pointer w-full">
-          <!-- Aperçu multiple -->
           <div id="multi-img-preview" class="mt-3 flex gap-2 flex-wrap hidden"></div>
         </div>
 
         <input type="text" id="admin-name" placeholder="Product Title (e.g. Satin Dress)" class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
 
         <div class="grid grid-cols-2 gap-3">
-          <select id="admin-category-select" class="bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
-            <!-- Dynamic Category Options -->
-          </select>
+          <select id="admin-category-select" class="bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></select>
           <input type="number" step="0.01" id="admin-price" placeholder="Price ($)" class="bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
         </div>
 
         <div>
-          <label class="block text-xs text-zinc-400 mb-1">Available Sizes</label>
+          <label class="block text-xs text-zinc-400 mb-1">Available Sizes (Uncheck if Out of Stock)</label>
           <div class="flex gap-4 text-xs">
-            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="S" checked class="accent-pink-500"> S</label>
-            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="M" checked class="accent-pink-500"> M</label>
-            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="L" checked class="accent-pink-500"> L</label>
-            <label class="flex items-center gap-1.5"><input type="checkbox" name="sizes" value="XL" checked class="accent-pink-500"> XL</label>
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="sizes" value="S" checked class="accent-pink-500"> S</label>
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="sizes" value="M" checked class="accent-pink-500"> M</label>
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="sizes" value="L" checked class="accent-pink-500"> L</label>
+            <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="sizes" value="XL" checked class="accent-pink-500"> XL</label>
           </div>
         </div>
 
@@ -187,10 +235,10 @@
         <div id="category-list-tags" class="flex flex-wrap gap-2 pt-2"></div>
       </div>
 
-      <!-- Current Inventory -->
+      <!-- Current Inventory avec bouton Edit -->
       <div class="bg-black/50 p-4 rounded-xl border border-zinc-800 space-y-3">
         <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Current Items (<span id="item-count">0</span>)</h3>
-        <div id="admin-inventory-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+        <div id="admin-inventory-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
       </div>
     </div>
   </div>
@@ -227,11 +275,6 @@
         <input type="tel" id="cust-phone" placeholder="Phone Number (WhatsApp)" required class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500">
         <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded-xl p-3 text-sm border border-zinc-700 focus:outline-none focus:border-pink-500"></textarea>
         
-        <p class="text-[11px] text-zinc-400">
-          <i class="fa-solid fa-circle-info text-pink-500 mr-1"></i>
-          Exchanges allowed within 2 days of delivery.
-        </p>
-
         <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3.5 rounded-xl transition uppercase tracking-wider text-sm flex items-center justify-center gap-2 shadow-lg">
           <i class="fa-brands fa-whatsapp text-lg"></i> Complete Order via WhatsApp
         </button>
@@ -239,122 +282,61 @@
     </div>
   </div>
 
-  <!-- Policies Modal -->
-  <div id="policy-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 text-white p-6 rounded-2xl max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-        <h3 class="text-lg font-bold text-pink-500 uppercase tracking-wide">Store Policies</h3>
-        <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
-      </div>
-
-      <div class="space-y-2 text-xs text-zinc-400">
-        <h4 class="font-bold text-sm text-zinc-200 border-b border-zinc-800 pb-1 flex items-center gap-2">
-          <i class="fa-solid fa-truck text-pink-500"></i> Delivery
-        </h4>
-        <p>We deliver across all regions in Lebanon. Flat fee: <strong>$4.00</strong> (1-3 business days). Cash on Delivery.</p>
-      </div>
-
-      <div class="space-y-2 text-xs text-zinc-400 pt-2">
-        <h4 class="font-bold text-sm text-zinc-200 border-b border-zinc-800 pb-1 flex items-center gap-2">
-          <i class="fa-solid fa-rotate-left text-pink-500"></i> Exchange Policy
-        </h4>
-        <p>Exchanges accepted within <strong>2 days</strong> of receipt. Items must be unworn, unwashed with original tags.</p>
-      </div>
-
-      <button onclick="togglePolicyModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold py-3 rounded-xl transition">
-        Close
-      </button>
-    </div>
-  </div>
-
-  <!-- Receipt Modal -->
-  <div id="receipt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white text-black p-6 rounded-2xl max-w-sm w-full space-y-4 text-sm shadow-2xl" id="receipt-content">
-      <div class="text-center border-b pb-3">
-        <h2 class="text-2xl font-black tracking-widest">SLAY.</h2>
-        <p class="text-xs text-gray-500">Official Order Receipt</p>
-      </div>
-
-      <div class="space-y-1 text-xs">
-        <p><strong>Order ID:</strong> <span id="r-id"></span></p>
-        <p><strong>Date:</strong> <span id="r-date"></span></p>
-        <p><strong>Customer:</strong> <span id="r-name"></span></p>
-        <p><strong>Phone:</strong> <span id="r-phone"></span></p>
-        <p><strong>Address:</strong> <span id="r-address"></span></p>
-      </div>
-
-      <div class="border-t border-b py-2 my-2">
-        <p class="font-bold mb-2">Order Items:</p>
-        <div id="r-items" class="space-y-1"></div>
-      </div>
-
-      <div class="space-y-1 text-xs border-b pb-2">
-        <div class="flex justify-between">
-          <span>Subtotal:</span>
-          <span id="r-subtotal"></span>
-        </div>
-        <div class="flex justify-between">
-          <span>Delivery Fee:</span>
-          <span>$4.00</span>
-        </div>
-      </div>
-
-      <div class="flex justify-between font-bold text-base pt-1">
-        <span>Total Due (COD):</span>
-        <span id="r-total"></span>
-      </div>
-
-      <div class="flex gap-2 pt-3" data-html2canvas-ignore="true">
-        <button onclick="downloadPDF()" class="flex-1 bg-zinc-800 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-black transition">
-          <i class="fa-solid fa-download mr-1"></i> Save PDF
-        </button>
-        <button onclick="closeReceipt()" class="bg-gray-200 text-black px-4 py-2.5 rounded-xl text-xs font-bold">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="border-t border-zinc-800 text-center py-6 text-xs text-zinc-500 mt-12 space-y-2">
-    <div>
-      <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-pink-500 underline mx-2">Exchange Policy</button>
-      •
-      <button onclick="togglePolicyModal()" class="text-zinc-400 hover:text-pink-500 underline mx-2">Delivery Fees</button>
-    </div>
-    <p>&copy; 2026 SLAY. All rights reserved.</p>
-  </footer>
-
   <!-- App Script -->
   <script>
     let categories = [];
     let products = [];
     let cart = [];
     let currentCategory = 'All';
-    let uploadedImagesArray = []; // Tableau stockant plusieurs images (max 4)
+    let uploadedImagesArray = [];
+    let editingProductId = null; // ID de l'article en cours d'édition
 
-    // État actif de la visionneuse Instagram
-    let currentLightboxProduct = null;
-    let currentPhotoIndex = 0;
-
-    // --- SÉCURITÉ ADMIN PAR PIN ---
-    function requestAdminAccess() {
-      const pin = prompt("🔒 Enter Admin PIN Code:");
-      if (pin === null) return;
-      if (pin === CONFIG.ADMIN_PIN) {
-        toggleAdminModal();
-      } else {
-        alert("❌ Incorrect PIN code.");
+    // --- LOGIQUE PIN CODE PIN-PAD ---
+    let enteredPin = "";
+    function openPinModal() {
+      enteredPin = "";
+      updatePinDisplay();
+      document.getElementById('pin-modal').classList.remove('hidden');
+    }
+    function closePinModal() {
+      document.getElementById('pin-modal').classList.add('hidden');
+    }
+    function pressPin(digit) {
+      if (enteredPin.length < 4) {
+        enteredPin += digit;
+        updatePinDisplay();
+        if (enteredPin.length === 4) {
+          setTimeout(() => {
+            if (enteredPin === CONFIG.ADMIN_PIN) {
+              closePinModal();
+              toggleAdminModal();
+            } else {
+              alert("❌ Incorrect PIN Code");
+              clearPin();
+            }
+          }, 150);
+        }
       }
+    }
+    function clearPin() { enteredPin = ""; updatePinDisplay(); }
+    function backspacePin() { enteredPin = enteredPin.slice(0, -1); updatePinDisplay(); }
+    function updatePinDisplay() {
+      const dots = document.querySelectorAll('.pin-dot');
+      dots.forEach((dot, idx) => {
+        if (idx < enteredPin.length) {
+          dot.classList.add('bg-pink-500', 'border-pink-500');
+          dot.classList.remove('bg-zinc-800', 'border-zinc-600');
+        } else {
+          dot.classList.remove('bg-pink-500', 'border-pink-500');
+          dot.classList.add('bg-zinc-800', 'border-zinc-600');
+        }
+      });
     }
 
     // --- REALTIME SUBSCRIPTIONS ---
     function setupRealtimeSubscriptions() {
-      db.channel('public:categories')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => fetchCategories())
-        .subscribe();
-
-      db.channel('public:products')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
-        .subscribe();
+      db.channel('public:categories').on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => fetchCategories()).subscribe();
+      db.channel('public:products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts()).subscribe();
     }
 
     async function fetchCategories() {
@@ -370,9 +352,9 @@
       renderAdminInventoryUI();
     }
 
-    // --- GESTION MULTI-PHOTOS (Admin) ---
+    // --- GESTION MULTI-PHOTOS ---
     async function previewMultipleImages(event) {
-      const files = Array.from(event.target.files).slice(0, 4); // Max 4 photos
+      const files = Array.from(event.target.files).slice(0, 4);
       uploadedImagesArray = [];
       const previewContainer = document.getElementById('multi-img-preview');
       previewContainer.innerHTML = '';
@@ -394,20 +376,15 @@
     // --- CATEGORIES UI ---
     function renderCategoriesUI() {
       const container = document.getElementById('categories-container');
-      container.innerHTML = `
-        <button onclick="filterCategory('All')" class="category-btn active ${currentCategory === 'All' ? 'bg-pink-500 text-white shadow-md' : 'bg-zinc-900 text-zinc-300 border border-zinc-800'} px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition">All</button>
-      `;
+      container.innerHTML = `<button onclick="filterCategory('All')" class="category-btn active ${currentCategory === 'All' ? 'bg-pink-500 text-white shadow-md' : 'bg-zinc-900 text-zinc-300 border border-zinc-800'} px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition">All</button>`;
       categories.forEach(cat => {
         const isActive = currentCategory.toLowerCase() === cat.name.toLowerCase();
-        container.innerHTML += `
-          <button onclick="filterCategory('${cat.name}')" class="category-btn ${isActive ? 'bg-pink-500 text-white shadow-md' : 'bg-zinc-900 text-zinc-300 border border-zinc-800 hover:bg-zinc-800'} px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition">${cat.name}</button>
-        `;
+        container.innerHTML += `<button onclick="filterCategory('${cat.name}')" class="category-btn ${isActive ? 'bg-pink-500 text-white shadow-md' : 'bg-zinc-900 text-zinc-300 border border-zinc-800 hover:bg-zinc-800'} px-4 py-2 rounded-full text-xs md:text-sm font-semibold whitespace-nowrap transition">${cat.name}</button>`;
       });
       document.getElementById('admin-category-select').innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
       document.getElementById('category-list-tags').innerHTML = categories.map(c => `
         <span class="bg-zinc-800 text-zinc-300 text-xs px-3 py-1 rounded-full flex items-center gap-2 border border-zinc-700">
-          ${c.name}
-          <button onclick="deleteCategory(${c.id})" class="text-pink-500 hover:text-pink-400 font-bold">&times;</button>
+          ${c.name} <button onclick="deleteCategory(${c.id})" class="text-pink-500 hover:text-pink-400 font-bold">&times;</button>
         </span>
       `).join('');
     }
@@ -416,9 +393,8 @@
       const input = document.getElementById('new-category-input');
       const name = input.value.trim();
       if(!name) return;
-      const { error } = await db.from('categories').insert([{ name }]);
-      if(error) alert(error.message);
-      else { input.value = ''; fetchCategories(); }
+      await db.from('categories').insert([{ name }]);
+      input.value = ''; fetchCategories();
     }
 
     async function deleteCategory(id) {
@@ -426,13 +402,9 @@
       fetchCategories();
     }
 
-    function filterCategory(cat) {
-      currentCategory = cat;
-      renderCategoriesUI();
-      renderProductsUI();
-    }
+    function filterCategory(cat) { currentCategory = cat; renderCategoriesUI(); renderProductsUI(); }
 
-    // --- PRODUCTS ACTIONS ---
+    // --- CREATION & ÉDITION PRODUITS ---
     async function saveProduct() {
       const name = document.getElementById('admin-name').value.trim();
       const category = document.getElementById('admin-category-select').value;
@@ -440,33 +412,86 @@
       const description = document.getElementById('admin-desc').value.trim();
       const sizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
 
-      if(!name || isNaN(price) || uploadedImagesArray.length === 0) {
-        alert('Please fill out Name, Price and select at least 1 image.');
-        return;
-      }
+      if(!name || isNaN(price)) { alert('Please enter Product Name and Price.'); return; }
 
       const btn = document.getElementById('btn-save-prod');
-      btn.innerText = 'Saving...';
-      btn.disabled = true;
+      btn.innerText = 'Saving...'; btn.disabled = true;
 
-      const { error } = await db.from('products').insert([{
-        name, category, price, description, sizes, images: uploadedImagesArray
-      }]);
+      let payload = { name, category, price, description, sizes };
+      if (uploadedImagesArray.length > 0) {
+        payload.images = uploadedImagesArray;
+      }
 
-      btn.innerText = '+ Add Item to Store';
+      let error = null;
+      if (editingProductId) {
+        // Mode ÉDITION
+        const res = await db.from('products').update(payload).eq('id', editingProductId);
+        error = res.error;
+      } else {
+        // Mode NOUVEAU PRODUIT
+        if (uploadedImagesArray.length === 0) {
+          alert('Please select at least 1 image for new item.');
+          btn.innerText = '+ Add Item to Store'; btn.disabled = false; return;
+        }
+        const res = await db.from('products').insert([payload]);
+        error = res.error;
+      }
+
       btn.disabled = false;
 
       if(error) {
         alert('Error: ' + error.message);
       } else {
-        document.getElementById('admin-name').value = '';
-        document.getElementById('admin-price').value = '';
-        document.getElementById('admin-desc').value = '';
-        document.getElementById('admin-img-files').value = '';
-        document.getElementById('multi-img-preview').classList.add('hidden');
-        uploadedImagesArray = [];
+        showAdminAlert(editingProductId ? "Product updated successfully!" : "New article added to store!");
+        resetAdminForm();
         fetchProducts();
       }
+    }
+
+    function editProduct(product) {
+      editingProductId = product.id;
+      document.getElementById('form-heading').innerText = "Edit Product (ID: " + product.id + ")";
+      document.getElementById('btn-save-prod').innerText = "Update Product";
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+      document.getElementById('admin-name').value = product.name;
+      document.getElementById('admin-category-select').value = product.category;
+      document.getElementById('admin-price').value = product.price;
+      document.getElementById('admin-desc').value = product.description || '';
+
+      // Cocher / Décocher les tailles disponibles
+      const availableSizes = product.sizes || [];
+      document.querySelectorAll('input[name="sizes"]').forEach(cb => {
+        cb.checked = availableSizes.includes(cb.value);
+      });
+
+      // Aperçu des images existantes
+      const imgList = Array.isArray(product.images) ? product.images : [product.image];
+      const previewContainer = document.getElementById('multi-img-preview');
+      previewContainer.innerHTML = imgList.map(img => `<img src="${img}" class="w-16 h-16 object-cover rounded-xl border border-zinc-700 shadow-sm">`).join('');
+      previewContainer.classList.remove('hidden');
+    }
+
+    function resetAdminForm() {
+      editingProductId = null;
+      document.getElementById('form-heading').innerText = "Add New Product";
+      document.getElementById('btn-save-prod').innerText = "+ Add Item to Store";
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+
+      document.getElementById('admin-name').value = '';
+      document.getElementById('admin-price').value = '';
+      document.getElementById('admin-desc').value = '';
+      document.getElementById('admin-img-files').value = '';
+      document.getElementById('multi-img-preview').classList.add('hidden');
+      uploadedImagesArray = [];
+      document.querySelectorAll('input[name="sizes"]').forEach(cb => cb.checked = true);
+    }
+
+    function showAdminAlert(msg) {
+      const alertEl = document.getElementById('admin-alert');
+      document.getElementById('admin-alert-msg').innerText = msg;
+      alertEl.classList.remove('hidden');
+      setTimeout(() => alertEl.classList.add('hidden'), 3500);
     }
 
     async function deleteProduct(id) {
@@ -476,6 +501,7 @@
       }
     }
 
+    // --- RENDU PRODUITS & SIZES ---
     function renderProductsUI() {
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
@@ -487,14 +513,12 @@
       }
 
       filtered.forEach(p => {
-        // S'assure de récupérer la première image du tableau 'images'
         const imgList = Array.isArray(p.images) ? p.images : [p.image || 'https://via.placeholder.com/300'];
         const firstImg = imgList[0];
 
         grid.innerHTML += `
           <div class="bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 flex flex-col justify-between shadow-md">
             <div>
-              <!-- Clic sur l'image ouvre la visionneuse Instagram -->
               <div class="relative cursor-pointer overflow-hidden group" onclick='openLightbox(${JSON.stringify(p)})'>
                 <img src="${firstImg}" alt="${p.name}" class="w-full h-48 md:h-64 object-cover group-hover:scale-105 transition duration-500">
                 ${imgList.length > 1 ? `<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm"><i class="fa-regular fa-images mr-1"></i>${imgList.length}</span>` : ''}
@@ -507,7 +531,8 @@
             </div>
             <div class="p-3 pt-0 flex justify-between items-center mt-1">
               <span class="font-extrabold text-pink-400 text-sm">$${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-xl transition shadow">
+              <!-- Ajout silencieux sans forcer l'ouverture du panier -->
+              <button onclick="addToCartSilently(${p.id})" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-2 rounded-xl transition shadow">
                 + Add
               </button>
             </div>
@@ -531,34 +556,37 @@
               <img src="${imgList[0]}" class="w-9 h-9 object-cover rounded-lg">
               <div>
                 <span class="font-semibold text-white block">${p.name}</span>
-                <span class="text-pink-400">$${Number(p.price).toFixed(2)}</span>
+                <span class="text-pink-400">$${Number(p.price).toFixed(2)} • <span class="text-zinc-400 text-[10px]">${(p.sizes || []).join(', ')}</span></span>
               </div>
             </div>
-            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-2">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            <div class="flex items-center gap-1">
+              <button onclick='editProduct(${JSON.stringify(p)})' class="text-pink-400 hover:text-pink-300 bg-pink-500/10 px-2.5 py-1.5 rounded-lg border border-pink-500/20 font-semibold">
+                <i class="fa-solid fa-pen-to-square mr-1"></i>Edit
+              </button>
+              <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-1.5">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    // --- INSTAGRAM-STYLE LIGHTBOX & CAROUSEL LOGIC ---
+    // --- LIGHTBOX & CAROUSEL (FAÇON ZARA / INSTAGRAM) ---
+    let currentLightboxProduct = null;
+    let currentPhotoIndex = 0;
+
     function openLightbox(product) {
       currentLightboxProduct = product;
       currentPhotoIndex = 0;
       updateLightboxContent();
       document.getElementById('media-modal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden'; // Empêche le scroll en arrière-plan
+      document.body.style.overflow = 'hidden';
     }
 
     function closeLightbox() {
       document.getElementById('media-modal').classList.add('hidden');
       document.body.style.overflow = 'auto';
-    }
-
-    function handleLightboxBackdropClick(e) {
-      // Si l'utilisateur clique en dehors de la boîte centrale, ferme la modale
-      closeLightbox();
     }
 
     function updateLightboxContent() {
@@ -574,55 +602,41 @@
       document.getElementById('lb-current-index').innerText = currentPhotoIndex + 1;
       document.getElementById('lb-total-index').innerText = imgList.length;
 
-      // Masque ou affiche les flèches selon le nombre d'images
-      const prevBtn = document.getElementById('lb-prev');
-      const nextBtn = document.getElementById('lb-next');
-      if (imgList.length <= 1) {
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
-      } else {
-        prevBtn.style.display = 'flex';
-        nextBtn.style.display = 'flex';
-      }
+      // Affichage des Tailles façon Zara (Dispo vs Épuisé)
+      const allPossibleSizes = ['S', 'M', 'L', 'XL'];
+      const activeSizes = currentLightboxProduct.sizes || [];
+      const sizesContainer = document.getElementById('lb-sizes-container');
+      
+      sizesContainer.innerHTML = allPossibleSizes.map(sz => {
+        const isAvailable = activeSizes.includes(sz);
+        if (isAvailable) {
+          return `<span class="bg-zinc-800 text-white font-bold px-3 py-1.5 rounded-lg border border-pink-500/50">${sz}</span>`;
+        } else {
+          return `<span class="bg-zinc-900/60 text-zinc-600 font-normal px-3 py-1.5 rounded-lg border border-zinc-800 line-through">${sz}</span>`;
+        }
+      }).join('');
 
-      // Action bouton Ajouter depuis la modale
       document.getElementById('lb-add-btn').onclick = () => {
-        addToCart(currentLightboxProduct.id);
+        addToCartSilently(currentLightboxProduct.id);
         closeLightbox();
       };
     }
 
     function nextPhoto() {
-      if (!currentLightboxProduct) return;
       const imgList = Array.isArray(currentLightboxProduct.images) ? currentLightboxProduct.images : [currentLightboxProduct.image];
-      currentPhotoIndex = (currentPhotoIndex + 1) % imgList.length;
-      updateLightboxContent();
+      currentPhotoIndex = (currentPhotoIndex + 1) % imgList.length; updateLightboxContent();
     }
 
     function prevPhoto() {
-      if (!currentLightboxProduct) return;
       const imgList = Array.isArray(currentLightboxProduct.images) ? currentLightboxProduct.images : [currentLightboxProduct.image];
-      currentPhotoIndex = (currentPhotoIndex - 1 + imgList.length) % imgList.length;
-      updateLightboxContent();
+      currentPhotoIndex = (currentPhotoIndex - 1 + imgList.length) % imgList.length; updateLightboxContent();
     }
 
-    // Gestion Swipe tactile mobile (Instagram style)
-    let touchStartX = 0;
-    const lightboxModalEl = document.getElementById('media-modal');
-    lightboxModalEl.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-    lightboxModalEl.addEventListener('touchend', e => {
-      let touchEndX = e.changedTouches[0].screenX;
-      if (touchEndX < touchStartX - 50) nextPhoto(); // Glisser vers la gauche
-      if (touchEndX > touchStartX + 50) prevPhoto(); // Glisser vers la droite
-    }, {passive: true});
-
-
-    // --- CART & MODALS ---
+    // --- PANIER (AJOUT SILENCIEUX SANS FORCER L'OUVERTURE) ---
     function toggleAdminModal() { document.getElementById('admin-modal').classList.toggle('hidden'); }
     function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('translate-x-full'); }
-    function togglePolicyModal() { document.getElementById('policy-modal').classList.toggle('hidden'); }
 
-    function addToCart(id) {
+    function addToCartSilently(id) {
       const item = cart.find(x => x.id === id);
       if(item) { item.qty++; } 
       else {
@@ -631,7 +645,12 @@
         cart.push({ ...prod, image: imgList[0], qty: 1 });
       }
       updateCartUI();
-      toggleCart();
+      
+      // Animation visuelle discrète sur le badge du panier au lieu d'ouvrir le menu latéral
+      const badge = document.getElementById('cart-count');
+      badge.classList.remove('badge-pop');
+      void badge.offsetWidth; 
+      badge.classList.add('badge-pop');
     }
 
     function changeQty(id, delta) {
@@ -689,49 +708,17 @@
       const phone = document.getElementById('cust-phone').value;
       const address = document.getElementById('cust-address').value;
       const orderId = 'SLAY-' + Math.floor(100000 + Math.random() * 900000);
-      const date = new Date().toLocaleDateString('en-US', { dateStyle: 'medium' });
       
       const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
       const total = (subtotal + CONFIG.DELIVERY_FEE).toFixed(2);
-
-      document.getElementById('r-id').innerText = orderId;
-      document.getElementById('r-date').innerText = date;
-      document.getElementById('r-name').innerText = name;
-      document.getElementById('r-phone').innerText = phone;
-      document.getElementById('r-address').innerText = address;
-      document.getElementById('r-subtotal').innerText = `$${subtotal.toFixed(2)}`;
-      document.getElementById('r-total').innerText = `$${total}`;
-
-      document.getElementById('r-items').innerHTML = cart.map(i => `
-        <div class="flex justify-between text-xs">
-          <span>${i.name} (x${i.qty})</span>
-          <span>$${(i.price * i.qty).toFixed(2)}</span>
-        </div>
-      `).join('');
 
       let waMessage = `*NEW ORDER - ${orderId}*\n\n*Customer:*\n- Name: ${name}\n- Phone: ${phone}\n- Address: ${address}\n\n*Items:*\n`;
       cart.forEach(i => { waMessage += `• ${i.name} (x${i.qty}) - $${(i.price * i.qty).toFixed(2)}\n`; });
       waMessage += `\n*Subtotal:* $${subtotal.toFixed(2)}\n*Delivery:* $${CONFIG.DELIVERY_FEE.toFixed(2)}\n*Total:* $${total} (COD)`;
 
-      document.getElementById('receipt-modal').classList.remove('hidden');
       window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMessage)}`, '_blank');
-
-      cart = [];
-      updateCartUI();
-      toggleCart();
-      document.getElementById('checkout-form').reset();
+      cart = []; updateCartUI(); toggleCart(); document.getElementById('checkout-form').reset();
     }
-
-    function downloadPDF() {
-      html2pdf().set({
-        margin: 10, filename: `SLAY_Order_Receipt.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
-      }).from(document.getElementById('receipt-content')).save();
-    }
-
-    function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
 
     // Initialisation
     fetchCategories();
