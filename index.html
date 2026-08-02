@@ -446,7 +446,7 @@
 </div>
 
 <!-- Hidden render area for PDF generation -->
-<div id="receipt-render-area" style="position:fixed; left:-9999px; top:0; z-index:-1;"></div>
+<div id="receipt-render-area" style="position:absolute; left:0; top:0; opacity:0; pointer-events:none; z-index:-9999; overflow:hidden;"></div>
 
 <!-- ============ CART SIDEBAR ============ -->
 <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--surface)] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-[var(--line)]">
@@ -1022,73 +1022,111 @@
   // --- RECEIPT / PDF ---
   function buildReceiptHTML(order){
     const items = order.items || [];
+    const statusColors = {
+      pending: '#b45309', processing: '#0369a1', delivered: '#047857', cancelled: '#b91c1c'
+    };
+    const statusLabels = { pending: 'PENDING', processing: 'PROCESSING', delivered: 'DELIVERED', cancelled: 'CANCELLED' };
+    const statusColor = statusColors[order.status] || '#555';
+    const statusText = statusLabels[order.status] || (order.status || '').toUpperCase();
+
     const itemsRows = items.map(it => `
       <tr>
-        <td style="padding:10px 6px;border-bottom:1px solid #eee;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <img src="${it.image}" style="width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid #eee;">
+        <td style="padding:12px 8px;border-bottom:1px solid #ececec;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <img src="${it.image}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #eee;flex-shrink:0;">
             <div>
-              <div style="font-weight:600;font-size:13px;color:#111;">${escapeHtml(it.name)}</div>
-              <div style="font-size:11px;color:#888;">Size: ${escapeHtml(it.selectedSize)}</div>
+              <div style="font-weight:700;font-size:13px;color:#111;">${escapeHtml(it.name)}</div>
+              <div style="font-size:11px;color:#888;margin-top:2px;">Size: ${escapeHtml(it.selectedSize)}</div>
+              <div style="font-size:11px;color:#888;">Unit price: $${Number(it.price).toFixed(2)}</div>
             </div>
           </div>
         </td>
-        <td style="padding:10px 6px;border-bottom:1px solid #eee;text-align:center;font-size:12px;color:#333;">${it.qty}</td>
-        <td style="padding:10px 6px;border-bottom:1px solid #eee;text-align:right;font-size:12px;color:#333;">$${Number(it.price).toFixed(2)}</td>
-        <td style="padding:10px 6px;border-bottom:1px solid #eee;text-align:right;font-size:12px;font-weight:700;color:#111;">$${(it.price * it.qty).toFixed(2)}</td>
+        <td style="padding:12px 8px;border-bottom:1px solid #ececec;text-align:center;font-size:13px;color:#333;font-weight:600;">${it.qty}</td>
+        <td style="padding:12px 8px;border-bottom:1px solid #ececec;text-align:right;font-size:13px;font-weight:700;color:#111;">$${(it.price * it.qty).toFixed(2)}</td>
       </tr>
     `).join('');
 
+    const barcodeBars = Array.from({ length: 46 }).map(() => {
+      const w = [1,1,2,1,3,1,2][Math.floor(Math.random() * 7)];
+      return `<div style="width:${w}px;height:100%;background:#111;"></div>`;
+    }).join('');
+
     return `
-      <div style="width:560px;padding:36px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:18px;margin-bottom:20px;">
+      <div style="width:620px;padding:40px;font-family:Helvetica,Arial,sans-serif;color:#111;background:#fff;">
+
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:20px;margin-bottom:22px;">
           <div>
-            <div style="font-size:26px;font-weight:800;letter-spacing:3px;">SLAY.</div>
-            <div style="font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-top:6px;">Women's Fashion — Lebanon</div>
+            <div style="font-size:28px;font-weight:800;letter-spacing:3px;">SLAY.</div>
+            <div style="font-size:10px;color:#999;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;">Women's Fashion — Lebanon</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;">Receipt</div>
-            <div style="font-size:15px;font-weight:700;margin-top:2px;">${order.order_ref}</div>
-            <div style="font-size:11px;color:#999;margin-top:2px;">${new Date(order.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+            <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1.5px;">Order Receipt</div>
+            <div style="font-size:17px;font-weight:800;margin-top:3px;">${order.order_ref}</div>
+            <div style="font-size:11px;color:#999;margin-top:3px;">${new Date(order.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})} at ${new Date(order.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
+            <div style="display:inline-block;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:1px;color:#fff;background:${statusColor};">${statusText}</div>
           </div>
         </div>
 
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;gap:20px;">
-          <div>
-            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Customer</div>
-            <div style="font-size:13px;font-weight:600;">${escapeHtml(order.customer_name)}</div>
-            <div style="font-size:12px;color:#555;">${escapeHtml(order.phone)}</div>
+        <!-- Customer / delivery -->
+        <div style="display:flex;justify-content:space-between;margin-bottom:22px;gap:24px;">
+          <div style="flex:1;">
+            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;font-weight:700;">Billed To</div>
+            <div style="font-size:13px;font-weight:700;">${escapeHtml(order.customer_name)}</div>
+            <div style="font-size:12px;color:#555;margin-top:2px;">${escapeHtml(order.phone)}</div>
             ${order.email ? `<div style="font-size:12px;color:#555;">${escapeHtml(order.email)}</div>` : ''}
           </div>
-          <div style="text-align:right;max-width:240px;">
-            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Delivery</div>
-            <div style="font-size:12px;color:#555;">${escapeHtml(order.address)}</div>
+          <div style="flex:1;text-align:right;">
+            <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;font-weight:700;">Ship To</div>
+            <div style="font-size:12px;color:#555;line-height:1.5;">${escapeHtml(order.address)}</div>
           </div>
         </div>
 
+        <!-- Items -->
         <table style="width:100%;border-collapse:collapse;">
           <thead>
             <tr>
-              <th style="text-align:left;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Item</th>
-              <th style="text-align:center;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Qty</th>
-              <th style="text-align:right;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Unit</th>
-              <th style="text-align:right;padding:8px 6px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Total</th>
+              <th style="text-align:left;padding:9px 8px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Item</th>
+              <th style="text-align:center;padding:9px 8px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Qty</th>
+              <th style="text-align:right;padding:9px 8px;border-bottom:2px solid #111;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#111;">Amount</th>
             </tr>
           </thead>
           <tbody>${itemsRows}</tbody>
         </table>
 
-        <div style="margin-top:16px;display:flex;justify-content:flex-end;">
-          <div style="width:220px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Subtotal</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:4px 0;"><span>Delivery</span><span>$${Number(order.delivery_fee).toFixed(2)}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;padding:8px 0;border-top:2px solid #111;margin-top:4px;"><span>Total</span><span>$${Number(order.total).toFixed(2)}</span></div>
+        <!-- Totals -->
+        <div style="margin-top:18px;display:flex;justify-content:flex-end;">
+          <div style="width:240px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:5px 0;"><span>Subtotal</span><span>$${Number(order.subtotal).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#555;padding:5px 0;"><span>Delivery</span><span>$${Number(order.delivery_fee).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;padding:10px 0;border-top:2px solid #111;margin-top:5px;"><span>Total</span><span>$${Number(order.total).toFixed(2)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#999;padding-top:2px;"><span>Payment method</span><span>Cash on Delivery</span></div>
           </div>
         </div>
 
-        <div style="margin-top:28px;padding-top:16px;border-top:1px solid #eee;text-align:center;">
-          <div style="font-size:11px;color:#999;">Cash on delivery</div>
-          <div style="font-size:11px;color:#999;margin-top:6px;">Thank you for shopping with us — SLAY. Wear it • Love it • Slay it</div>
+        <!-- Dashed divider -->
+        <div style="margin-top:26px;border-top:1px dashed #ccc;"></div>
+
+        <!-- Return & exchange policy -->
+        <div style="margin-top:20px;">
+          <div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:700;">Exchange Policy</div>
+          <p style="font-size:11px;color:#777;line-height:1.6;margin:0;">
+            You have 2 days from the delivery date to exchange this item for a different size or style, provided it is unworn, unwashed and returned with its original tags attached. To arrange an exchange, contact us on WhatsApp at
+            <strong style="color:#333;">+${CONFIG.WHATSAPP_NUMBER}</strong>
+            with your order reference above. This item was purchased with cash on delivery; no online payment was processed.
+          </p>
+        </div>
+
+        <!-- Barcode -->
+        <div style="margin-top:26px;display:flex;flex-direction:column;align-items:center;">
+          <div style="display:flex;gap:1px;height:40px;align-items:stretch;">${barcodeBars}</div>
+          <div style="font-size:10px;letter-spacing:3px;color:#555;margin-top:6px;">${order.order_ref}</div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top:22px;padding-top:16px;border-top:1px solid #eee;text-align:center;">
+          <div style="font-size:11px;color:#999;">Thank you for shopping with us</div>
+          <div style="font-size:11px;color:#999;margin-top:4px;font-weight:700;letter-spacing:1px;">SLAY. — WEAR IT • LOVE IT • SLAY IT</div>
         </div>
       </div>
     `;
@@ -1097,7 +1135,7 @@
   async function downloadReceiptPDF(order){
     const container = document.getElementById('receipt-render-area');
     container.innerHTML = buildReceiptHTML(order);
-    await new Promise(r => setTimeout(r, 60));
+    await new Promise(r => setTimeout(r, 80));
     const opt = {
       margin: 10,
       filename: `${order.order_ref}.pdf`,
@@ -1106,12 +1144,13 @@
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     await html2pdf().set(opt).from(container.firstElementChild).save();
+    container.innerHTML = '';
   }
 
   async function getReceiptPdfBase64(order){
     const container = document.getElementById('receipt-render-area');
     container.innerHTML = buildReceiptHTML(order);
-    await new Promise(r => setTimeout(r, 60));
+    await new Promise(r => setTimeout(r, 80));
     const opt = {
       margin: 10,
       image: { type: 'jpeg', quality: 0.98 },
@@ -1119,6 +1158,7 @@
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     const dataUri = await html2pdf().set(opt).from(container.firstElementChild).outputPdf('datauristring');
+    container.innerHTML = '';
     return dataUri.split(',')[1];
   }
 
