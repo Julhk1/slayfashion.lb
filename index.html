@@ -8,8 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Netlify Identity pour l'authentification Admin -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
@@ -29,17 +27,13 @@
     };
   </script>
 
-  <!-- Header -->
+  <!-- Header Clean (Sans Bouton Admin) -->
   <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <a href="#" class="text-2xl md:text-3xl font-extrabold tracking-widest text-pink-500 neon-text">SLAY.</a>
       
       <div class="flex items-center gap-3">
-        <a href="/admin" class="bg-zinc-800 hover:bg-pink-500 text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-zinc-700">
-          <i class="fa-solid fa-lock text-pink-400 mr-1"></i> Admin
-        </a>
-
-        <button onclick="toggleCart()" class="relative text-xl p-2">
+        <button onclick="toggleCart()" class="relative text-xl p-2 active:scale-95 transition">
           <i class="fa-solid fa-bag-shopping"></i>
           <span id="cart-count" class="absolute top-0 right-0 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
         </button>
@@ -47,6 +41,7 @@
     </div>
   </header>
 
+  <!-- Hero Section -->
   <section class="text-center py-6 md:py-10 px-4 bg-gradient-to-b from-zinc-900 to-black">
     <h1 class="text-2xl md:text-5xl font-black uppercase mb-1">Wear it • Love it • Slay it</h1>
     <p class="text-zinc-400 text-xs md:text-sm">Delivering all over Lebanon • Cash on Delivery</p>
@@ -62,7 +57,7 @@
   <!-- Products Grid -->
   <main class="max-w-6xl mx-auto px-3 md:px-4 py-4 flex-grow w-full">
     <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-      <!-- Products loaded from JSON files -->
+      <!-- Products loaded from Decap CMS -->
     </div>
   </main>
 
@@ -97,7 +92,7 @@
 
         <textarea id="cust-address" placeholder="Delivery Address & City" required rows="2" class="w-full bg-zinc-800 text-white rounded p-2.5 text-xs border border-zinc-700"></textarea>
         
-        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded uppercase text-xs">
+        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 active:scale-95 text-white font-bold py-3 rounded uppercase text-xs">
           <i class="fa-brands fa-whatsapp text-base mr-1"></i> Complete Order via WhatsApp
         </button>
       </form>
@@ -145,7 +140,6 @@
     let selectedSizes = {};
     let currentCategory = 'All';
 
-    // Toggle Cart
     function toggleCart() {
       document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
     }
