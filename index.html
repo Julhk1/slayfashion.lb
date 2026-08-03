@@ -101,6 +101,16 @@
   .bottom-nav{ padding-bottom: env(safe-area-inset-bottom); }
 
   ::selection{ background:var(--accent); color:#fff; }
+
+  /* Loading skeleton — shown immediately on load / while data is in flight, so the page
+     never looks empty while waiting on the network (Supabase free-tier queries can take a
+     few seconds, especially right after a period of inactivity). */
+  @keyframes skeleton-shimmer{ 0%{ background-position:-400px 0; } 100%{ background-position:400px 0; } }
+  .skeleton{
+    background: linear-gradient(90deg, var(--surface-2) 25%, var(--line) 37%, var(--surface-2) 63%);
+    background-size: 400px 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
 </style>
 </head>
 <body class="bg-[var(--bg)] text-[var(--ink)] min-h-screen flex flex-col">
@@ -141,7 +151,12 @@
 
   <!-- Category nav -->
   <div class="border-t border-[var(--line)] bg-[var(--surface)]/60">
-    <div class="max-w-6xl mx-auto px-4 py-2.5 flex gap-2 overflow-x-auto scrollbar-none" id="categories-container"></div>
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex gap-2 overflow-x-auto scrollbar-none" id="categories-container">
+      <div class="h-8 w-14 rounded-full skeleton flex-shrink-0"></div>
+      <div class="h-8 w-20 rounded-full skeleton flex-shrink-0"></div>
+      <div class="h-8 w-16 rounded-full skeleton flex-shrink-0"></div>
+      <div class="h-8 w-24 rounded-full skeleton flex-shrink-0"></div>
+    </div>
   </div>
 </header>
 
@@ -181,7 +196,16 @@
     <h2 class="font-display text-xl md:text-2xl font-semibold" id="grid-title">Full collection</h2>
     <span id="grid-count" class="text-[11px] text-[var(--muted)]"></span>
   </div>
-  <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6"></div>
+  <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)]"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)]"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)] hidden md:block"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)] hidden lg:block"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)]"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)]"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)] hidden md:block"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+    <div class="bg-[var(--surface)] rounded-2xl overflow-hidden border border-[var(--line)] hidden lg:block"><div class="w-full h-48 md:h-64 skeleton"></div><div class="p-3 space-y-2"><div class="h-2 w-14 skeleton rounded"></div><div class="h-3 w-3/4 skeleton rounded"></div><div class="h-3 w-1/2 skeleton rounded"></div></div></div>
+  </div>
 </main>
 
 <footer class="border-t border-[var(--line)] py-8 text-center">
@@ -657,10 +681,36 @@
     db.channel('public:orders').on('postgres_changes', { event:'*', schema:'public', table:'orders' }, () => fetchOrders()).subscribe();
   }
 
+  // --- LOCAL CACHE (stale-while-revalidate) ---
+  // Supabase queries — especially on the free tier, or right after a period of inactivity —
+  // can take several seconds. Caching the last successful result lets us render instantly on
+  // repeat visits while the fresh data loads silently in the background, instead of showing a
+  // blank page every time. Cache is per-browser only and never a substitute for the live fetch.
+  function loadCache(key){
+    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
+  }
+  function saveCache(key, data){
+    try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) {}
+  }
+  function hydrateFromCache(){
+    const cachedCategories = loadCache('slay-cache-categories');
+    const cachedProducts = loadCache('slay-cache-products');
+    if (cachedCategories && cachedCategories.length){
+      categories = cachedCategories;
+      renderCategoriesUI();
+    }
+    if (cachedProducts && cachedProducts.length){
+      products = cachedProducts;
+      renderProductsUI();
+      renderAdminInventoryUI();
+    }
+  }
+
   async function fetchCategories(){
     const { data } = await db.from('categories').select('*').order('name', { ascending:true });
     categories = data || [];
     renderCategoriesUI();
+    saveCache('slay-cache-categories', categories);
   }
 
   async function fetchProducts(){
@@ -668,6 +718,7 @@
     products = data || [];
     renderProductsUI();
     renderAdminInventoryUI();
+    saveCache('slay-cache-products', products);
   }
 
   async function fetchOrders(){
@@ -1510,6 +1561,7 @@
   updateThemeIcon(currentTheme());
   initPhoneCodeSelect();
   initContactLinks();
+  hydrateFromCache();
   fetchCategories();
   fetchProducts();
   fetchOrders();
