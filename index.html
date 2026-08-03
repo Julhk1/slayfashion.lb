@@ -566,7 +566,9 @@
   let orders = [];
   let cart = [];
   let currentCategory = 'All';
-  let uploadedImagesArray = [];
+  const STORAGE_BUCKET = 'product-images'; // Supabase Storage bucket — see supabase_storage_setup.sql
+  let uploadedFilesArray = [];   // raw File objects staged for upload on save
+  let previewObjectUrls = [];    // local blob: URLs for instant preview, revoked on reset
   let editingProductId = null;
   let selectedSizesState = {};
   let editingOrder = null;
@@ -729,23 +731,37 @@
   }
 
   // --- MULTI-PHOTO PREVIEW ---
-  async function previewMultipleImages(event){
+  function previewMultipleImages(event){
     const files = Array.from(event.target.files).slice(0, 4);
-    uploadedImagesArray = [];
+    uploadedFilesArray = files;
+    previewObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    previewObjectUrls = files.map(f => URL.createObjectURL(f));
     const previewContainer = document.getElementById('multi-img-preview');
-    previewContainer.innerHTML = '';
+    previewContainer.innerHTML = previewObjectUrls.map(url => `<img src="${url}" class="w-16 h-16 object-cover rounded-xl border border-[var(--line)] shadow-sm">`).join('');
     previewContainer.classList.remove('hidden');
-    for (let file of files){
-      const reader = new FileReader();
-      await new Promise(resolve => {
-        reader.onload = function(e){
-          uploadedImagesArray.push(e.target.result);
-          previewContainer.innerHTML += `<img src="${e.target.result}" class="w-16 h-16 object-cover rounded-xl border border-[var(--line)] shadow-sm">`;
-          resolve();
-        };
-        reader.readAsDataURL(file);
-      });
+  }
+
+  // Uploads each staged file to Supabase Storage and returns their public URLs. Only the URL
+  // (a few dozen bytes) is stored in the products table, instead of the full image as base64 —
+  // this is what keeps page loads fast as the catalog grows and traffic increases.
+  function extractStoragePath(url){
+    if (typeof url !== 'string') return null;
+    const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`;
+    const idx = url.indexOf(marker);
+    return idx === -1 ? null : url.slice(idx + marker.length);
+  }
+
+  async function uploadProductImages(files){
+    const urls = [];
+    for (const file of files){
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: uploadError } = await db.storage.from(STORAGE_BUCKET).upload(path, file, { cacheControl: '31536000', upsert: false });
+      if (uploadError) throw uploadError;
+      const { data } = db.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+      urls.push(data.publicUrl);
     }
+    return urls;
   }
 
   // --- CATEGORIES UI ---
@@ -791,34 +807,38 @@
     const sizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
 
     if(!name || isNaN(price)){ alert('Please enter product name and price.'); return; }
+    if (!editingProductId && uploadedFilesArray.length === 0){ alert('Please select at least 1 photo.'); return; }
 
     const btn = document.getElementById('btn-save-prod');
-    btn.innerText = 'Saving...'; btn.disabled = true;
+    btn.disabled = true;
 
     let payload = { name, category, price, description, sizes };
-    if (uploadedImagesArray.length > 0) payload.images = uploadedImagesArray;
 
-    let error = null;
-    if (editingProductId){
-      const res = await db.from('products').update(payload).eq('id', editingProductId);
-      error = res.error;
-    } else {
-      if (uploadedImagesArray.length === 0){
-        alert('Please select at least 1 photo.');
-        btn.innerText = '+ Add Item to Store'; btn.disabled = false; return;
+    try {
+      if (uploadedFilesArray.length > 0){
+        btn.innerText = 'Uploading photos...';
+        payload.images = await uploadProductImages(uploadedFilesArray);
       }
-      const res = await db.from('products').insert([payload]);
-      error = res.error;
-    }
 
-    btn.disabled = false;
+      btn.innerText = 'Saving...';
+      let error = null;
+      if (editingProductId){
+        const res = await db.from('products').update(payload).eq('id', editingProductId);
+        error = res.error;
+      } else {
+        const res = await db.from('products').insert([payload]);
+        error = res.error;
+      }
+      if (error) throw error;
 
-    if(error){
-      alert('Error: ' + error.message);
-    } else {
       showAdminAlert(editingProductId ? "Product updated!" : "New item added!");
       resetAdminForm();
       fetchProducts();
+    } catch (err) {
+      alert('Error: ' + (err.message || err));
+      btn.innerText = editingProductId ? 'Update Product' : '+ Add Item to Store';
+    } finally {
+      btn.disabled = false;
     }
   }
 
@@ -827,6 +847,11 @@
     document.getElementById('form-heading').innerText = "Edit Product (ID: " + product.id + ")";
     document.getElementById('btn-save-prod').innerText = "Update Product";
     document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+    previewObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    previewObjectUrls = [];
+    uploadedFilesArray = [];
+    document.getElementById('admin-img-files').value = '';
 
     document.getElementById('admin-name').value = product.name;
     document.getElementById('admin-category-select').value = product.category;
@@ -854,7 +879,9 @@
     document.getElementById('admin-desc').value = '';
     document.getElementById('admin-img-files').value = '';
     document.getElementById('multi-img-preview').classList.add('hidden');
-    uploadedImagesArray = [];
+    previewObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    previewObjectUrls = [];
+    uploadedFilesArray = [];
     document.querySelectorAll('input[name="sizes"]').forEach(cb => cb.checked = true);
   }
 
@@ -866,10 +893,17 @@
   }
 
   async function deleteProduct(id){
-    if(confirm("Delete this item?")){
-      await db.from('products').delete().eq('id', id);
-      fetchProducts();
+    if(!confirm("Delete this item?")) return;
+    const product = products.find(p => p.id === id);
+    await db.from('products').delete().eq('id', id);
+    if (product){
+      const imgList = Array.isArray(product.images) ? product.images : (product.image ? [product.image] : []);
+      const paths = imgList.map(extractStoragePath).filter(Boolean);
+      if (paths.length){
+        try { await db.storage.from(STORAGE_BUCKET).remove(paths); } catch(e){ console.error('Storage cleanup failed:', e); }
+      }
     }
+    fetchProducts();
   }
 
   function selectCardSize(productId, size){
